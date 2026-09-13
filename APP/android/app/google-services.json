@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "371659154751",
+    "project_id": "pufferfish-math",
+    "storage_bucket": "pufferfish-math.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371659154751:android:81c8bf9cd739086318df8a",
+        "android_client_info": {
+          "package_name": "com.puff.proyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYXMzxMOL1gJMfnTxvwfn-jvZ2OnvWwb8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
