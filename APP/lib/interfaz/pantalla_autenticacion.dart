@@ -216,6 +216,35 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> with Sing
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
+                    const SizedBox(height: 8),
+
+                    // Atajos de demostración rápida para Dirección y Docente
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _cargando
+                                ? null
+                                : () => _ejecutarAccionAuth(() => widget.servicioAuth.loginDemo(RolUsuario.profesor)),
+                            icon: const Icon(Icons.assignment_ind, size: 16),
+                            label: const Text('Docente Demo', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _cargando
+                                ? null
+                                : () => _ejecutarAccionAuth(() => widget.servicioAuth.loginDemo(RolUsuario.direccion)),
+                            icon: const Icon(Icons.account_balance, size: 16, color: Colors.white),
+                            label: const Text('Dirección Demo', style: TextStyle(fontSize: 12, color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueGrey.shade800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

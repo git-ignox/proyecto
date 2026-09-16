@@ -26,6 +26,15 @@ import 'evaluaciones/pantalla_evaluaciones_docente.dart';
 import 'pantalla_crear_ejercicio.dart';
 import 'pantalla_ejercicios.dart';
 import 'reportes/pantalla_reportes_clase.dart';
+import '../datos/fuente_datos_politicas.dart';
+import '../datos/fuente_datos_sesiones_clase.dart';
+import '../datos/fuente_datos_auditoria.dart';
+import '../datos/repositorio_politicas.dart';
+import '../datos/repositorio_sesiones_clase.dart';
+import '../datos/repositorio_auditoria.dart';
+import '../datos/servicio_horarios.dart';
+import '../dominio/modelos/sesion_modo_clase.dart';
+import 'profesor/dialogo_gestion_modo_clase.dart';
 
 /// Interfaz especializada para el Profesor / Docente.
 /// Panel de administración para crear, catalogar, monitorear diagnósticos de errores,
@@ -42,11 +51,23 @@ class PantallaProfesor extends StatefulWidget {
     RepositorioEvaluaciones? repositorioEvaluaciones,
     RepositorioReportes? repositorioReportes,
     RepositorioCurriculo? repositorioCurriculo,
+    RepositorioPoliticas? repositorioPoliticas,
+    RepositorioSesionesClase? repositorioSesiones,
+    RepositorioAuditoria? repositorioAuditoria,
+    ServicioHorarios? servicioHorarios,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
         repositorioClases = repositorioClases ?? FuenteDatosClases(),
         repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
         repositorioReportes = repositorioReportes ?? FuenteDatosReportes(),
-        repositorioCurriculo = repositorioCurriculo ?? FuenteDatosCurriculo();
+        repositorioCurriculo = repositorioCurriculo ?? FuenteDatosCurriculo(),
+        repositorioPoliticas = repositorioPoliticas ?? FuenteDatosPoliticas(),
+        repositorioAuditoria = repositorioAuditoria ?? FuenteDatosAuditoria(),
+        repositorioSesiones = repositorioSesiones ??
+            FuenteDatosSesionesClase(
+              repositorioPoliticas: repositorioPoliticas ?? FuenteDatosPoliticas(),
+              repositorioAuditoria: repositorioAuditoria ?? FuenteDatosAuditoria(),
+            ),
+        servicioHorarios = servicioHorarios ?? ServicioHorarios();
 
   final UsuarioApp usuario;
   final RepositorioEjercicios repositorio;
@@ -57,6 +78,10 @@ class PantallaProfesor extends StatefulWidget {
   final RepositorioEvaluaciones repositorioEvaluaciones;
   final RepositorioReportes repositorioReportes;
   final RepositorioCurriculo repositorioCurriculo;
+  final RepositorioPoliticas repositorioPoliticas;
+  final RepositorioSesionesClase repositorioSesiones;
+  final RepositorioAuditoria repositorioAuditoria;
+  final ServicioHorarios servicioHorarios;
 
   @override
   State<PantallaProfesor> createState() => _PantallaProfesorState();
@@ -1448,6 +1473,18 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
         ],
       ),
     );
+  Future<void> _abrirGestionModoClase() async {
+    await showDialog(
+      context: context,
+      builder: (_) => DialogoGestionModoClase(
+        docente: widget.usuario,
+        repositorioClases: widget.repositorioClases,
+        repositorioSesiones: widget.repositorioSesiones,
+        repositorioPoliticas: widget.repositorioPoliticas,
+        servicioHorarios: widget.servicioHorarios,
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   @override
@@ -1469,6 +1506,11 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cast_for_education, color: Colors.lightGreenAccent),
+            tooltip: 'Iniciar / Gestionar Modo Clase & Examen',
+            onPressed: _abrirGestionModoClase,
+          ),
           IconButton(
             icon: const Icon(Icons.class_outlined, color: Colors.greenAccent),
             tooltip: 'Gestionar Clases & Classroom',
@@ -1530,6 +1572,85 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // BANNER PROMINENTE: [ INICIAR MODO CLASE ]
+                  FutureBuilder<SesionModoClase?>(
+                    future: widget.repositorioSesiones.obtenerSesionActivaPorProfesor(widget.usuario.uid),
+                    builder: (context, snapshot) {
+                      final sesion = snapshot.data;
+                      final estaActiva = sesion != null;
+                      return Card(
+                        elevation: 3,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        color: estaActiva ? Colors.green.shade50 : Colors.indigo.shade50,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: BorderSide(
+                            color: estaActiva ? Colors.green.shade600 : Colors.indigo.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: estaActiva ? Colors.green.shade600 : Colors.indigo.shade700,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  estaActiva ? Icons.cast_connected : Icons.cast_for_education,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      estaActiva
+                                          ? 'MODO CLASE EN VIVO — ${sesion.cursoNombre}'
+                                          : 'CONTROL CONTEXTUAL DE AULA',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: estaActiva ? Colors.green.shade900 : Colors.indigo.shade900,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      estaActiva
+                                          ? '${sesion.totalPresentes} dispositivos presentes en regla. Pulsa para QR o excepciones.'
+                                          : 'Activa la supervisión de dispositivos para los alumnos presentes en el salón.',
+                                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed: _abrirGestionModoClase,
+                                icon: Icon(estaActiva ? Icons.dashboard : Icons.play_arrow),
+                                label: Text(
+                                  estaActiva ? 'GESTIONAR' : 'INICIAR MODO CLASE',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: estaActiva ? Colors.green.shade700 : Colors.indigo.shade700,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   // Tarjeta de Resumen Docente
                   Card(
                     color: Colors.indigo.shade50,

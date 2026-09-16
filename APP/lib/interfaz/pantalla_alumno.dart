@@ -22,6 +22,12 @@ import '../dominio/modelos/seleccion_multiple.dart';
 import '../dominio/modelos/usuario_app.dart';
 import 'evaluaciones/seccion_notas_alumno.dart';
 import 'widgets/widget_aritmetica.dart';
+import '../datos/repositorio_sesiones_clase.dart';
+import '../datos/fuente_datos_sesiones_clase.dart';
+import '../datos/repositorio_auditoria.dart';
+import '../datos/fuente_datos_auditoria.dart';
+import '../datos/fuente_datos_politicas.dart';
+import 'alumno/widget_supervision_aula.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
 /// Enfocada en resolver problemas, diagnóstico de errores, práctica de refuerzo y exámenes diagnósticos con avance.
@@ -36,10 +42,18 @@ class PantallaAlumno extends StatefulWidget {
     RepositorioClases? repositorioClases,
     RepositorioEvaluaciones? repositorioEvaluaciones,
     RepositorioReportes? repositorioReportes,
+    RepositorioSesionesClase? repositorioSesiones,
+    RepositorioAuditoria? repositorioAuditoria,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
         repositorioClases = repositorioClases ?? FuenteDatosClases(),
         repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
-        repositorioReportes = repositorioReportes ?? FuenteDatosReportes();
+        repositorioReportes = repositorioReportes ?? FuenteDatosReportes(),
+        repositorioAuditoria = repositorioAuditoria ?? FuenteDatosAuditoria(),
+        repositorioSesiones = repositorioSesiones ??
+            FuenteDatosSesionesClase(
+              repositorioPoliticas: FuenteDatosPoliticas(),
+              repositorioAuditoria: repositorioAuditoria ?? FuenteDatosAuditoria(),
+            );
 
   final UsuarioApp usuario;
   final RepositorioEjercicios repositorio;
@@ -49,6 +63,8 @@ class PantallaAlumno extends StatefulWidget {
   final RepositorioClases repositorioClases;
   final RepositorioEvaluaciones repositorioEvaluaciones;
   final RepositorioReportes repositorioReportes;
+  final RepositorioSesionesClase repositorioSesiones;
+  final RepositorioAuditoria repositorioAuditoria;
 
   @override
   State<PantallaAlumno> createState() => _PantallaAlumnoState();
@@ -69,10 +85,22 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
   ResultadoEvaluacion? _resultado;
   bool _evaluando = false;
 
+  List<String> _clasesInscritasUids = [];
+
   @override
   void initState() {
     super.initState();
     _cargarEjercicios();
+    _cargarClasesAlumno();
+  }
+
+  Future<void> _cargarClasesAlumno() async {
+    final clases = await widget.repositorioClases.obtenerClasesPorAlumno(widget.usuario.uid);
+    if (mounted) {
+      setState(() {
+        _clasesInscritasUids = clases.map((c) => c.id).toList();
+      });
+    }
   }
 
   Future<void> _cargarEjercicios({int? indiceObjetivo}) async {
@@ -1128,11 +1156,23 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           ),
         ],
       ),
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : _ejercicios.isEmpty
-              ? _construirEstadoVacio()
-              : _construirCuerpoEjercicio(),
+      body: Column(
+        children: [
+          WidgetSupervisionAula(
+            alumno: widget.usuario,
+            clasesInscritasUids: _clasesInscritasUids,
+            repositorioSesiones: widget.repositorioSesiones,
+            repositorioAuditoria: widget.repositorioAuditoria,
+          ),
+          Expanded(
+            child: _cargando
+                ? const Center(child: CircularProgressIndicator())
+                : _ejercicios.isEmpty
+                    ? _construirEstadoVacio()
+                    : _construirCuerpoEjercicio(),
+          ),
+        ],
+      ),
     );
   }
 
