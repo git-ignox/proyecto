@@ -226,10 +226,23 @@ class ServicioAuth {
     _controller.add(null);
   }
 
-  /// Cambia temporal o permanentemente el rol del usuario (para alternar entre Alumno y Profesor)
+  /// Cambia temporal o permanentemente el rol del usuario (cicla entre Alumno, Profesor y Dirección)
   Future<void> alternarRol() async {
     if (_usuarioCache == null) return;
-    final nuevoRol = _usuarioCache!.rol == RolUsuario.alumno ? RolUsuario.profesor : RolUsuario.alumno;
+    RolUsuario nuevoRol;
+    if (_usuarioCache!.rol == RolUsuario.alumno) {
+      nuevoRol = RolUsuario.profesor;
+    } else if (_usuarioCache!.rol == RolUsuario.profesor) {
+      nuevoRol = RolUsuario.direccion;
+    } else {
+      nuevoRol = RolUsuario.alumno;
+    }
+    await cambiarRol(nuevoRol);
+  }
+
+  /// Asigna un rol específico al usuario en sesión
+  Future<void> cambiarRol(RolUsuario nuevoRol) async {
+    if (_usuarioCache == null) return;
     _usuarioCache = _usuarioCache!.copyWith(rol: nuevoRol);
     _controller.add(_usuarioCache);
 
@@ -238,6 +251,38 @@ class ServicioAuth {
         'rol': nuevoRol.name,
       });
     } catch (_) {}
+  }
+
+  /// Inicia sesión rápida de demostración para el rol solicitado
+  Future<UsuarioApp> loginDemo(RolUsuario rol) async {
+    String nombreDemo;
+    String uidDemo;
+    switch (rol) {
+      case RolUsuario.direccion:
+        nombreDemo = 'Lic. María Elena Walsh (Directora)';
+        uidDemo = 'dir-01';
+        break;
+      case RolUsuario.profesor:
+        nombreDemo = 'Docente Demo';
+        uidDemo = 'profesor-demo';
+        break;
+      case RolUsuario.alumno:
+        nombreDemo = 'Sofía Valenzuela';
+        uidDemo = 'alumno-demo-1';
+        break;
+    }
+
+    final usuarioDemo = UsuarioApp(
+      uid: uidDemo,
+      nombre: nombreDemo,
+      rol: rol,
+      esAnonimo: true,
+      institucionId: 'INST-SAN-MARTIN',
+    );
+
+    _usuarioCache = usuarioDemo;
+    _controller.add(_usuarioCache);
+    return usuarioDemo;
   }
 
   /// Incrementa los puntos y ejercicios resueltos del alumno
