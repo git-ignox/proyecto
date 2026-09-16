@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../../datos/servicio_mdm_nativo.dart';
 import '../modelos/politica_dispositivo.dart';
 
 /// Nivel de capacidad técnica disponible en el dispositivo.
@@ -115,14 +116,18 @@ class ControladorSoloApp implements ControladorDispositivo {
 }
 
 /// Implementación para Android.
-/// NOTA DE ARQUITECTURA: El bloqueo de apps externas en Android a nivel del SO
-/// requiere que la app esté aprovisionada como Device Owner (Android Enterprise).
+/// Si está aprovisionada como Device Owner, invoca DevicePolicyManager / LockTask nativo.
 /// Si no está aprovisionada, opera transparentemente en Nivel 1 (Supervisión en App).
 class ControladorAndroid extends ControladorSoloApp {
-  ControladorAndroid({this.tieneDeviceOwner = false})
-      : super(plataformaNombre: 'Android');
+  ControladorAndroid({
+    this.tieneDeviceOwner = false,
+    ServicioMdmNativo? servicioMdm,
+  })  : _mdm = servicioMdm ?? ServicioMdmNativo(),
+        super(plataformaNombre: 'Android');
 
   final bool tieneDeviceOwner;
+  final ServicioMdmNativo _mdm;
+  ServicioMdmNativo get servicioMdm => _mdm;
 
   @override
   NivelCapacidadControl get nivelCapacidad => tieneDeviceOwner
@@ -134,29 +139,51 @@ class ControladorAndroid extends ControladorSoloApp {
 
   @override
   String get descripcionCapacidad => tieneDeviceOwner
-      ? 'Android Device Owner activo: Bloqueo nativo de paquetes por política MDM.'
+      ? 'Android Device Owner activo: Bloqueo nativo de paquetes por política MDM y LockTask.'
       : 'Android estándar: Supervisión en app y detección de pérdida de foco (Requiere Device Owner para bloqueo a nivel SO).';
 
   @override
   Future<bool> aplicarPolitica(PoliticaEfectiva politica) async {
     await super.aplicarPolitica(politica);
     if (tieneDeviceOwner) {
-      debugPrint('[ControladorAndroid] Aplicando suspensión nativa de paquetes vía DevicePolicyManager...');
+      debugPrint('[ControladorAndroid] Activando LockTask y suspendiendo paquetes vía DevicePolicyManager...');
+      await _mdm.iniciarModoKiosco();
+      for (final app in politica.reglasPorAppId.values) {
+        if (!app.esPermitida && app.paqueteAndroid != null) {
+          await _mdm.bloquearPaquete(app.paqueteAndroid!);
+        }
+      }
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> liberarDispositivo() async {
+    await super.liberarDispositivo();
+    if (tieneDeviceOwner) {
+      debugPrint('[ControladorAndroid] Liberando LockTask y restaurando paquetes...');
+      await _mdm.detenerModoKiosco();
+      for (final paquete in List<String>.from(_mdm.paquetesBloqueados)) {
+        await _mdm.desbloquearPaquete(paquete);
+      }
     }
     return true;
   }
 }
 
 /// Implementación para iOS.
-/// NOTA DE ARQUITECTURA: El bloqueo de apps externas en iOS a nivel del SO
-/// requiere un perfil MDM educativo institucional (Apple School Manager) o
-/// los frameworks ManagedSettings / FamilyControls (con entitlement de Apple).
+/// Si cuenta con perfil MDM / ManagedSettings vinculados, activa el escudo de aplicaciones.
 /// Sin dicha configuración, opera limpiamente en Nivel 1 (Supervisión en App).
 class ControladorIOS extends ControladorSoloApp {
-  ControladorIOS({this.tienePerfilMdm = false})
-      : super(plataformaNombre: 'iOS');
+  ControladorIOS({
+    this.tienePerfilMdm = false,
+    ServicioMdmNativo? servicioMdm,
+  })  : _mdm = servicioMdm ?? ServicioMdmNativo(),
+        super(plataformaNombre: 'iOS');
 
   final bool tienePerfilMdm;
+  final ServicioMdmNativo _mdm;
+  ServicioMdmNativo get servicioMdm => _mdm;
 
   @override
   NivelCapacidadControl get nivelCapacidad => tienePerfilMdm
@@ -176,6 +203,17 @@ class ControladorIOS extends ControladorSoloApp {
     await super.aplicarPolitica(politica);
     if (tienePerfilMdm) {
       debugPrint('[ControladorIOS] Aplicando ManagedSettingsStore.shield.applications...');
+      await _mdm.iniciarModoKiosco();
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> liberarDispositivo() async {
+    await super.liberarDispositivo();
+    if (tienePerfilMdm) {
+      debugPrint('[ControladorIOS] Liberando ManagedSettingsStore...');
+      await _mdm.detenerModoKiosco();
     }
     return true;
   }

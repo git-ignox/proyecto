@@ -97,37 +97,49 @@ class ServicioPresenciaDispositivo {
     if (token == null) {
       return const ResultadoValidacionPresencia(
         esValido: false,
-        mensaje: 'El código QR no tiene un formato válido.',
+        mensaje: 'El código de barras no tiene un formato válido.',
       );
     }
 
     if (token.haExpirado) {
       return const ResultadoValidacionPresencia(
         esValido: false,
-        mensaje: 'El código QR ha expirado. Solicita al profesor que muestre el código actualizado.',
+        mensaje: 'El código de barras ha expirado. Solicita al profesor que muestre el código actualizado.',
       );
     }
 
     if (token.institucionId != institucionIdEsperada) {
       return const ResultadoValidacionPresencia(
         esValido: false,
-        mensaje: 'El código QR no corresponde a esta institución educativa.',
+        mensaje: 'El código de barras no corresponde a esta institución educativa.',
       );
     }
 
     if (token.sesionId != sesionIdEsperada) {
       return const ResultadoValidacionPresencia(
         esValido: false,
-        mensaje: 'El código QR corresponde a otra clase o sesión.',
+        mensaje: 'El código de barras corresponde a otra clase o sesión.',
       );
     }
 
     return const ResultadoValidacionPresencia(
       esValido: true,
-      mensaje: '¡Presencia confirmada correctamente en el aula!',
-      metodo: MetodoPresencia.codigoQr,
+      mensaje: '¡Presencia confirmada correctamente en el aula mediante código de barras!',
+      metodo: MetodoPresencia.codigoBarras,
     );
   }
+
+  /// Validador específico para Código de Barras (alias principal)
+  ResultadoValidacionPresencia validarTokenCodigoBarras({
+    required String tokenString,
+    required String sesionIdEsperada,
+    required String institucionIdEsperada,
+  }) =>
+      validarTokenQr(
+        tokenString: tokenString,
+        sesionIdEsperada: sesionIdEsperada,
+        institucionIdEsperada: institucionIdEsperada,
+      );
 
   /// Estrategia A: Validación por red local institucional / Wi-Fi escolar.
   /// NOTA TÉCNICA DE SISTEMA OPERATIVO:

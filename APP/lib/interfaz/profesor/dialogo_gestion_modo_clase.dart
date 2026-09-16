@@ -8,6 +8,7 @@ import '../../dominio/modelos/clase_escolar.dart';
 import '../../dominio/modelos/permiso_institucional.dart';
 import '../../dominio/modelos/sesion_modo_clase.dart';
 import '../../dominio/modelos/usuario_app.dart';
+import '../comun/widget_codigo_barras.dart';
 
 /// Modal interactivo para que el Docente inicie, supervise y finalice el Modo Clase / Modo Examen.
 class DialogoGestionModoClase extends StatefulWidget {
@@ -518,7 +519,7 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
           Text('${sesion.cursoNombre} — ${sesion.materia}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           const Divider(height: 16),
 
-          // Tarjeta del Código QR Dinámico
+          // Tarjeta del Código de Barras Dinámico
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -526,39 +527,59 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.indigo.shade200),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.indigo.shade300),
-                  ),
-                  child: const Icon(Icons.qr_code_2, size: 64, color: Colors.indigo),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Código QR de Presencia', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      const Text(
-                        'Los alumnos presentes escanean este código para validar que están en el aula.',
-                        style: TextStyle(fontSize: 11, color: Colors.black54),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WidgetCodigoBarras(
+                      codigo: sesion.tokenPresenciaCodigoBarras,
+                      ancho: 170,
+                      alto: 54,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.barcode_reader, size: 16, color: Colors.indigo),
+                              SizedBox(width: 4),
+                              Text(
+                                'Código de Barras de Presencia',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Los alumnos escanean este código con su dispositivo para validar presencia en el aula.',
+                            style: TextStyle(fontSize: 11, color: Colors.black54),
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () async {
+                                  await widget.repositorioSesiones.rotarTokenPresencia(sesion.id);
+                                  await _actualizarSesion();
+                                },
+                                icon: const Icon(Icons.refresh, size: 14),
+                                label: const Text('Actualizar (90s)', style: TextStyle(fontSize: 11)),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 6),
-                      TextButton.icon(
-                        onPressed: () async {
-                          await widget.repositorioSesiones.rotarTokenPresencia(sesion.id);
-                          await _actualizarSesion();
-                        },
-                        icon: const Icon(Icons.refresh, size: 14),
-                        label: const Text('Actualizar Token QR (90s)', style: TextStyle(fontSize: 11)),
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

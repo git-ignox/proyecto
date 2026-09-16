@@ -107,15 +107,15 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
     }
   }
 
-  Future<void> _dialogoValidarQr() async {
+  Future<void> _dialogoValidarCodigoBarras() async {
     if (_sesionActiva == null) return;
 
-    // Simulación y validación del escaneo de QR
+    // Simulación y validación del escaneo de Código de Barras
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.qr_code_scanner, size: 48, color: Colors.indigo),
-        title: const Text('Validar Presencia en Aula'),
+        icon: const Icon(Icons.barcode_reader, size: 48, color: Colors.indigo),
+        title: const Text('Validar Presencia con Código de Barras'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,10 +126,31 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
             ),
             const SizedBox(height: 6),
             const Text(
-              'Apunta con la cámara al código QR proyectado por tu profesor para validar que estás en el salón.',
+              'Apunta con la cámara al Código de Barras proyectado por tu profesor en el aula.',
               style: TextStyle(fontSize: 13, color: Colors.black87),
             ),
             const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.indigo.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.indigo.shade200),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.camera_alt, color: Colors.indigo),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Lector de Código de Barras listo para escanear',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -155,8 +176,8 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.camera_alt),
-            label: const Text('CONFIRMAR ESCANEO'),
+            icon: const Icon(Icons.barcode_reader),
+            label: const Text('ESCANEAR CÓDIGO'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.indigo,
               foregroundColor: Colors.white,
@@ -172,13 +193,13 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
           sesionId: _sesionActiva!.id,
           alumnoUid: widget.alumno.uid,
           alumnoNombre: widget.alumno.nombre,
-          metodo: MetodoPresencia.codigoQr,
-          tokenQrString: _sesionActiva!.tokenPresenciaQr,
+          metodo: MetodoPresencia.codigoBarras,
+          tokenQrString: _sesionActiva!.tokenPresenciaCodigoBarras,
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('¡Presencia confirmada! Modo Clase activo en tu dispositivo.'),
+              content: Text('¡Presencia confirmada con Código de Barras! Modo Clase activo.'),
               backgroundColor: Colors.green,
             ),
           );
@@ -186,7 +207,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al validar QR: $e'), backgroundColor: Colors.red),
+            SnackBar(content: Text('Error al validar código: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -271,13 +292,13 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
             ),
             const SizedBox(height: 8),
             InkWell(
-              onTap: _dialogoValidarQr,
+              onTap: _dialogoValidarCodigoBarras,
               child: const Row(
                 children: [
-                  Icon(Icons.qr_code_scanner, size: 16, color: Colors.indigo),
+                  Icon(Icons.barcode_reader, size: 16, color: Colors.indigo),
                   SizedBox(width: 4),
                   Text(
-                    '¿Estás en el aula? Pulsa aquí para escanear el QR del profesor',
+                    '¿Estás en el aula? Pulsa aquí para escanear el Código de Barras del profesor',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
                   ),
                 ],

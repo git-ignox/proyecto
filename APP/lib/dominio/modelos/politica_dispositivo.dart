@@ -107,6 +107,9 @@ class AppRegla {
 
   bool get esBloqueoCritico => estado == EstadoReglaApp.bloqueadoCritico;
 
+  /// Identificador nativo del paquete en Android / bundle ID en iOS
+  String? get paqueteAndroid => identificadorPaquete.isNotEmpty ? identificadorPaquete : null;
+
   AppRegla copyWith({
     String? id,
     String? nombre,

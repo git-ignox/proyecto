@@ -42,6 +42,7 @@ enum EstadoSesionModo {
 /// Método por el cual se constató la presencia del dispositivo en el aula.
 enum MetodoPresencia {
   redInstitucionalWifi,
+  codigoBarras,
   codigoQr,
   bleCercania,
   manualDocente;
@@ -50,8 +51,10 @@ enum MetodoPresencia {
     switch (this) {
       case MetodoPresencia.redInstitucionalWifi:
         return 'Red Wi-Fi Institucional';
+      case MetodoPresencia.codigoBarras:
+        return 'Código de Barras Dinámico de Aula';
       case MetodoPresencia.codigoQr:
-        return 'Código QR Dinámico de Aula';
+        return 'Código de Barras / QR de Aula';
       case MetodoPresencia.bleCercania:
         return 'Proximidad BLE';
       case MetodoPresencia.manualDocente:
@@ -242,8 +245,9 @@ class SesionModoClase {
   final DateTime? horaFin;
   final PoliticaDispositivo politicaAplicada;
 
-  /// Token de presencia rotativo para escanear con QR
+  /// Token de presencia rotativo para escanear con Código de Barras
   final String tokenPresenciaQr;
+  String get tokenPresenciaCodigoBarras => tokenPresenciaQr;
   final DateTime timestampToken;
 
   /// Mapa de alumnoUid -> RegistroPresenciaDispositivo
