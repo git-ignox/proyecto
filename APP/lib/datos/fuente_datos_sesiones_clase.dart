@@ -150,10 +150,30 @@ class FuenteDatosSesionesClase implements RepositorioSesionesClase {
     final sesionId = 'SESION-${DateTime.now().millisecondsSinceEpoch}';
 
     // 2. Resuelve la política según la jerarquía institucional
-    final PoliticaDispositivo politicaEfectiva = politicaPersonalizada ??
-        (tipoModo == TipoModoClase.examen
-            ? PlantillaPolitica.modoExamenRiguroso(institucionId: docente.institucionId)
-            : PlantillaPolitica.modoClaseEstandar(institucionId: docente.institucionId));
+    final PoliticaDispositivo politicaEfectiva;
+    if (politicaPersonalizada != null) {
+      politicaEfectiva = politicaPersonalizada;
+    } else if (tipoModo == TipoModoClase.examen) {
+      politicaEfectiva = PlantillaPolitica.modoExamenRiguroso(institucionId: docente.institucionId);
+    } else {
+      final res = _politicasRepo.resolverPoliticaEfectiva(
+        institucionId: docente.institucionId,
+        cursoId: claseId,
+        materia: materia,
+        docente: docente,
+      );
+      politicaEfectiva = PoliticaDispositivo(
+        id: 'POL-SESION-$sesionId',
+        nombre: res.nombrePolitica,
+        descripcion: 'Política resuelta para la sesión de $materia ($cursoNombre)',
+        institucionId: docente.institucionId,
+        cursoId: claseId,
+        jerarquia: NivelJerarquiaPolitica.docente,
+        apps: res.reglasPorAppId.values.toList(),
+        permiteModoExamen: res.permiteModoExamen,
+        permiteExcepcionesDocente: res.permiteExcepcionesDocente,
+      );
+    }
 
     // 3. Genera token seguro inicial de presencia
     final token = _presenciaServicio.generarTokenPresencia(

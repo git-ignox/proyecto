@@ -34,8 +34,8 @@ void main() {
       const alumnosInscritos = ['alumno-en-aula', 'alumno-en-casa'];
 
       // Alumno presente en el aula debe aplicar la política
-      final aplicaSofía = sesion.puedeAplicarPoliticaA('alumno-en-aula', alumnosInscritos);
-      expect(aplicaSofía, isTrue);
+      final aplicaSofia = sesion.puedeAplicarPoliticaA('alumno-en-aula', alumnosInscritos);
+      expect(aplicaSofia, isTrue);
     });
 
     test('Alumno enfermo en casa (no presente) NUNCA se bloquea aunque esté en horario', () {

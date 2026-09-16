@@ -952,13 +952,13 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
   void _mostrarDialogoUnirse() {
     final codigoCtrl = TextEditingController();
 
+    String? mensajeError;
+    bool cargando = false;
+
     showDialog(
       context: context,
       builder: (dlgCtx) => StatefulBuilder(
         builder: (ctx, setDlgState) {
-          String? mensajeError;
-          bool cargando = false;
-
           return AlertDialog(
             title: const Row(
               children: [

@@ -5,7 +5,6 @@ import '../../dominio/analisis/analizador_cobertura_curricular.dart';
 import '../../dominio/modelos/clase_escolar.dart';
 import '../../dominio/modelos/cobertura_curricular.dart';
 import '../../dominio/modelos/curriculo.dart';
-import '../../dominio/modelos/evaluacion.dart';
 import '../evaluaciones/pantalla_evaluaciones_docente.dart';
 
 /// Pantalla interactiva del Mapa Curricular y Triage de Cobertura de la Clase.
@@ -32,8 +31,6 @@ class _PantallaMapaCurricularState extends State<PantallaMapaCurricular> {
   bool _cargando = true;
   PlanCurricular? _plan;
   MapaCoberturaCurricular? _mapa;
-  List<Evaluacion> _evaluaciones = [];
-  List<NotaEvaluacion> _notas = [];
 
   @override
   void initState() {
@@ -66,8 +63,6 @@ class _PantallaMapaCurricularState extends State<PantallaMapaCurricular> {
 
     setState(() {
       _plan = plan;
-      _evaluaciones = evals;
-      _notas = notas;
       _mapa = mapa;
       _cargando = false;
     });

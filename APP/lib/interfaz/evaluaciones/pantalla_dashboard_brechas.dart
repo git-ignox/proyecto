@@ -28,7 +28,6 @@ class PantallaDashboardBrechas extends StatefulWidget {
 class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
   bool _cargando = true;
   List<Evaluacion> _evaluaciones = [];
-  List<NotaEvaluacion> _notas = [];
   AnalisisClase? _analisis;
 
   @override
@@ -51,7 +50,6 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
 
     setState(() {
       _evaluaciones = evals;
-      _notas = notas;
       _analisis = analisis;
       _cargando = false;
     });

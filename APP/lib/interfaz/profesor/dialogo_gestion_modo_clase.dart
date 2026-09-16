@@ -6,7 +6,6 @@ import '../../datos/repositorio_sesiones_clase.dart';
 import '../../datos/servicio_horarios.dart';
 import '../../dominio/modelos/clase_escolar.dart';
 import '../../dominio/modelos/permiso_institucional.dart';
-import '../../dominio/modelos/politica_dispositivo.dart';
 import '../../dominio/modelos/sesion_modo_clase.dart';
 import '../../dominio/modelos/usuario_app.dart';
 
@@ -430,7 +429,7 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
             child: const Row(
               children: [
                 Icon(Icons.info_outline, color: Colors.blueGrey, size: 20),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'REGLA DE AULA: Solo los alumnos presentes en el colegio recibirán la política. Si un alumno está enfermo en su casa, su dispositivo no se bloqueará.',

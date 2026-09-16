@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import '../dominio/modelos/horario_escolar.dart';
 import '../dominio/modelos/permiso_institucional.dart';
 import '../dominio/modelos/usuario_app.dart';

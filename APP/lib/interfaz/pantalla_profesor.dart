@@ -1473,6 +1473,8 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
         ],
       ),
     );
+  }
+
   Future<void> _abrirGestionModoClase() async {
     await showDialog(
       context: context,

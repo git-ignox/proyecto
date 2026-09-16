@@ -426,7 +426,7 @@ class _PantallaDireccionState extends State<PantallaDireccion>
               Expanded(
                 child: _tarjetaKpi(
                   'Cursos',
-                  '${_clases.length > 0 ? _clases.length : 2}',
+                  '${_clases.isNotEmpty ? _clases.length : 2}',
                   Icons.class_outlined,
                   Colors.teal.shade700,
                 ),
