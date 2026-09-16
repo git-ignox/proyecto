@@ -350,23 +350,25 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> with Sing
             ),
             const SizedBox(height: 12),
 
-            // Selector de Rol (Alumno vs Profesor)
-            Row(
+            // Selector de Rol (Alumno vs Profesor vs Dirección)
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
               children: [
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Text('🎒 Soy Alumno'),
-                    selected: _rolRegistro == RolUsuario.alumno,
-                    onSelected: (val) => setState(() => _rolRegistro = RolUsuario.alumno),
-                  ),
+                ChoiceChip(
+                  label: const Text('🎒 Alumno'),
+                  selected: _rolRegistro == RolUsuario.alumno,
+                  onSelected: (val) => setState(() => _rolRegistro = RolUsuario.alumno),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ChoiceChip(
-                    label: const Text('👨‍🏫 Soy Profesor'),
-                    selected: _rolRegistro == RolUsuario.profesor,
-                    onSelected: (val) => setState(() => _rolRegistro = RolUsuario.profesor),
-                  ),
+                ChoiceChip(
+                  label: const Text('👨‍🏫 Profesor'),
+                  selected: _rolRegistro == RolUsuario.profesor,
+                  onSelected: (val) => setState(() => _rolRegistro = RolUsuario.profesor),
+                ),
+                ChoiceChip(
+                  label: const Text('🏛️ Dirección'),
+                  selected: _rolRegistro == RolUsuario.direccion,
+                  onSelected: (val) => setState(() => _rolRegistro = RolUsuario.direccion),
                 ),
               ],
             ),
