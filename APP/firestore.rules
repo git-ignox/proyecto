@@ -1,0 +1,179 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // FUNCIONES AUXILIARES DE AUTENTICACIÓN Y ROLES INSTITUCIONALES
+    // =========================================================================
+
+    function estaAutenticado() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function datosUsuario() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function esDireccion() {
+      return estaAutenticado() && (
+        (request.auth.token.rol == 'direccion') ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         datosUsuario().rol == 'direccion')
+      );
+    }
+
+    function esProfesor() {
+      return estaAutenticado() && (
+        (request.auth.token.rol == 'profesor') ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         datosUsuario().rol == 'profesor')
+      );
+    }
+
+    function esAlumno() {
+      return estaAutenticado() && (
+        (request.auth.token.rol == 'alumno') ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         datosUsuario().rol == 'alumno')
+      );
+    }
+
+    function tienePermiso(permisoClave) {
+      return esDireccion() || (
+        exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+        datosUsuario().permisosEspecificos != null &&
+        permisoClave in datosUsuario().permisosEspecificos
+      );
+    }
+
+    function mismaInstitucion(institucionId) {
+      return estaAutenticado() && (
+        esDireccion() ||
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+         datosUsuario().institucionId == institucionId)
+      );
+    }
+
+    // =========================================================================
+    // 1. COLECCIÓN USUARIOS (Perfiles y Asignación de Roles)
+    // =========================================================================
+    match /usuarios/{userId} {
+      // Lectura permitida si el usuario consulta su propio perfil o pertenece a la institución
+      allow read: if estaAutenticado();
+
+      // Creación inicial con su propio UID (no puede auto-asignarse rol Dirección)
+      allow create: if estaAutenticado() && request.auth.uid == userId
+        && (!('rol' in request.resource.data) || request.resource.data.rol != 'direccion' || esDireccion());
+
+      // Modificación: un usuario común solo puede modificar sus datos básicos (nombre, foto).
+      // Las modificaciones de rol, permisosEspecificos e institucionId requieren Dirección.
+      allow update: if estaAutenticado() && (
+        esDireccion() ||
+        (request.auth.uid == userId &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'permisosEspecificos', 'institucionId']))
+      );
+
+      // Eliminación restringida a Dirección
+      allow delete: if esDireccion();
+    }
+
+    // =========================================================================
+    // 2. COLECCIÓN POLÍTICAS DE DISPOSITIVOS (Jerarquía Institucional)
+    // =========================================================================
+    match /politicas_dispositivos/{politicaId} {
+      // Lectura para los miembros de la institución
+      allow read: if estaAutenticado() && mismaInstitucion(resource.data.institucionId);
+
+      // Creación, edición y eliminación:
+      // Exclusivo para Dirección o usuarios con permiso 'administrar_institucion'
+      allow create: if estaAutenticado()
+        && (esDireccion() || tienePermiso('administrar_institucion'))
+        && request.resource.data.institucionId is string;
+
+      allow update: if estaAutenticado()
+        && (esDireccion() || tienePermiso('administrar_institucion'))
+        && resource.data.institucionId == request.resource.data.institucionId;
+
+      allow delete: if estaAutenticado()
+        && (esDireccion() || tienePermiso('administrar_institucion'));
+    }
+
+    // =========================================================================
+    // 3. COLECCIÓN SESIONES DE MODO CLASE / EXAMEN
+    // =========================================================================
+    match /sesiones_modo_clase/{sesionId} {
+      // Lectura permitida a los miembros de la institución
+      allow read: if estaAutenticado() && mismaInstitucion(resource.data.institucionId);
+
+      // Iniciar sesión de clase:
+      // Requiere ser docente o dirección con capacidad correspondiente
+      allow create: if estaAutenticado() && (
+        esDireccion() ||
+        (esProfesor() && (
+          (request.resource.data.tipoModo == 'examen' && tienePermiso('activar_modo_examen')) ||
+          (request.resource.data.tipoModo != 'examen' && tienePermiso('activar_modo_clase'))
+        ))
+      );
+
+      // Modificar sesión:
+      // a) El docente a cargo o Dirección pueden gestionar la clase, rotar tokens y finalizar.
+      // b) Dirección puede activar la bandera de emergencia institucional.
+      // c) Un alumno solo puede actualizar su propio estado de presencia en estudiantesPresentes.
+      allow update: if estaAutenticado() && (
+        esDireccion() ||
+        (esProfesor() && resource.data.profesorUid == request.auth.uid) ||
+        (
+          // Validación de actualización de presencia por el alumno:
+          // Solo puede tocar la clave con su propio UID y no puede alterar la sesión
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estudiantesPresentes']) &&
+          request.resource.data.estudiantesPresentes.diff(resource.data.estudiantesPresentes).affectedKeys().hasOnly([request.auth.uid])
+        )
+      );
+
+      // Finalizar / Borrar sesión:
+      allow delete: if esDireccion() || (esProfesor() && resource.data.profesorUid == request.auth.uid);
+    }
+
+    // =========================================================================
+    // 4. COLECCIÓN AUDITORÍA INSTITUCIONAL (Inmutable / Append-Only)
+    // =========================================================================
+    match /auditoria_institucional/{eventoId} {
+      // Lectura exclusiva para el cuerpo directivo
+      allow read: if esDireccion();
+
+      // Registro de eventos: permitido para cualquier usuario autenticado registrando su acción
+      allow create: if estaAutenticado()
+        && request.resource.data.usuarioUid == request.auth.uid
+        && request.resource.data.tipo is string
+        && request.resource.data.institucionId is string;
+
+      // MODIFICACIÓN Y BORRADO ESTRICTAMENTE PROHIBIDOS (Trazabilidad inmutable)
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // =========================================================================
+    // 5. COLECCIONES EDUCATIVAS COMPLEMENTARIAS
+    // =========================================================================
+    match /clases/{claseId} {
+      allow read: if estaAutenticado();
+      allow create, update, delete: if esProfesor() || esDireccion();
+    }
+
+    match /evaluaciones/{evaluacionId} {
+      allow read: if estaAutenticado();
+      allow create, update, delete: if esProfesor() || esDireccion();
+    }
+
+    match /planes_curriculares/{planId} {
+      allow read: if estaAutenticado();
+      allow create, update, delete: if esProfesor() || esDireccion();
+    }
+
+    match /notas_evaluaciones/{notaId} {
+      allow read: if estaAutenticado();
+      allow create, update, delete: if esProfesor() || esDireccion();
+    }
+  }
+}
