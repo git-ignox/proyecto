@@ -14,8 +14,18 @@ import '../dominio/modelos/clase_escolar.dart';
 import '../dominio/modelos/ejercicio.dart';
 import '../dominio/modelos/examen_diagnostico.dart';
 import '../dominio/modelos/usuario_app.dart';
+import '../datos/fuente_datos_evaluaciones.dart';
+import '../datos/fuente_datos_reportes.dart';
+import '../datos/fuente_datos_curriculo.dart';
+import '../datos/repositorio_curriculo.dart';
+import '../datos/repositorio_evaluaciones.dart';
+import '../datos/repositorio_reportes.dart';
+import 'curriculo/pantalla_mapa_curricular.dart';
+import 'evaluaciones/pantalla_dashboard_brechas.dart';
+import 'evaluaciones/pantalla_evaluaciones_docente.dart';
 import 'pantalla_crear_ejercicio.dart';
 import 'pantalla_ejercicios.dart';
+import 'reportes/pantalla_reportes_clase.dart';
 
 /// Interfaz especializada para el Profesor / Docente.
 /// Panel de administración para crear, catalogar, monitorear diagnósticos de errores,
@@ -29,8 +39,14 @@ class PantallaProfesor extends StatefulWidget {
     required this.servicioAuth,
     RepositorioDiagnostico? repositorioDiagnostico,
     RepositorioClases? repositorioClases,
+    RepositorioEvaluaciones? repositorioEvaluaciones,
+    RepositorioReportes? repositorioReportes,
+    RepositorioCurriculo? repositorioCurriculo,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
-        repositorioClases = repositorioClases ?? FuenteDatosClases();
+        repositorioClases = repositorioClases ?? FuenteDatosClases(),
+        repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
+        repositorioReportes = repositorioReportes ?? FuenteDatosReportes(),
+        repositorioCurriculo = repositorioCurriculo ?? FuenteDatosCurriculo();
 
   final UsuarioApp usuario;
   final RepositorioEjercicios repositorio;
@@ -38,6 +54,9 @@ class PantallaProfesor extends StatefulWidget {
   final ServicioAuth servicioAuth;
   final RepositorioDiagnostico repositorioDiagnostico;
   final RepositorioClases repositorioClases;
+  final RepositorioEvaluaciones repositorioEvaluaciones;
+  final RepositorioReportes repositorioReportes;
+  final RepositorioCurriculo repositorioCurriculo;
 
   @override
   State<PantallaProfesor> createState() => _PantallaProfesorState();
@@ -814,12 +833,26 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
             ),
             const SizedBox(height: 10),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(Icons.group_outlined, size: 16, color: Colors.indigo.shade700),
-                const SizedBox(width: 6),
-                Text(
-                  '${clase.totalAlumnos} alumno${clase.totalAlumnos != 1 ? "s" : ""} inscrito${clase.totalAlumnos != 1 ? "s" : ""}',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.indigo.shade700),
+                Row(
+                  children: [
+                    Icon(Icons.group_outlined, size: 16, color: Colors.indigo.shade700),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${clase.totalAlumnos} alumno${clase.totalAlumnos != 1 ? "s" : ""} inscrito${clase.totalAlumnos != 1 ? "s" : ""}',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.indigo.shade700),
+                    ),
+                  ],
+                ),
+                TextButton.icon(
+                  onPressed: () => _abrirDialogoInscribirAlumno(clase, sheetCtx),
+                  icon: const Icon(Icons.person_add_alt_1, size: 16),
+                  label: const Text('Inscribir Alumno', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    foregroundColor: Colors.indigo.shade800,
+                  ),
                 ),
               ],
             ),
@@ -828,16 +861,403 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: clase.nombresAlumnos.values
-                    .map((nombre) => Chip(
+                children: clase.nombresAlumnos.entries
+                    .map((entry) => InputChip(
                           avatar: const Icon(Icons.person_outline, size: 14),
-                          label: Text(nombre, style: const TextStyle(fontSize: 11)),
+                          label: Text(entry.value, style: const TextStyle(fontSize: 11)),
                           visualDensity: VisualDensity.compact,
                           backgroundColor: Colors.blue.shade50,
+                          tooltip: 'Toca para editar nombre / Cruz para desmatricular',
+                          onPressed: () => _editarNombreAlumno(clase, entry.key, entry.value, sheetCtx),
+                          onDeleted: () => _eliminarAlumnoDeClase(clase, entry.key, entry.value, sheetCtx),
                         ))
                     .toList(),
               ),
             ],
+            const SizedBox(height: 12),
+            const Divider(),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PantallaEvaluacionesDocente(
+                            clase: clase,
+                            repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.assignment_turned_in_outlined, size: 16),
+                    label: const Text('Evaluaciones & Notas', style: TextStyle(fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      foregroundColor: Colors.white,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PantallaDashboardBrechas(
+                            clase: clase,
+                            repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.insights, size: 16),
+                    label: const Text('Triage Brechas', style: TextStyle(fontSize: 12)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.indigo,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.pop(sheetCtx);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PantallaReportesClase(
+                        clase: clase,
+                        repositorioReportes: widget.repositorioReportes,
+                        repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.auto_stories_outlined, size: 16),
+                label: const Text(
+                  'Reportes Pedagógicos por Período (Snapshots)',
+                  style: TextStyle(fontSize: 12),
+                ),
+                style: FilledButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _abrirDialogoInscribirAlumno(ClaseEscolar clase, BuildContext sheetCtx) async {
+    final ctrl = TextEditingController();
+    final nombre = await showDialog<String>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.person_add, color: Colors.indigo),
+            SizedBox(width: 8),
+            Text('Inscribir Alumno'),
+          ],
+        ),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Nombre y apellido del alumno',
+            hintText: 'Ej. Valentina Castro',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(d), child: const Text('Cancelar')),
+          FilledButton(
+            onPressed: () => Navigator.pop(d, ctrl.text.trim()),
+            child: const Text('Inscribir'),
+          ),
+        ],
+      ),
+    );
+
+    if (nombre != null && nombre.isNotEmpty) {
+      await widget.repositorioClases.inscribirAlumnoDirecto(
+        claseId: clase.id,
+        alumnoNombre: nombre,
+      );
+      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+      if (mounted) _mostrarGestorClassroom();
+    }
+  }
+
+  Future<void> _editarNombreAlumno(
+    ClaseEscolar clase,
+    String alumnoUid,
+    String nombreActual,
+    BuildContext sheetCtx,
+  ) async {
+    final ctrl = TextEditingController(text: nombreActual);
+    final nuevoNombre = await showDialog<String>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Text('Editar Nombre de Alumno'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Nombre del alumno',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(d), child: const Text('Cancelar')),
+          FilledButton(
+            onPressed: () => Navigator.pop(d, ctrl.text.trim()),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+
+    if (nuevoNombre != null && nuevoNombre.isNotEmpty && nuevoNombre != nombreActual) {
+      await widget.repositorioClases.actualizarNombreAlumno(
+        claseId: clase.id,
+        alumnoUid: alumnoUid,
+        nuevoNombre: nuevoNombre,
+      );
+      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+      if (mounted) _mostrarGestorClassroom();
+    }
+  }
+
+  Future<void> _eliminarAlumnoDeClase(
+    ClaseEscolar clase,
+    String alumnoUid,
+    String alumnoNombre,
+    BuildContext sheetCtx,
+  ) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Text('Desmatricular Alumno'),
+        content: Text('¿Deseas remover a $alumnoNombre de la clase "${clase.nombre}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancelar')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(d, true),
+            child: const Text('Remover'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true) {
+      await widget.repositorioClases.salirDeClase(claseId: clase.id, alumnoUid: alumnoUid);
+      if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+      if (mounted) _mostrarGestorClassroom();
+    }
+  }
+
+  void _abrirSelectorEvaluacionesDocente() async {
+    final clases = await widget.repositorioClases.obtenerClasesPorProfesor(widget.usuario.uid);
+    if (!mounted) return;
+
+    if (clases.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Primero crea una clase escolar para gestionar evaluaciones.')),
+      );
+      _mostrarGestorClassroom();
+      return;
+    }
+
+    if (clases.length == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PantallaEvaluacionesDocente(
+            clase: clases.first,
+            repositorioEvaluaciones: widget.repositorioEvaluaciones,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Selecciona una Clase para Evaluaciones & Triage:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            ...clases.map((c) => ListTile(
+                  leading: const Icon(Icons.class_outlined, color: Colors.indigo),
+                  title: Text(c.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${c.gradoGrupo} • ${c.alumnosUids.length} alumnos'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PantallaEvaluacionesDocente(
+                          clase: c,
+                          repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                        ),
+                      ),
+                    );
+                  },
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _abrirSelectorReportesDocente() async {
+    final clases = await widget.repositorioClases.obtenerClasesPorProfesor(widget.usuario.uid);
+    if (!mounted) return;
+
+    if (clases.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Primero crea una clase escolar para gestionar reportes pedagógicos.')),
+      );
+      _mostrarGestorClassroom();
+      return;
+    }
+
+    if (clases.length == 1) {
+      final c = clases.first;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PantallaReportesClase(
+            clase: c,
+            repositorioReportes: widget.repositorioReportes,
+            repositorioEvaluaciones: widget.repositorioEvaluaciones,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Selecciona una Clase para Ver/Generar Reportes:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            ...clases.map((c) => ListTile(
+                  leading: const Icon(Icons.auto_stories_outlined, color: Colors.indigo),
+                  title: Text(c.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${c.gradoGrupo} • ${c.alumnosUids.length} alumnos'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PantallaReportesClase(
+                          clase: c,
+                          repositorioReportes: widget.repositorioReportes,
+                          repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                        ),
+                      ),
+                    );
+                  },
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _abrirSelectorMapaCurricularDocente() async {
+    final clases = await widget.repositorioClases.obtenerClasesPorProfesor(widget.usuario.uid);
+    if (!mounted) return;
+
+    if (clases.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Primero crea una clase escolar para acceder a la planificación curricular.')),
+      );
+      _mostrarGestorClassroom();
+      return;
+    }
+
+    if (clases.length == 1) {
+      final c = clases.first;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PantallaMapaCurricular(
+            clase: c,
+            repositorioCurriculo: widget.repositorioCurriculo,
+            repositorioEvaluaciones: widget.repositorioEvaluaciones,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Selecciona una Clase para Ver su Mapa Curricular:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            ...clases.map((c) => ListTile(
+                  leading: const Icon(Icons.account_tree_outlined, color: Colors.indigo),
+                  title: Text(c.nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${c.gradoGrupo} • ${c.alumnosUids.length} alumnos'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PantallaMapaCurricular(
+                          clase: c,
+                          repositorioCurriculo: widget.repositorioCurriculo,
+                          repositorioEvaluaciones: widget.repositorioEvaluaciones,
+                        ),
+                      ),
+                    );
+                  },
+                )),
           ],
         ),
       ),
@@ -1055,6 +1475,21 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
             onPressed: _mostrarGestorClassroom,
           ),
           IconButton(
+            icon: const Icon(Icons.assignment_turned_in_outlined, color: Colors.orangeAccent),
+            tooltip: 'Evaluaciones, Notas & Triage de Brechas',
+            onPressed: _abrirSelectorEvaluacionesDocente,
+          ),
+          IconButton(
+            icon: const Icon(Icons.auto_stories_outlined, color: Colors.purpleAccent),
+            tooltip: 'Reportes Pedagógicos por Período',
+            onPressed: _abrirSelectorReportesDocente,
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_tree_outlined, color: Colors.tealAccent),
+            tooltip: 'Planificación & Mapa Curricular',
+            onPressed: _abrirSelectorMapaCurricularDocente,
+          ),
+          IconButton(
             icon: const Icon(Icons.fact_check_outlined, color: Colors.amberAccent),
             tooltip: 'Exámenes Diagnósticos & Avance',
             onPressed: _mostrarGestorExamenes,
@@ -1071,7 +1506,7 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
           ),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Cambiar a modo Alumno',
+            tooltip: 'Atajo de Demostración: Alternar a modo Alumno (para presentar sin reloguear)',
             onPressed: () => widget.servicioAuth.alternarRol(),
           ),
           IconButton(

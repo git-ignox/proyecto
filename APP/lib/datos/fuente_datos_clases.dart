@@ -10,11 +10,20 @@ import 'repositorio_clases.dart';
 /// La colección de Firestore usada es `clases_escolares`.
 class FuenteDatosClases implements RepositorioClases {
   FuenteDatosClases({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance {
+      : _customFirestore = firestore {
     _inicializarDatosPredeterminados();
   }
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore? _customFirestore;
+
+  FirebaseFirestore? get _firestore {
+    if (_customFirestore != null) return _customFirestore;
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   // Almacenamiento en memoria
   final Map<String, ClaseEscolar> _clases = {};
@@ -31,8 +40,18 @@ class FuenteDatosClases implements RepositorioClases {
       descripcion: 'Curso de matemáticas para quinto grado, grupo A. Incluye aritmética, fracciones y álgebra básica.',
       profesorUid: 'profesor-demo',
       profesorNombre: 'Docente Demo',
-      alumnosUids: const [],
-      nombresAlumnos: const {},
+      alumnosUids: const [
+        'alumno-demo-1',
+        'alumno-demo-2',
+        'alumno-demo-3',
+        'alumno-demo-4',
+      ],
+      nombresAlumnos: const {
+        'alumno-demo-1': 'Sofía Valenzuela',
+        'alumno-demo-2': 'Mateo Rivas',
+        'alumno-demo-3': 'Camila Soto',
+        'alumno-demo-4': 'Joaquín Herrera',
+      },
       fechaCreacion: DateTime(2026, 8, 1),
     );
     _clases[claseMuestra.id] = claseMuestra;
@@ -47,8 +66,10 @@ class FuenteDatosClases implements RepositorioClases {
   }
 
   Future<void> _sincronizarDesdeFirestore() async {
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      final snapshot = await _firestore
+      final snapshot = await fs
           .collection('clases_escolares')
           .get()
           .timeout(const Duration(seconds: 3));
@@ -66,8 +87,10 @@ class FuenteDatosClases implements RepositorioClases {
   }
 
   Future<void> _persistirEnFirestore(ClaseEscolar clase) async {
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore
+      await fs
           .collection('clases_escolares')
           .doc(clase.id)
           .set(clase.toMap())
@@ -220,11 +243,60 @@ class FuenteDatosClases implements RepositorioClases {
   }
 
   @override
+  Future<ClaseEscolar?> inscribirAlumnoDirecto({
+    required String claseId,
+    required String alumnoNombre,
+    String? alumnoUid,
+  }) async {
+    final clase = _clases[claseId];
+    if (clase == null) return null;
+
+    final uid = alumnoUid ??
+        'manual-${DateTime.now().millisecondsSinceEpoch}-${alumnoNombre.toLowerCase().replaceAll(' ', '_')}';
+
+    if (clase.alumnoEstaInscrito(uid)) return clase;
+
+    final nuevosUids = [...clase.alumnosUids, uid];
+    final nuevosNombres = Map<String, String>.from(clase.nombresAlumnos)..[uid] = alumnoNombre;
+    final actualizada = clase.copyWith(
+      alumnosUids: nuevosUids,
+      nombresAlumnos: nuevosNombres,
+    );
+
+    _clases[actualizada.id] = actualizada;
+    _emitirCambio();
+    _persistirEnFirestore(actualizada);
+    return actualizada;
+  }
+
+  @override
+  Future<ClaseEscolar?> actualizarNombreAlumno({
+    required String claseId,
+    required String alumnoUid,
+    required String nuevoNombre,
+  }) async {
+    final clase = _clases[claseId];
+    if (clase == null) return null;
+
+    if (!clase.nombresAlumnos.containsKey(alumnoUid)) return clase;
+
+    final nuevosNombres = Map<String, String>.from(clase.nombresAlumnos)..[alumnoUid] = nuevoNombre;
+    final actualizada = clase.copyWith(nombresAlumnos: nuevosNombres);
+
+    _clases[actualizada.id] = actualizada;
+    _emitirCambio();
+    _persistirEnFirestore(actualizada);
+    return actualizada;
+  }
+
+  @override
   Future<void> eliminarClase(String claseId) async {
     _clases.remove(claseId);
     _emitirCambio();
+    final fs = _firestore;
+    if (fs == null) return;
     try {
-      await _firestore
+      await fs
           .collection('clases_escolares')
           .doc(claseId)
           .delete()

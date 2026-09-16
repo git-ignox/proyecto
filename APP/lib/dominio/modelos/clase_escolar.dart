@@ -26,6 +26,7 @@ class ClaseEscolar {
     required this.descripcion,
     required this.profesorUid,
     required this.profesorNombre,
+    this.planCurricularId,
     this.alumnosUids = const [],
     this.nombresAlumnos = const {},
     required this.fechaCreacion,
@@ -43,6 +44,9 @@ class ClaseEscolar {
   final String descripcion;
   final String profesorUid;
   final String profesorNombre;
+
+  /// ID del Plan Curricular oficial asignado a esta clase (opcional).
+  final String? planCurricularId;
 
   /// UIDs de los alumnos inscritos en esta clase.
   final List<String> alumnosUids;
@@ -63,7 +67,7 @@ class ClaseEscolar {
     final random = Random();
     final letras = prefijo ?? _generarPrefijo(random);
     final numero = 1000 + random.nextInt(8999);
-    return '\$letras-\$numero';
+    return '$letras-$numero';
   }
 
   static String _generarPrefijo(Random random) {
@@ -72,7 +76,7 @@ class ClaseEscolar {
     final c1 = consonantes[random.nextInt(consonantes.length)];
     final v1 = vocales[random.nextInt(vocales.length)];
     final c2 = consonantes[random.nextInt(consonantes.length)];
-    return '\$c1\$v1\$c2';
+    return '$c1$v1$c2';
   }
 
   /// Normaliza el código de acceso para comparar (mayúsculas, sin espacios, sin guiones).
@@ -95,6 +99,7 @@ class ClaseEscolar {
     String? descripcion,
     String? profesorUid,
     String? profesorNombre,
+    String? planCurricularId,
     List<String>? alumnosUids,
     Map<String, String>? nombresAlumnos,
     DateTime? fechaCreacion,
@@ -108,6 +113,7 @@ class ClaseEscolar {
       descripcion: descripcion ?? this.descripcion,
       profesorUid: profesorUid ?? this.profesorUid,
       profesorNombre: profesorNombre ?? this.profesorNombre,
+      planCurricularId: planCurricularId ?? this.planCurricularId,
       alumnosUids: alumnosUids ?? this.alumnosUids,
       nombresAlumnos: nombresAlumnos ?? this.nombresAlumnos,
       fechaCreacion: fechaCreacion ?? this.fechaCreacion,
@@ -124,6 +130,7 @@ class ClaseEscolar {
       'descripcion': descripcion,
       'profesorUid': profesorUid,
       'profesorNombre': profesorNombre,
+      'planCurricularId': planCurricularId,
       'alumnosUids': alumnosUids,
       'nombresAlumnos': nombresAlumnos,
       'fechaCreacion': fechaCreacion.toIso8601String(),
@@ -143,6 +150,7 @@ class ClaseEscolar {
       descripcion: map['descripcion'] as String? ?? '',
       profesorUid: map['profesorUid'] as String? ?? '',
       profesorNombre: map['profesorNombre'] as String? ?? 'Profesor',
+      planCurricularId: map['planCurricularId'] as String?,
       alumnosUids: alumnosUids,
       nombresAlumnos: nombresRaw,
       fechaCreacion: DateTime.tryParse(map['fechaCreacion'] as String? ?? '') ?? DateTime.now(),

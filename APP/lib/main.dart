@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'datos/fuente_datos_clases.dart';
+import 'datos/fuente_datos_curriculo.dart';
 import 'datos/fuente_datos_diagnostico.dart';
 import 'datos/fuente_datos_ejercicios.dart';
+import 'datos/fuente_datos_evaluaciones.dart';
+import 'datos/fuente_datos_reportes.dart';
+import 'datos/repositorio_clases.dart';
+import 'datos/repositorio_curriculo.dart';
 import 'datos/repositorio_diagnostico.dart';
 import 'datos/repositorio_ejercicios.dart';
+import 'datos/repositorio_evaluaciones.dart';
+import 'datos/repositorio_reportes.dart';
 import 'datos/servicio_auth.dart';
 import 'dominio/evaluadores/servicio_evaluacion.dart';
 import 'dominio/modelos/usuario_app.dart';
@@ -24,12 +32,20 @@ Future<void> main() async {
 
   final repositorio = FuenteDatosEjercicios();
   final repositorioDiagnostico = FuenteDatosDiagnostico();
+  final repositorioClases = FuenteDatosClases();
+  final repositorioEvaluaciones = FuenteDatosEvaluaciones();
+  final repositorioReportes = FuenteDatosReportes();
+  final repositorioCurriculo = FuenteDatosCurriculo();
   final servicioEvaluacion = ServicioEvaluacion();
   final servicioAuth = ServicioAuth()..inicializar();
 
   runApp(AppMatematicas(
     repositorio: repositorio,
     repositorioDiagnostico: repositorioDiagnostico,
+    repositorioClases: repositorioClases,
+    repositorioEvaluaciones: repositorioEvaluaciones,
+    repositorioReportes: repositorioReportes,
+    repositorioCurriculo: repositorioCurriculo,
     servicioEvaluacion: servicioEvaluacion,
     servicioAuth: servicioAuth,
   ));
@@ -40,12 +56,20 @@ class AppMatematicas extends StatelessWidget {
     super.key,
     required this.repositorio,
     this.repositorioDiagnostico,
+    this.repositorioClases,
+    this.repositorioEvaluaciones,
+    this.repositorioReportes,
+    this.repositorioCurriculo,
     required this.servicioEvaluacion,
     this.servicioAuth,
   });
 
   final RepositorioEjercicios repositorio;
   final RepositorioDiagnostico? repositorioDiagnostico;
+  final RepositorioClases? repositorioClases;
+  final RepositorioEvaluaciones? repositorioEvaluaciones;
+  final RepositorioReportes? repositorioReportes;
+  final RepositorioCurriculo? repositorioCurriculo;
   final ServicioEvaluacion servicioEvaluacion;
   final ServicioAuth? servicioAuth;
 
@@ -53,6 +77,11 @@ class AppMatematicas extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = servicioAuth ?? ServicioAuth();
     final diagRepo = repositorioDiagnostico ?? FuenteDatosDiagnostico();
+
+    final clasesRepo = repositorioClases ?? FuenteDatosClases();
+    final evalRepo = repositorioEvaluaciones ?? FuenteDatosEvaluaciones();
+    final reportesRepo = repositorioReportes ?? FuenteDatosReportes();
+    final curriculoRepo = repositorioCurriculo ?? FuenteDatosCurriculo();
 
     return MaterialApp(
       title: 'App Matemáticas',
@@ -76,6 +105,10 @@ class AppMatematicas extends StatelessWidget {
               usuario: usuario,
               repositorio: repositorio,
               repositorioDiagnostico: diagRepo,
+              repositorioClases: clasesRepo,
+              repositorioEvaluaciones: evalRepo,
+              repositorioReportes: reportesRepo,
+              repositorioCurriculo: curriculoRepo,
               servicioEvaluacion: servicioEvaluacion,
               servicioAuth: auth,
             );
@@ -85,6 +118,9 @@ class AppMatematicas extends StatelessWidget {
             usuario: usuario,
             repositorio: repositorio,
             repositorioDiagnostico: diagRepo,
+            repositorioClases: clasesRepo,
+            repositorioEvaluaciones: evalRepo,
+            repositorioReportes: reportesRepo,
             servicioEvaluacion: servicioEvaluacion,
             servicioAuth: auth,
           );

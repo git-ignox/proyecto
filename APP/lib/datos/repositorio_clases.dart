@@ -38,6 +38,20 @@ abstract interface class RepositorioClases {
     required String alumnoUid,
   });
 
+  /// Inscribe directamente a un alumno gestionado por el profesor.
+  Future<ClaseEscolar?> inscribirAlumnoDirecto({
+    required String claseId,
+    required String alumnoNombre,
+    String? alumnoUid,
+  });
+
+  /// Actualiza el nombre de un alumno en la clase (para corregir errores de tipeo).
+  Future<ClaseEscolar?> actualizarNombreAlumno({
+    required String claseId,
+    required String alumnoUid,
+    required String nuevoNombre,
+  });
+
   /// Elimina la clase completa (solo el profesor que la creó puede hacerlo).
   Future<void> eliminarClase(String claseId);
 

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../datos/fuente_datos_clases.dart';
 import '../datos/fuente_datos_diagnostico.dart';
+import '../datos/fuente_datos_evaluaciones.dart';
+import '../datos/fuente_datos_reportes.dart';
 import '../datos/repositorio_clases.dart';
 import '../datos/repositorio_diagnostico.dart';
 import '../datos/repositorio_ejercicios.dart';
+import '../datos/repositorio_evaluaciones.dart';
+import '../datos/repositorio_reportes.dart';
 import '../datos/servicio_auth.dart';
 import '../dominio/evaluadores/servicio_evaluacion.dart';
 import '../dominio/generadores/generador_aritmetica.dart';
 import '../dominio/modelos/aritmetico.dart';
-import '../dominio/modelos/clase_escolar.dart';
 import '../dominio/modelos/ejercicio.dart';
 import '../dominio/modelos/error_aprendizaje.dart';
 import '../dominio/modelos/examen_diagnostico.dart';
@@ -17,6 +20,7 @@ import '../dominio/modelos/progreso_examen_alumno.dart';
 import '../dominio/modelos/resultado_evaluacion.dart';
 import '../dominio/modelos/seleccion_multiple.dart';
 import '../dominio/modelos/usuario_app.dart';
+import 'evaluaciones/seccion_notas_alumno.dart';
 import 'widgets/widget_aritmetica.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
@@ -30,8 +34,12 @@ class PantallaAlumno extends StatefulWidget {
     required this.servicioAuth,
     RepositorioDiagnostico? repositorioDiagnostico,
     RepositorioClases? repositorioClases,
+    RepositorioEvaluaciones? repositorioEvaluaciones,
+    RepositorioReportes? repositorioReportes,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
-        repositorioClases = repositorioClases ?? FuenteDatosClases();
+        repositorioClases = repositorioClases ?? FuenteDatosClases(),
+        repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
+        repositorioReportes = repositorioReportes ?? FuenteDatosReportes();
 
   final UsuarioApp usuario;
   final RepositorioEjercicios repositorio;
@@ -39,6 +47,8 @@ class PantallaAlumno extends StatefulWidget {
   final ServicioAuth servicioAuth;
   final RepositorioDiagnostico repositorioDiagnostico;
   final RepositorioClases repositorioClases;
+  final RepositorioEvaluaciones repositorioEvaluaciones;
+  final RepositorioReportes repositorioReportes;
 
   @override
   State<PantallaAlumno> createState() => _PantallaAlumnoState();
@@ -871,12 +881,41 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
                               const SizedBox(height: 6),
                               Text(clase.descripcion, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                             ],
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(ctx);
+                                  _abrirMisCalificaciones();
+                                },
+                                icon: const Icon(Icons.grading, size: 16),
+                                label: const Text('Ver Mis Calificaciones & Brechas', style: TextStyle(fontSize: 12)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.teal.shade800,
+                                  foregroundColor: Colors.white,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     )),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _abrirMisCalificaciones() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SeccionNotasAlumno(
+          usuario: widget.usuario,
+          repositorioEvaluaciones: widget.repositorioEvaluaciones,
+          repositorioReportes: widget.repositorioReportes,
         ),
       ),
     );
@@ -1033,6 +1072,13 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             onPressed: _mostrarMisClases,
           ),
 
+          // Botón Mis Calificaciones & Brechas
+          IconButton(
+            icon: const Icon(Icons.grading_outlined, color: Colors.cyanAccent),
+            tooltip: 'Mis Calificaciones & Brechas',
+            onPressed: _abrirMisCalificaciones,
+          ),
+
           // Botón Exámenes Diagnósticos
           IconButton(
             icon: const Icon(Icons.assignment_outlined, color: Colors.amberAccent),
@@ -1067,10 +1113,10 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             ),
           ),
 
-          // Alternar rol
+          // Alternar rol (Atajo de demo)
           IconButton(
             icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Cambiar a modo Profesor',
+            tooltip: 'Atajo de Demostración: Alternar a modo Profesor (para presentar sin reloguear)',
             onPressed: () => widget.servicioAuth.alternarRol(),
           ),
 
