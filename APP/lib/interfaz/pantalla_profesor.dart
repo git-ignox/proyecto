@@ -35,6 +35,9 @@ import '../datos/repositorio_auditoria.dart';
 import '../datos/servicio_horarios.dart';
 import '../dominio/modelos/sesion_modo_clase.dart';
 import 'profesor/dialogo_gestion_modo_clase.dart';
+import '../datos/coordinador_sincronizacion_offline.dart';
+import '../datos/fuente_datos_materiales_offline.dart';
+import 'offline/dialogo_compartir_material_docente.dart';
 
 /// Interfaz especializada para el Profesor / Docente.
 /// Panel de administración para crear, catalogar, monitorear diagnósticos de errores,
@@ -55,6 +58,7 @@ class PantallaProfesor extends StatefulWidget {
     RepositorioSesionesClase? repositorioSesiones,
     RepositorioAuditoria? repositorioAuditoria,
     ServicioHorarios? servicioHorarios,
+    CoordinadorSincronizacionOffline? coordinadorOffline,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
         repositorioClases = repositorioClases ?? FuenteDatosClases(),
         repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
@@ -67,7 +71,11 @@ class PantallaProfesor extends StatefulWidget {
               repositorioPoliticas: repositorioPoliticas ?? FuenteDatosPoliticas(),
               repositorioAuditoria: repositorioAuditoria ?? FuenteDatosAuditoria(),
             ),
-        servicioHorarios = servicioHorarios ?? ServicioHorarios();
+        servicioHorarios = servicioHorarios ?? ServicioHorarios(),
+        coordinadorOffline = coordinadorOffline ??
+            CoordinadorSincronizacionOffline(
+              repositorio: FuenteDatosMaterialesOffline(),
+            );
 
   final UsuarioApp usuario;
   final RepositorioEjercicios repositorio;
@@ -82,12 +90,14 @@ class PantallaProfesor extends StatefulWidget {
   final RepositorioSesionesClase repositorioSesiones;
   final RepositorioAuditoria repositorioAuditoria;
   final ServicioHorarios servicioHorarios;
+  final CoordinadorSincronizacionOffline coordinadorOffline;
 
   @override
   State<PantallaProfesor> createState() => _PantallaProfesorState();
 }
 
 class _PantallaProfesorState extends State<PantallaProfesor> {
+  late final CoordinadorSincronizacionOffline _coordinadorOffline;
   List<Ejercicio> _ejercicios = [];
   bool _cargando = true;
   final GeneradorAritmetica _generador = GeneradorAritmetica();
@@ -95,6 +105,7 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
   @override
   void initState() {
     super.initState();
+    _coordinadorOffline = widget.coordinadorOffline;
     _cargarEjercicios();
   }
 
@@ -974,6 +985,31 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
                   style: TextStyle(fontSize: 12),
                 ),
                 style: FilledButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  DialogoCompartirMaterialDocente.mostrar(
+                    context: sheetCtx,
+                    claseId: clase.id,
+                    profesorNombre: widget.usuario.nombre,
+                    coordinador: _coordinadorOffline,
+                    materiaPredeterminada: clase.nombre,
+                  );
+                },
+                icon: const Icon(Icons.cloud_upload_outlined, size: 16),
+                label: const Text(
+                  'Compartir Material / Web Offline para la Clase',
+                  style: TextStyle(fontSize: 12),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.teal.shade800,
+                  side: BorderSide(color: Colors.teal.shade300),
                   visualDensity: VisualDensity.compact,
                 ),
               ),

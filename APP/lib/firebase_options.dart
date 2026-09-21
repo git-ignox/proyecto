@@ -27,6 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
+        return windows;
       case TargetPlatform.linux:
       default:
         return web;
@@ -66,5 +67,14 @@ class DefaultFirebaseOptions {
     projectId: 'pufferfish-math',
     storageBucket: 'pufferfish-math.firebasestorage.app',
     iosBundleId: 'com.puff.proyecto',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBjGhto7TkBfJDAeALV0EZeNCIVzKq94rQ',
+    appId: '1:371659154751:web:31fe1741b723b1ea18df8a',
+    messagingSenderId: '371659154751',
+    projectId: 'pufferfish-math',
+    authDomain: 'pufferfish-math.firebaseapp.com',
+    storageBucket: 'pufferfish-math.firebasestorage.app',
   );
 }

@@ -87,6 +87,9 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> with Sing
     if (error.contains('GIDClientID') || error.contains('No active configuration')) {
       return 'Google Sign-In en macOS requiere Client ID de OAuth en Info.plist. Puedes usar Correo o Invitado.';
     }
+    if (error.contains('MissingPluginException') || error.contains('platform-not-supported')) {
+      return 'Este método no está soportado nativamente en este sistema. Puedes usar Correo/Contraseña o Acceso Rápido.';
+    }
     if (error.contains('user-not-found') || error.contains('wrong-password') || error.contains('invalid-credential')) {
       return 'Correo o contraseña incorrectos.';
     }

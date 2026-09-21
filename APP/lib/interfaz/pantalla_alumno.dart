@@ -28,6 +28,10 @@ import '../datos/repositorio_auditoria.dart';
 import '../datos/fuente_datos_auditoria.dart';
 import '../datos/fuente_datos_politicas.dart';
 import 'alumno/widget_supervision_aula.dart';
+import '../datos/coordinador_sincronizacion_offline.dart';
+import '../datos/fuente_datos_materiales_offline.dart';
+import 'offline/widget_tarjeta_disponibilidad_offline.dart';
+import 'offline/hoja_gestion_materiales_offline.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
 /// Enfocada en resolver problemas, diagnóstico de errores, práctica de refuerzo y exámenes diagnósticos con avance.
@@ -44,6 +48,7 @@ class PantallaAlumno extends StatefulWidget {
     RepositorioReportes? repositorioReportes,
     RepositorioSesionesClase? repositorioSesiones,
     RepositorioAuditoria? repositorioAuditoria,
+    CoordinadorSincronizacionOffline? coordinadorOffline,
   })  : repositorioDiagnostico = repositorioDiagnostico ?? FuenteDatosDiagnostico(),
         repositorioClases = repositorioClases ?? FuenteDatosClases(),
         repositorioEvaluaciones = repositorioEvaluaciones ?? FuenteDatosEvaluaciones(),
@@ -53,6 +58,10 @@ class PantallaAlumno extends StatefulWidget {
             FuenteDatosSesionesClase(
               repositorioPoliticas: FuenteDatosPoliticas(),
               repositorioAuditoria: repositorioAuditoria ?? FuenteDatosAuditoria(),
+            ),
+        coordinadorOffline = coordinadorOffline ??
+            CoordinadorSincronizacionOffline(
+              repositorio: FuenteDatosMaterialesOffline(),
             );
 
   final UsuarioApp usuario;
@@ -65,12 +74,14 @@ class PantallaAlumno extends StatefulWidget {
   final RepositorioReportes repositorioReportes;
   final RepositorioSesionesClase repositorioSesiones;
   final RepositorioAuditoria repositorioAuditoria;
+  final CoordinadorSincronizacionOffline coordinadorOffline;
 
   @override
   State<PantallaAlumno> createState() => _PantallaAlumnoState();
 }
 
 class _PantallaAlumnoState extends State<PantallaAlumno> {
+  late final CoordinadorSincronizacionOffline _coordinadorOffline;
   List<Ejercicio> _ejercicios = [];
   int _indiceActual = 0;
   bool _cargando = true;
@@ -90,8 +101,20 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
   @override
   void initState() {
     super.initState();
+    _coordinadorOffline = widget.coordinadorOffline;
     _cargarEjercicios();
     _cargarClasesAlumno();
+  }
+
+  void _mostrarMaterialesOffline() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => HojaGestionMaterialesOffline(
+        coordinador: _coordinadorOffline,
+      ),
+    );
   }
 
   Future<void> _cargarClasesAlumno() async {
@@ -1100,6 +1123,13 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             onPressed: _mostrarMisClases,
           ),
 
+          // Botón Materiales Offline
+          IconButton(
+            icon: const Icon(Icons.cloud_done_outlined, color: Colors.lightGreenAccent),
+            tooltip: 'Materiales sin Conexión (Offline)',
+            onPressed: _mostrarMaterialesOffline,
+          ),
+
           // Botón Mis Calificaciones & Brechas
           IconButton(
             icon: const Icon(Icons.grading_outlined, color: Colors.cyanAccent),
@@ -1163,6 +1193,9 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             clasesInscritasUids: _clasesInscritasUids,
             repositorioSesiones: widget.repositorioSesiones,
             repositorioAuditoria: widget.repositorioAuditoria,
+          ),
+          WidgetTarjetaDisponibilidadOffline(
+            coordinador: _coordinadorOffline,
           ),
           Expanded(
             child: _cargando

@@ -156,6 +156,18 @@ class ServicioAuth {
           await _cargarOcrearPerfilUsuario(cred.user!, rolInicial: rol);
           return _usuarioCache!;
         }
+      } else if (defaultTargetPlatform == TargetPlatform.windows) {
+        try {
+          final googleProvider = GoogleAuthProvider();
+          final cred = await _auth.signInWithProvider(googleProvider);
+          if (cred.user != null) {
+            await _cargarOcrearPerfilUsuario(cred.user!, rolInicial: rol);
+            return _usuarioCache!;
+          }
+        } catch (e) {
+          debugPrint('Aviso Google Sign-In en Windows: $e');
+          throw Exception('Google Sign-In no está soportado de forma nativa en Windows Desktop. Por favor inicia sesión con Correo o ingresa como Alumno Invitado / Demo.');
+        }
       } else {
         try {
           final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();

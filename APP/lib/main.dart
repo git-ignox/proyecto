@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -120,6 +121,7 @@ class AppMatematicas extends StatelessWidget {
     return MaterialApp(
       title: 'App Matemáticas',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const AppComportamientoScroll(),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
@@ -180,4 +182,17 @@ class AppMatematicas extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Permite desplazamiento por arrastre con ratón, trackpad y táctil para soporte óptimo en desktop y móvil.
+class AppComportamientoScroll extends MaterialScrollBehavior {
+  const AppComportamientoScroll();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+      };
 }
