@@ -31,8 +31,8 @@ class FuenteDatosClases implements RepositorioClases {
       StreamController<List<ClaseEscolar>>.broadcast();
 
   void _inicializarDatosPredeterminados() {
-    // Clase de muestra con código MAT-101
-    final claseMuestra = ClaseEscolar(
+    // Clase de muestra 1 en INST-SAN-MARTIN
+    final claseMuestraSanMartin = ClaseEscolar(
       id: 'CLASE-DEMO-001',
       codigoAcceso: 'MAT-101',
       nombre: 'Matemáticas 5to Grado A',
@@ -40,6 +40,7 @@ class FuenteDatosClases implements RepositorioClases {
       descripcion: 'Curso de matemáticas para quinto grado, grupo A. Incluye aritmética, fracciones y álgebra básica.',
       profesorUid: 'profesor-demo',
       profesorNombre: 'Docente Demo',
+      institucionId: 'INST-SAN-MARTIN',
       alumnosUids: const [
         'alumno-demo-1',
         'alumno-demo-2',
@@ -54,7 +55,28 @@ class FuenteDatosClases implements RepositorioClases {
       },
       fechaCreacion: DateTime(2026, 8, 1),
     );
-    _clases[claseMuestra.id] = claseMuestra;
+
+    // Clase de muestra 2 en INST-BELGRANO para el mismo docente
+    final claseMuestraBelgrano = ClaseEscolar(
+      id: 'CLASE-DEMO-002',
+      codigoAcceso: 'ALG-202',
+      nombre: 'Álgebra y Funciones 1° Sec',
+      gradoGrupo: '1° Secundaria B',
+      descripcion: 'Curso avanzado de álgebra y geometría para nivel secundario.',
+      profesorUid: 'profesor-demo',
+      profesorNombre: 'Docente Demo',
+      institucionId: 'INST-BELGRANO',
+      alumnosUids: const [
+        'alumno-demo-1',
+      ],
+      nombresAlumnos: const {
+        'alumno-demo-1': 'Sofía Valenzuela',
+      },
+      fechaCreacion: DateTime(2026, 8, 15),
+    );
+
+    _clases[claseMuestraSanMartin.id] = claseMuestraSanMartin;
+    _clases[claseMuestraBelgrano.id] = claseMuestraBelgrano;
     _emitirCambio();
     _sincronizarDesdeFirestore();
   }
@@ -107,6 +129,7 @@ class FuenteDatosClases implements RepositorioClases {
     required String descripcion,
     required String profesorUid,
     required String profesorNombre,
+    String institucionId = 'INST-SAN-MARTIN',
     String? prefijoCodigo,
   }) async {
     // Generar código único que no colisione con existentes
@@ -125,6 +148,7 @@ class FuenteDatosClases implements RepositorioClases {
       descripcion: descripcion,
       profesorUid: profesorUid,
       profesorNombre: profesorNombre,
+      institucionId: institucionId,
       fechaCreacion: DateTime.now(),
     );
 
@@ -138,6 +162,25 @@ class FuenteDatosClases implements RepositorioClases {
   Future<List<ClaseEscolar>> obtenerClasesPorProfesor(String profesorUid) async {
     return _clases.values
         .where((c) => c.profesorUid == profesorUid)
+        .toList()
+      ..sort((a, b) => b.fechaCreacion.compareTo(a.fechaCreacion));
+  }
+
+  @override
+  Future<List<ClaseEscolar>> obtenerClasesPorInstitucion(String institucionId) async {
+    return _clases.values
+        .where((c) => c.institucionId == institucionId)
+        .toList()
+      ..sort((a, b) => b.fechaCreacion.compareTo(a.fechaCreacion));
+  }
+
+  @override
+  Future<List<ClaseEscolar>> obtenerClasesPorProfesorEInstitucion({
+    required String profesorUid,
+    required String institucionId,
+  }) async {
+    return _clases.values
+        .where((c) => c.profesorUid == profesorUid && c.institucionId == institucionId)
         .toList()
       ..sort((a, b) => b.fechaCreacion.compareTo(a.fechaCreacion));
   }

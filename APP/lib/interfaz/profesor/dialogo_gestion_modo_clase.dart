@@ -113,11 +113,14 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
     }
 
     try {
+      final docenteConInst = widget.docente.copyWith(
+        institucionId: _claseSeleccionada!.institucionId,
+      );
       final nuevaSesion = await widget.repositorioSesiones.iniciarSesion(
         claseId: _claseSeleccionada!.id,
         cursoNombre: _claseSeleccionada!.nombre,
         materia: 'Matemáticas',
-        docente: widget.docente,
+        docente: docenteConInst,
         tipoModo: _tipoSeleccionado,
       );
 
@@ -335,7 +338,10 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
             DropdownButtonFormField<ClaseEscolar>(
               value: _claseSeleccionada,
               decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-              items: _clases.map((c) => DropdownMenuItem(value: c, child: Text('${c.nombre} (${c.gradoGrupo})'))).toList(),
+              items: _clases.map((c) => DropdownMenuItem(
+                value: c,
+                child: Text('${c.nombre} (${c.gradoGrupo}) • 🏫 ${c.institucionId}'),
+              )).toList(),
               onChanged: (val) => setState(() => _claseSeleccionada = val),
             ),
 

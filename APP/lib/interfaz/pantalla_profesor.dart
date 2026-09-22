@@ -688,89 +688,162 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
     final clases = await widget.repositorioClases.obtenerClasesPorProfesor(widget.usuario.uid);
     if (!mounted) return;
 
+    String? filtroInstitucion;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.88,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (_, scrollCtrl) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.all(20.0),
-          child: ListView(
-            controller: scrollCtrl,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (ctx) => StatefulBuilder(
+        builder: (modalCtx, setModalState) {
+          final clasesFiltradas = filtroInstitucion == null
+              ? clases
+              : clases.where((c) => c.institucionId == filtroInstitucion).toList();
+
+          // Obtener conjunto de instituciones representadas
+          final institucionesDisponibles = <String>{
+            ...widget.usuario.todasLasInstituciones,
+            ...clases.map((c) => c.institucionId),
+          }.toList();
+
+          return DraggableScrollableSheet(
+            initialChildSize: 0.88,
+            maxChildSize: 0.95,
+            minChildSize: 0.5,
+            builder: (_, scrollCtrl) => Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: const EdgeInsets.all(20.0),
+              child: ListView(
+                controller: scrollCtrl,
                 children: [
-                  Expanded(
-                    child: Row(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Icon(Icons.class_outlined, color: Colors.green.shade700, size: 28),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'Mis Clases & Classroom',
+                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      await _abrirFormularioNuevaClase();
+                    },
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: const Text('CREAR NUEVA CLASE'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Filtro por Institución si hay múltiples
+                  if (institucionesDisponibles.length > 1) ...[
+                    Row(
                       children: [
-                        Icon(Icons.class_outlined, color: Colors.green.shade700, size: 28),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Mis Clases & Classroom',
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        const Icon(Icons.filter_alt_outlined, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Filtrar por Institución:',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ChoiceChip(
+                            label: Text('Todas (${clases.length})'),
+                            selected: filtroInstitucion == null,
+                            onSelected: (selected) {
+                              if (selected) {
+                                setModalState(() => filtroInstitucion = null);
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          ...institucionesDisponibles.map((inst) {
+                            final totalEnInst = clases.where((c) => c.institucionId == inst).length;
+                            final nombreCorto = inst == 'INST-SAN-MARTIN'
+                                ? 'San Martín'
+                                : (inst == 'INST-BELGRANO' ? 'Belgrano' : inst);
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ChoiceChip(
+                                label: Text('$nombreCorto ($totalEnInst)'),
+                                selected: filtroInstitucion == inst,
+                                onSelected: (selected) {
+                                  setModalState(() {
+                                    filtroInstitucion = selected ? inst : null;
+                                  });
+                                },
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+
+                  Text(
+                    filtroInstitucion == null
+                        ? 'Tus Clases Escolares (Todas las Instituciones):'
+                        : 'Clases en $filtroInstitucion:',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                  const SizedBox(height: 10),
+                  if (clasesFiltradas.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: const Column(
+                        children: [
+                          Icon(Icons.school_outlined, size: 48, color: Colors.grey),
+                          SizedBox(height: 10),
+                          Text('No se encontraron clases en esta institución.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                          SizedBox(height: 4),
+                          Text(
+                            'Crea una clase para esta institución y comparte el código con tus alumnos.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ...clasesFiltradas.map((c) => _construirTarjetaClaseProfesor(c, ctx)),
                 ],
               ),
-              const Divider(),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  await _abrirFormularioNuevaClase();
-                },
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text('CREAR NUEVA CLASE'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-              ),
-              const SizedBox(height: 18),
-              const Text('Tus Clases Escolares:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              if (clases.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: const Column(
-                    children: [
-                      Icon(Icons.school_outlined, size: 48, color: Colors.grey),
-                      SizedBox(height: 10),
-                      Text('Aún no has creado ninguna clase.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
-                      SizedBox(height: 4),
-                      Text(
-                        'Crea tu primera clase y comparte el código único con tus alumnos.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                ...clases.map((c) => _construirTarjetaClaseProfesor(c, ctx)),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -793,7 +866,40 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(clase.nombre, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      Text(clase.gradoGrupo, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(clase.gradoGrupo, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.shade50,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.indigo.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.account_balance, size: 10, color: Colors.indigo.shade700),
+                                const SizedBox(width: 3),
+                                Text(
+                                  clase.institucionId == 'INST-SAN-MARTIN'
+                                      ? 'San Martín'
+                                      : (clase.institucionId == 'INST-BELGRANO'
+                                          ? 'Belgrano'
+                                          : clase.institucionId),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.indigo.shade800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -1330,93 +1436,120 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
     final gradoCtrl = TextEditingController(text: '5° Primaria');
     final descCtrl = TextEditingController(text: 'Clase de matemáticas del ciclo escolar.');
     final prefijoCtrl = TextEditingController();
+    String instSeleccionada = widget.usuario.institucionId;
+    final todasInsts = widget.usuario.todasLasInstituciones;
 
     final confirmar = await showDialog<bool>(
       context: context,
-      builder: (dlgCtx) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.class_outlined, color: Colors.green),
-            SizedBox(width: 8),
-            Text('Nueva Clase Escolar'),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: nombreCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre de la Clase',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.school),
+      builder: (dlgCtx) => StatefulBuilder(
+        builder: (dCtx, setDlgState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.class_outlined, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Nueva Clase Escolar'),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    initialValue: instSeleccionada,
+                    decoration: const InputDecoration(
+                      labelText: 'Institución Educativa',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.account_balance),
+                    ),
+                    items: todasInsts.map((inst) {
+                      final nombreInst = inst == 'INST-SAN-MARTIN'
+                          ? 'Colegio San Martín'
+                          : (inst == 'INST-BELGRANO' ? 'Instituto Belgrano' : inst);
+                      return DropdownMenuItem(
+                        value: inst,
+                        child: Text('$nombreInst ($inst)', overflow: TextOverflow.ellipsis),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setDlgState(() => instSeleccionada = val);
+                      }
+                    },
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: gradoCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Grado / Grupo',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.grade),
-                    hintText: 'Ej: 5° Primaria, 3° Sec Grupo B',
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: nombreCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre de la Clase',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.school),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: descCtrl,
-                  maxLines: 2,
-                  decoration: const InputDecoration(labelText: 'Descripción del Curso', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: prefijoCtrl,
-                  textCapitalization: TextCapitalization.characters,
-                  maxLength: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Prefijo del Código (Opcional)',
-                    border: OutlineInputBorder(),
-                    hintText: 'Ej: MAT, FIS, ESP',
-                    helperText: 'Se generará automáticamente si lo dejas vacío',
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: gradoCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Grado / Grupo',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.grade),
+                      hintText: 'Ej: 5° Primaria, 3° Sec Grupo B',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade200),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: descCtrl,
+                    maxLines: 2,
+                    decoration: const InputDecoration(labelText: 'Descripción del Curso', border: OutlineInputBorder()),
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, size: 16, color: Colors.green),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Se generará un código único (ej. MAT-7429) para compartir con tus alumnos.',
-                          style: TextStyle(fontSize: 11, color: Colors.green),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: prefijoCtrl,
+                    textCapitalization: TextCapitalization.characters,
+                    maxLength: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Prefijo del Código (Opcional)',
+                      border: OutlineInputBorder(),
+                      hintText: 'Ej: MAT, FIS, ESP',
+                      helperText: 'Se generará automáticamente si lo dejas vacío',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 16, color: Colors.green),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Se generará un código único (ej. MAT-7429) para compartir con tus alumnos.',
+                            style: TextStyle(fontSize: 11, color: Colors.green),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dlgCtx, false), child: const Text('Cancelar')),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dlgCtx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700, foregroundColor: Colors.white),
+              child: const Text('Crear Clase'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dlgCtx, false), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dlgCtx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700, foregroundColor: Colors.white),
-            child: const Text('Crear Clase'),
-          ),
-        ],
       ),
     );
 
@@ -1430,6 +1563,7 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
       descripcion: descCtrl.text.trim(),
       profesorUid: widget.usuario.uid,
       profesorNombre: widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : 'Profesor',
+      institucionId: instSeleccionada,
       prefijoCodigo: prefijo.isEmpty ? null : prefijo,
     );
 
@@ -1511,6 +1645,107 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
     );
   }
 
+  void _mostrarSelectorInstitucionDocente() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final todas = widget.usuario.todasLasInstituciones;
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.account_balance, color: Colors.indigo, size: 24),
+                  SizedBox(width: 8),
+                  Text(
+                    'Instituciones del Docente',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Selecciona tu institución activa para crear clases y sesiones contextuales.',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
+              const Divider(height: 24),
+              ...todas.map((inst) {
+                final esActiva = inst == widget.usuario.institucionId;
+                final nombreInst = inst == 'INST-SAN-MARTIN'
+                    ? 'Colegio San Martín'
+                    : (inst == 'INST-BELGRANO' ? 'Instituto Belgrano' : inst);
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: esActiva ? Colors.indigo : Colors.grey.shade200,
+                    foregroundColor: esActiva ? Colors.white : Colors.black87,
+                    child: const Icon(Icons.school, size: 18),
+                  ),
+                  title: Text(nombreInst, style: TextStyle(fontWeight: esActiva ? FontWeight.bold : FontWeight.normal)),
+                  subtitle: Text(inst),
+                  trailing: esActiva
+                      ? const Chip(
+                          label: Text('Activa', style: TextStyle(color: Colors.white, fontSize: 11)),
+                          backgroundColor: Colors.indigo,
+                        )
+                      : null,
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    await widget.servicioAuth.cambiarInstitucionActiva(inst);
+                    if (mounted) setState(() {});
+                  },
+                );
+              }),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  final ctrl = TextEditingController();
+                  final nuevaInst = await showDialog<String>(
+                    context: context,
+                    builder: (d) => AlertDialog(
+                      title: const Text('Asociar Nueva Institución'),
+                      content: TextField(
+                        controller: ctrl,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: const InputDecoration(
+                          labelText: 'Código de Institución',
+                          hintText: 'Ej: INST-SARMIENTO',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(d), child: const Text('Cancelar')),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(d, ctrl.text.trim()),
+                          child: const Text('Agregar'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (nuevaInst != null && nuevaInst.isNotEmpty) {
+                    await widget.servicioAuth.agregarInstitucion(nuevaInst);
+                    if (mounted) setState(() {});
+                  }
+                },
+                icon: const Icon(Icons.add_business),
+                label: const Text('Asociar otra institución educativa'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 44),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _abrirGestionModoClase() async {
     await showDialog(
       context: context,
@@ -1536,9 +1771,42 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
             const Icon(Icons.assignment_ind_outlined),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                'Docente: ${widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : "Profesor"}',
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Docente: ${widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : "Profesor"}',
+                    style: const TextStyle(fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  InkWell(
+                    onTap: _mostrarSelectorInstitucionDocente,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.account_balance, size: 12, color: Colors.lightGreenAccent),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            widget.usuario.institucionId == 'INST-SAN-MARTIN'
+                                ? 'Colegio San Martín'
+                                : (widget.usuario.institucionId == 'INST-BELGRANO'
+                                    ? 'Instituto Belgrano'
+                                    : widget.usuario.institucionId),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.lightGreenAccent,
+                              decoration: TextDecoration.underline,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down, size: 14, color: Colors.lightGreenAccent),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

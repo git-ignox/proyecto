@@ -50,8 +50,10 @@ service cloud.firestore {
     function mismaInstitucion(institucionId) {
       return estaAutenticado() && (
         esDireccion() ||
-        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
-         datosUsuario().institucionId == institucionId)
+        (exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) && (
+          datosUsuario().institucionId == institucionId ||
+          (datosUsuario().institucionesIds != null && institucionId in datosUsuario().institucionesIds)
+        ))
       );
     }
 
@@ -67,7 +69,8 @@ service cloud.firestore {
       allow update: if estaAutenticado() && (
         esDireccion() ||
         (request.auth.uid == userId &&
-         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'permisosEspecificos', 'institucionId']))
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'permisosEspecificos', 'institucionId']) &&
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['institucionesIds']))
       );
 
       allow delete: if esDireccion();

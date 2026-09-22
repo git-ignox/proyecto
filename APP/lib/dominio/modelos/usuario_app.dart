@@ -30,8 +30,9 @@ class UsuarioApp {
     this.puntosAcumulados = 0,
     this.ejerciciosResueltos = 0,
     this.institucionId = 'INST-SAN-MARTIN',
+    List<String>? institucionesIds,
     this.permisosEspecificos = const [],
-  });
+  }) : institucionesIds = institucionesIds ?? const ['INST-SAN-MARTIN'];
 
   final String uid;
   final String? email;
@@ -42,8 +43,22 @@ class UsuarioApp {
   final int puntosAcumulados;
   final int ejerciciosResueltos;
 
-  /// ID de la institución educativa a la que pertenece el usuario
+  /// ID de la institución educativa activa o primaria a la que pertenece el usuario
   final String institucionId;
+
+  /// Lista de IDs de todas las instituciones educativas a las que pertenece el usuario
+  final List<String> institucionesIds;
+
+  /// Devuelve la lista unificada sin duplicados de todas las instituciones del usuario
+  List<String> get todasLasInstituciones {
+    final conjunto = <String>{institucionId, ...institucionesIds};
+    return conjunto.toList();
+  }
+
+  /// Verifica si el usuario pertenece a una institución específica
+  bool perteneceAInstitucion(String id) {
+    return institucionId == id || institucionesIds.contains(id);
+  }
 
   /// Permisos explícitos asignados adicionalmente a los de su rol base
   final List<String> permisosEspecificos;
@@ -65,8 +80,14 @@ class UsuarioApp {
     int? puntosAcumulados,
     int? ejerciciosResueltos,
     String? institucionId,
+    List<String>? institucionesIds,
     List<String>? permisosEspecificos,
   }) {
+    final nuevaInstId = institucionId ?? this.institucionId;
+    final nuevasInsts = institucionesIds ?? this.institucionesIds;
+    // Asegurar que la institución activa esté en la lista de instituciones
+    final listaAsegurada = <String>{nuevaInstId, ...nuevasInsts}.toList();
+
     return UsuarioApp(
       uid: uid ?? this.uid,
       email: email ?? this.email,
@@ -76,7 +97,8 @@ class UsuarioApp {
       fotoUrl: fotoUrl ?? this.fotoUrl,
       puntosAcumulados: puntosAcumulados ?? this.puntosAcumulados,
       ejerciciosResueltos: ejerciciosResueltos ?? this.ejerciciosResueltos,
-      institucionId: institucionId ?? this.institucionId,
+      institucionId: nuevaInstId,
+      institucionesIds: listaAsegurada,
       permisosEspecificos: permisosEspecificos ?? this.permisosEspecificos,
     );
   }
@@ -92,6 +114,7 @@ class UsuarioApp {
       'puntosAcumulados': puntosAcumulados,
       'ejerciciosResueltos': ejerciciosResueltos,
       'institucionId': institucionId,
+      'institucionesIds': todasLasInstituciones,
       'permisosEspecificos': permisosEspecificos,
     };
   }
@@ -107,6 +130,12 @@ class UsuarioApp {
       rolResuelto = RolUsuario.alumno;
     }
 
+    final instId = map['institucionId'] as String? ?? 'INST-SAN-MARTIN';
+    final institucionesRaw = (map['institucionesIds'] as List?)?.cast<String>();
+    final listaInsts = institucionesRaw != null && institucionesRaw.isNotEmpty
+        ? <String>{instId, ...institucionesRaw}.toList()
+        : [instId];
+
     final permisosRaw = (map['permisosEspecificos'] as List?)?.cast<String>() ?? [];
 
     return UsuarioApp(
@@ -119,7 +148,8 @@ class UsuarioApp {
       fotoUrl: map['fotoUrl'] as String?,
       puntosAcumulados: (map['puntosAcumulados'] as num?)?.toInt() ?? 0,
       ejerciciosResueltos: (map['ejerciciosResueltos'] as num?)?.toInt() ?? 0,
-      institucionId: map['institucionId'] as String? ?? 'INST-SAN-MARTIN',
+      institucionId: instId,
+      institucionesIds: listaInsts,
       permisosEspecificos: permisosRaw,
     );
   }

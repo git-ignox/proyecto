@@ -2,18 +2,28 @@ import '../dominio/modelos/clase_escolar.dart';
 
 /// Contrato de la fuente de datos para el sistema de Classroom.
 abstract interface class RepositorioClases {
-  /// Crea una nueva clase y la persiste.
+  /// Crea una nueva clase y la persiste vinculada a una institución.
   Future<ClaseEscolar> crearClase({
     required String nombre,
     required String gradoGrupo,
     required String descripcion,
     required String profesorUid,
     required String profesorNombre,
+    String institucionId = 'INST-SAN-MARTIN',
     String? prefijoCodigo,
   });
 
   /// Devuelve todas las clases donde el profesor es dueño.
   Future<List<ClaseEscolar>> obtenerClasesPorProfesor(String profesorUid);
+
+  /// Devuelve todas las clases pertenecientes a una institución específica.
+  Future<List<ClaseEscolar>> obtenerClasesPorInstitucion(String institucionId);
+
+  /// Devuelve las clases donde el profesor es dueño en una institución específica.
+  Future<List<ClaseEscolar>> obtenerClasesPorProfesorEInstitucion({
+    required String profesorUid,
+    required String institucionId,
+  });
 
   /// Devuelve todas las clases donde el alumno está matriculado.
   Future<List<ClaseEscolar>> obtenerClasesPorAlumno(String alumnoUid);

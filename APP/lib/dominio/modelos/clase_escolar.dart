@@ -26,6 +26,7 @@ class ClaseEscolar {
     required this.descripcion,
     required this.profesorUid,
     required this.profesorNombre,
+    this.institucionId = 'INST-SAN-MARTIN',
     this.planCurricularId,
     this.alumnosUids = const [],
     this.nombresAlumnos = const {},
@@ -44,6 +45,9 @@ class ClaseEscolar {
   final String descripcion;
   final String profesorUid;
   final String profesorNombre;
+
+  /// ID de la institución educativa a la que pertenece la clase escolar
+  final String institucionId;
 
   /// ID del Plan Curricular oficial asignado a esta clase (opcional).
   final String? planCurricularId;
@@ -99,6 +103,7 @@ class ClaseEscolar {
     String? descripcion,
     String? profesorUid,
     String? profesorNombre,
+    String? institucionId,
     String? planCurricularId,
     List<String>? alumnosUids,
     Map<String, String>? nombresAlumnos,
@@ -113,6 +118,7 @@ class ClaseEscolar {
       descripcion: descripcion ?? this.descripcion,
       profesorUid: profesorUid ?? this.profesorUid,
       profesorNombre: profesorNombre ?? this.profesorNombre,
+      institucionId: institucionId ?? this.institucionId,
       planCurricularId: planCurricularId ?? this.planCurricularId,
       alumnosUids: alumnosUids ?? this.alumnosUids,
       nombresAlumnos: nombresAlumnos ?? this.nombresAlumnos,
@@ -130,6 +136,7 @@ class ClaseEscolar {
       'descripcion': descripcion,
       'profesorUid': profesorUid,
       'profesorNombre': profesorNombre,
+      'institucionId': institucionId,
       'planCurricularId': planCurricularId,
       'alumnosUids': alumnosUids,
       'nombresAlumnos': nombresAlumnos,
@@ -150,6 +157,7 @@ class ClaseEscolar {
       descripcion: map['descripcion'] as String? ?? '',
       profesorUid: map['profesorUid'] as String? ?? '',
       profesorNombre: map['profesorNombre'] as String? ?? 'Profesor',
+      institucionId: map['institucionId'] as String? ?? 'INST-SAN-MARTIN',
       planCurricularId: map['planCurricularId'] as String?,
       alumnosUids: alumnosUids,
       nombresAlumnos: nombresRaw,

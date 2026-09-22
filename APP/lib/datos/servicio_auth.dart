@@ -265,10 +265,43 @@ class ServicioAuth {
     } catch (_) {}
   }
 
+  /// Cambia la institución educativa activa del usuario en sesión
+  Future<void> cambiarInstitucionActiva(String nuevaInstitucionId) async {
+    if (_usuarioCache == null) return;
+    final nuevasInsts = <String>{..._usuarioCache!.institucionesIds, nuevaInstitucionId}.toList();
+    _usuarioCache = _usuarioCache!.copyWith(
+      institucionId: nuevaInstitucionId,
+      institucionesIds: nuevasInsts,
+    );
+    _controller.add(_usuarioCache);
+
+    try {
+      await _firestore.collection('usuarios').doc(_usuarioCache!.uid).update({
+        'institucionId': nuevaInstitucionId,
+        'institucionesIds': nuevasInsts,
+      });
+    } catch (_) {}
+  }
+
+  /// Agrega una institución a la lista de instituciones autorizadas del usuario
+  Future<void> agregarInstitucion(String nuevaInstitucionId) async {
+    if (_usuarioCache == null) return;
+    final nuevasInsts = <String>{..._usuarioCache!.institucionesIds, nuevaInstitucionId}.toList();
+    _usuarioCache = _usuarioCache!.copyWith(institucionesIds: nuevasInsts);
+    _controller.add(_usuarioCache);
+
+    try {
+      await _firestore.collection('usuarios').doc(_usuarioCache!.uid).update({
+        'institucionesIds': nuevasInsts,
+      });
+    } catch (_) {}
+  }
+
   /// Inicia sesión rápida de demostración para el rol solicitado
   Future<UsuarioApp> loginDemo(RolUsuario rol) async {
     String nombreDemo;
     String uidDemo;
+    List<String> institucionesDemo = const ['INST-SAN-MARTIN'];
     switch (rol) {
       case RolUsuario.direccion:
         nombreDemo = 'Lic. María Elena Walsh (Directora)';
@@ -277,6 +310,7 @@ class ServicioAuth {
       case RolUsuario.profesor:
         nombreDemo = 'Docente Demo';
         uidDemo = 'profesor-demo';
+        institucionesDemo = const ['INST-SAN-MARTIN', 'INST-BELGRANO'];
         break;
       case RolUsuario.alumno:
         nombreDemo = 'Sofía Valenzuela';
@@ -290,6 +324,7 @@ class ServicioAuth {
       rol: rol,
       esAnonimo: true,
       institucionId: 'INST-SAN-MARTIN',
+      institucionesIds: institucionesDemo,
     );
 
     _usuarioCache = usuarioDemo;
