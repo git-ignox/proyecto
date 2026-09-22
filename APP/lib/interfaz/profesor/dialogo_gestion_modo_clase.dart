@@ -336,7 +336,7 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
             const Text('No tienes clases asignadas. Crea una clase primero.', style: TextStyle(color: Colors.red))
           else
             DropdownButtonFormField<ClaseEscolar>(
-              value: _claseSeleccionada,
+              initialValue: _claseSeleccionada,
               decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
               items: _clases.map((c) => DropdownMenuItem(
                 value: c,
