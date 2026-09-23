@@ -2,17 +2,22 @@
 // pantalla_bienvenida.dart — Pantalla de Inicio (Glassmorphism)
 //
 // Traducción fiel a Flutter del diseño Figma Make "Glassmorphism
-// Login Screen" (App.tsx).
+// Login Screen" con soporte completo para MODO CLARO y MODO OSCURO.
 //
 // Características:
-//   • Fondo #0a0804 con orbe radial naranja/rojo animado
-//     con animación sinusoidal continua (≈ requestAnimationFrame)
-//   • Halo difuso secundario que sigue al orbe
-//   • Grilla 10×10 de celdas con BackdropFilter blur (glass grid)
-//   • Texto central rotativo multi-idioma con fade + slide suave
-//   • Header con botones "Iniciar sesión" y "Crear cuenta"
-//     que despliegan panel glassmorphism con formulario real
-//   • El formulario llama a ServicioAuth — lógica intacta
+//   • Modo Oscuro (#0A0804) y Modo Claro (#DCDCE2 platinum)
+//   • Orbe luminoso flotante animado por física sinusoidal continua
+//   • Halo difuso que reacciona según la paleta del modo
+//   • Paneles de vidrio tipo baldosas (Glass Tiles) con:
+//       - Esquinas redondeadas (16px) y biseles 3D realistas
+//       - Reflejo especular superior/izquierdo y refracción inferior/derecha
+//       - Borde interno de espesor y brillo en esquinas
+//       - INTERIOR COMPLETAMENTE TRANSPARENTE para dejar ver el orbe
+//       - Espaciado entre celdas para definir cada panel de vidrio
+//   • Switcher de tema Claro/Oscuro en el header (Sol / Luna)
+//   • Texto central rotativo multi-idioma con tipografía impactante
+//   • Header con botones en cápsula de vidrio ("Iniciar sesión", "Crear cuenta")
+//   • Dropdown flotante glassmorphism con formulario completo y Firebase Auth
 // ============================================================
 
 import 'dart:math' as math;
@@ -47,8 +52,8 @@ const _welcomes = [
 
 // ── Pantalla principal ────────────────────────────────────────────────────────
 
-/// Pantalla de inicio glassmorphism.
-/// Traduce fielmente el diseño de Figma Make a Flutter.
+/// Pantalla de inicio con estética glassmorphism, soporte de modo Claro y Oscuro,
+/// orbe animado, y paneles de vidrio con bordes biselados transparentes.
 class PantallaBienvenida extends StatefulWidget {
   const PantallaBienvenida({super.key, required this.servicioAuth});
 
@@ -60,6 +65,9 @@ class PantallaBienvenida extends StatefulWidget {
 
 class _PantallaBienvenidaState extends State<PantallaBienvenida>
     with SingleTickerProviderStateMixin {
+  // ── Modo claro / oscuro ───────────────────────────────────────────────────
+  bool _isDarkMode = true;
+
   // ── Animación orbe ────────────────────────────────────────────────────────
   late final AnimationController _orbController;
   double _orbX = 0.30;
@@ -80,7 +88,7 @@ class _PantallaBienvenidaState extends State<PantallaBienvenida>
   void initState() {
     super.initState();
 
-    // Ticker continuo: actualiza posición del orbe ~60 fps
+    // Ticker continuo: actualiza posición del orbe (~60 fps)
     _orbController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -120,6 +128,21 @@ class _PantallaBienvenidaState extends State<PantallaBienvenida>
       ..dispose();
     _overlayEntry?.remove();
     super.dispose();
+  }
+
+  // ── Toggle tema ───────────────────────────────────────────────────────────
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+    // Si el dropdown está abierto, refrescarlo con el nuevo tema
+    if (_openPanel != null) {
+      final mode = _openPanel!;
+      _closePanel();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openDropdown(mode);
+      });
+    }
   }
 
   // ── Toggle panel ──────────────────────────────────────────────────────────
@@ -162,6 +185,7 @@ class _PantallaBienvenidaState extends State<PantallaBienvenida>
                 onTap: () {}, // consume taps dentro del panel
                 child: _AuthDropdown(
                   mode: mode,
+                  isDark: _isDarkMode,
                   servicioAuth: widget.servicioAuth,
                   onClose: _closePanel,
                 )
@@ -187,35 +211,62 @@ class _PantallaBienvenidaState extends State<PantallaBienvenida>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final bgColor = _isDarkMode ? const Color(0xFF0A0804) : const Color(0xFFDCDCE2);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0804),
-      body: Stack(
-        children: [
-          _Orb(orbX: _orbX, orbY: _orbY, size: size),
-          _Halo(orbX: _orbX, orbY: _orbY, size: size),
-          const _GlassGrid(),
-          _CenteredText(word: _welcomes[_wordIdx], visible: _textVisible),
-          _Header(
-            loginKey: _loginBtnKey,
-            registerKey: _registerBtnKey,
-            openPanel: _openPanel,
-            onToggle: _togglePanel,
-          ),
-        ],
+      backgroundColor: bgColor,
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        color: bgColor,
+        child: Stack(
+          children: [
+            // 1. Orbe luminoso en movimiento
+            _Orb(orbX: _orbX, orbY: _orbY, size: size, isDark: _isDarkMode),
+
+            // 2. Halo suave secundario
+            _Halo(orbX: _orbX, orbY: _orbY, size: size, isDark: _isDarkMode),
+
+            // 3. Grilla de paneles de vidrio con bordes biselados e interior transparente
+            _GlassGrid(isDark: _isDarkMode),
+
+            // 4. Texto central rotativo multi-idioma
+            _CenteredText(
+              word: _welcomes[_wordIdx],
+              visible: _textVisible,
+              isDark: _isDarkMode,
+            ),
+
+            // 5. Header superior (Botón tema, Iniciar sesión, Crear cuenta)
+            _Header(
+              loginKey: _loginBtnKey,
+              registerKey: _registerBtnKey,
+              openPanel: _openPanel,
+              isDark: _isDarkMode,
+              onToggleTheme: _toggleTheme,
+              onToggle: _togglePanel,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ── Orbe ──────────────────────────────────────────────────────────────────────
+// ── Orbe luminoso ─────────────────────────────────────────────────────────────
 
 class _Orb extends StatelessWidget {
-  const _Orb({required this.orbX, required this.orbY, required this.size});
+  const _Orb({
+    required this.orbX,
+    required this.orbY,
+    required this.size,
+    required this.isDark,
+  });
 
   final double orbX;
   final double orbY;
   final Size size;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -230,19 +281,27 @@ class _Orb extends StatelessWidget {
       child: Container(
         width: d,
         height: d,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            center: Alignment(-0.24, -0.3),
+            center: const Alignment(-0.24, -0.3),
             radius: 0.9,
-            colors: [
-              Color(0xFFFFD000),
-              Color(0xFFFF7700),
-              Color(0xFFC43200),
-              Color(0xFF6B0000),
-              Colors.transparent,
-            ],
-            stops: [0.0, 0.28, 0.55, 0.72, 0.85],
+            colors: isDark
+                ? const [
+                    Color(0xFFFFD000),
+                    Color(0xFFFF7700),
+                    Color(0xFFC43200),
+                    Color(0xFF6B0000),
+                    Colors.transparent,
+                  ]
+                : const [
+                    Color(0xFFFFF275), // Luz cálida intensa central
+                    Color(0xFFFFB703), // Ámbar dorado luminoso
+                    Color(0xFFFB8500), // Naranja vibrante
+                    Color(0xFFE63900), // Acento cálido suave
+                    Colors.transparent,
+                  ],
+            stops: const [0.0, 0.28, 0.55, 0.72, 0.85],
           ),
         ),
       ),
@@ -250,19 +309,25 @@ class _Orb extends StatelessWidget {
   }
 }
 
-// ── Halo ──────────────────────────────────────────────────────────────────────
+// ── Halo difuso ───────────────────────────────────────────────────────────────
 
 class _Halo extends StatelessWidget {
-  const _Halo({required this.orbX, required this.orbY, required this.size});
+  const _Halo({
+    required this.orbX,
+    required this.orbY,
+    required this.size,
+    required this.isDark,
+  });
 
   final double orbX;
   final double orbY;
   final Size size;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final vmin = math.min(size.width, size.height);
-    final d = vmin * 0.80;
+    final d = vmin * 0.82;
     final left = orbX * size.width - d / 2;
     final top = orbY * size.height - d / 2;
 
@@ -272,11 +337,13 @@ class _Halo extends StatelessWidget {
       child: Container(
         width: d,
         height: d,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: RadialGradient(
-            colors: [Color(0x38FF7800), Colors.transparent],
-            stops: [0.0, 0.65],
+            colors: isDark
+                ? const [Color(0x38FF7800), Colors.transparent]
+                : const [Color(0x2EFC9F1D), Colors.transparent],
+            stops: const [0.0, 0.65],
           ),
         ),
       ),
@@ -284,18 +351,22 @@ class _Halo extends StatelessWidget {
   }
 }
 
-// ── Grilla glassmorphism ──────────────────────────────────────────────────────
+// ── Grilla glassmorphism con baldosas biseladas ────────────────────────────────
 
 class _GlassGrid extends StatelessWidget {
-  const _GlassGrid();
+  const _GlassGrid({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: LayoutBuilder(
         builder: (_, c) {
-          const cols = 10;
-          const rows = 10;
+          // Cantidad dinámica de columnas/filas para que las baldosas tengan
+          // tamaño táctil prominente (~110-140px) como en la captura
+          final cols = (c.maxWidth / 120).round().clamp(4, 9);
+          final rows = (c.maxHeight / 120).round().clamp(4, 9);
           final cw = c.maxWidth / cols;
           final ch = c.maxHeight / rows;
 
@@ -306,7 +377,9 @@ class _GlassGrid extends StatelessWidget {
               return Positioned(
                 left: col * cw,
                 top: row * ch,
-                child: _GlassCell(width: cw, height: ch),
+                width: cw,
+                height: ch,
+                child: _GlassCell(isDark: isDark),
               );
             }),
           );
@@ -316,25 +389,27 @@ class _GlassGrid extends StatelessWidget {
   }
 }
 
-class _GlassCell extends StatelessWidget {
-  const _GlassCell({required this.width, required this.height});
+// ── Celda de vidrio individual con bordes biselados e interior transparente ────
 
-  final double width;
-  final double height;
+class _GlassCell extends StatelessWidget {
+  const _GlassCell({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: const BoxDecoration(
-            color: Color(0x09FFFFFF),
-            border: Border(
-              right: BorderSide(color: Color(0x12FFFFFF)),
-              bottom: BorderSide(color: Color(0x12FFFFFF)),
+    return Padding(
+      // Espaciado entre paneles de vidrio para resaltar las ranuras y bordes 3D
+      padding: const EdgeInsets.all(3.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.0),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: CustomPaint(
+            painter: _GlassTilePainter(isDark: isDark, radius: 16.0),
+            // Asegura que el interior sea 100% transparente:
+            child: Container(
+              color: Colors.transparent,
             ),
           ),
         ),
@@ -343,17 +418,131 @@ class _GlassCell extends StatelessWidget {
   }
 }
 
+// ── Pintor de bordes biselados y reflejos 3D para paneles de vidrio ────────────
+
+class _GlassTilePainter extends CustomPainter {
+  final bool isDark;
+  final double radius;
+
+  _GlassTilePainter({required this.isDark, this.radius = 16.0});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0) return;
+
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+
+    // 1. Sombra exterior para relieve de baldosas de vidrio
+    final shadowColor = isDark
+        ? Colors.black.withValues(alpha: 0.50)
+        : Colors.black.withValues(alpha: 0.08);
+
+    final shadowPaint = Paint()
+      ..color = shadowColor
+      ..maskFilter = const MaskFilter.blur(BlurStyle.outer, 3.5);
+    canvas.drawRRect(rrect, shadowPaint);
+
+    // 2. Borde exterior biselado:
+    //    Superior/izquierdo: brillo especular intenso
+    //    Inferior/derecho: refracción oscura
+    final outerGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isDark
+          ? [
+              Colors.white.withValues(alpha: 0.65), // Brillo blanco en esquina superior
+              const Color(0x60FFA03C),              // Tinte ámbar de reflexión
+              const Color(0x18FFFFFF),              // Lateral translúcido
+              Colors.black.withValues(alpha: 0.60), // Refracción inferior derecha
+            ]
+          : [
+              Colors.white.withValues(alpha: 0.95), // Reflejo blanco nítido
+              Colors.white.withValues(alpha: 0.55), // Borde reflectante claro
+              const Color(0x12000000),              // Fondo sutil
+              Colors.black.withValues(alpha: 0.22), // Sombra de refracción
+            ],
+      stops: const [0.0, 0.25, 0.60, 1.0],
+    );
+
+    final outerStrokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..shader = outerGradient.createShader(rect);
+
+    canvas.drawRRect(rrect, outerStrokePaint);
+
+    // 3. Borde interior secundario (espesor del vidrio):
+    final innerRect = rect.deflate(1.8);
+    final innerRRect = RRect.fromRectAndRadius(
+      innerRect,
+      Radius.circular(math.max(0, radius - 1.8)),
+    );
+
+    final innerGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: isDark
+          ? [
+              Colors.white.withValues(alpha: 0.35),
+              Colors.transparent,
+              Colors.black.withValues(alpha: 0.40),
+            ]
+          : [
+              Colors.white.withValues(alpha: 0.80),
+              Colors.white.withValues(alpha: 0.15),
+              Colors.black.withValues(alpha: 0.12),
+            ],
+      stops: const [0.0, 0.45, 1.0],
+    );
+
+    final innerStrokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..shader = innerGradient.createShader(innerRect);
+
+    canvas.drawRRect(innerRRect, innerStrokePaint);
+
+    // 4. Destello especular brillante en la curvatura de la esquina superior izquierda
+    final glintPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.85)
+          : Colors.white;
+
+    final arcPath = Path()
+      ..addArc(
+        Rect.fromCircle(center: Offset(radius, radius), radius: radius - 1.2),
+        math.pi,
+        math.pi / 2,
+      );
+    canvas.drawPath(arcPath, glintPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GlassTilePainter oldDelegate) =>
+      oldDelegate.isDark != isDark || oldDelegate.radius != radius;
+}
+
 // ── Texto central rotativo ────────────────────────────────────────────────────
 
 class _CenteredText extends StatelessWidget {
-  const _CenteredText({required this.word, required this.visible});
+  const _CenteredText({
+    required this.word,
+    required this.visible,
+    required this.isDark,
+  });
 
   final String word;
   final bool visible;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     final fs = (MediaQuery.of(context).size.width * 0.12).clamp(56.0, 140.0);
+    final textColor = isDark ? const Color(0xFFFF8C00) : const Color(0xFFE65100);
 
     return Positioned.fill(
       child: IgnorePointer(
@@ -370,16 +559,26 @@ class _CenteredText extends StatelessWidget {
                   fontFamily: 'Impact',
                   fontSize: fs,
                   fontWeight: FontWeight.w900,
-                  color: const Color(0xFFFF8C00),
+                  color: textColor,
                   letterSpacing: fs * -0.02,
                   height: 1,
-                  shadows: const [
-                    Shadow(color: Color(0x80FF8C00), blurRadius: 60),
-                    Shadow(
-                        color: Color(0x99000000),
-                        offset: Offset(0, 2),
-                        blurRadius: 30),
-                  ],
+                  shadows: isDark
+                      ? const [
+                          Shadow(color: Color(0x80FF8C00), blurRadius: 60),
+                          Shadow(
+                            color: Color(0x99000000),
+                            offset: Offset(0, 2),
+                            blurRadius: 30,
+                          ),
+                        ]
+                      : const [
+                          Shadow(color: Color(0x50FF8C00), blurRadius: 40),
+                          Shadow(
+                            color: Color(0x20000000),
+                            offset: Offset(0, 2),
+                            blurRadius: 15,
+                          ),
+                        ],
                 ),
               ),
             ),
@@ -390,19 +589,23 @@ class _CenteredText extends StatelessWidget {
   }
 }
 
-// ── Header con botones ────────────────────────────────────────────────────────
+// ── Header con botones de acción y alternador de tema ─────────────────────────
 
 class _Header extends StatelessWidget {
   const _Header({
     required this.loginKey,
     required this.registerKey,
     required this.openPanel,
+    required this.isDark,
+    required this.onToggleTheme,
     required this.onToggle,
   });
 
   final GlobalKey loginKey;
   final GlobalKey registerKey;
   final String? openPanel;
+  final bool isDark;
+  final VoidCallback onToggleTheme;
   final void Function(String) onToggle;
 
   @override
@@ -418,17 +621,29 @@ class _Header extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              // Botón selector de Modo Claro / Modo Oscuro
+              _ThemeToggleButton(
+                isDark: isDark,
+                onToggle: onToggleTheme,
+              ),
+              const SizedBox(width: 12),
+
+              // Botón Iniciar sesión
               _HeaderButton(
                 key: loginKey,
                 label: 'Iniciar sesión',
                 isActive: openPanel == 'login',
+                isDark: isDark,
                 onTap: () => onToggle('login'),
               ),
               const SizedBox(width: 10),
+
+              // Botón Crear cuenta
               _HeaderButton(
                 key: registerKey,
                 label: 'Crear cuenta',
                 isActive: openPanel == 'register',
+                isDark: isDark,
                 onTap: () => onToggle('register'),
               ),
             ],
@@ -439,18 +654,79 @@ class _Header extends StatelessWidget {
   }
 }
 
-// ── Botón del header ──────────────────────────────────────────────────────────
+// ── Botón Switcher de Modo Claro / Oscuro ─────────────────────────────────────
+
+class _ThemeToggleButton extends StatefulWidget {
+  const _ThemeToggleButton({
+    required this.isDark,
+    required this.onToggle,
+  });
+
+  final bool isDark;
+  final VoidCallback onToggle;
+
+  @override
+  State<_ThemeToggleButton> createState() => _ThemeToggleButtonState();
+}
+
+class _ThemeToggleButtonState extends State<_ThemeToggleButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = widget.isDark
+        ? (_hovered ? Colors.white : const Color(0x66FFFFFF))
+        : (_hovered ? const Color(0xFF1E1B18) : const Color(0x401E1B18));
+
+    final iconColor = widget.isDark
+        ? (_hovered ? const Color(0xFFFFB703) : const Color(0xD9FFFFFF))
+        : (_hovered ? const Color(0xFFDB4406) : const Color(0xCC1E1B18));
+
+    final bgColor = widget.isDark
+        ? (_hovered ? const Color(0x1AFFFFFF) : const Color(0x0DFFFFFF))
+        : (_hovered ? const Color(0x18000000) : const Color(0x0A000000));
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Tooltip(
+        message: widget.isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro',
+        child: GestureDetector(
+          onTap: widget.onToggle,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: bgColor,
+              border: Border.all(color: borderColor),
+            ),
+            child: Icon(
+              widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              size: 18,
+              color: iconColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Botón cápsula del header ──────────────────────────────────────────────────
 
 class _HeaderButton extends StatefulWidget {
   const _HeaderButton({
     super.key,
     required this.label,
     required this.isActive,
+    required this.isDark,
     required this.onTap,
   });
 
   final String label;
   final bool isActive;
+  final bool isDark;
   final VoidCallback onTap;
 
   @override
@@ -464,6 +740,18 @@ class _HeaderButtonState extends State<_HeaderButton> {
   Widget build(BuildContext context) {
     final highlight = widget.isActive || _hovered;
 
+    final borderColor = widget.isDark
+        ? (highlight ? Colors.white : const Color(0x8CFFFFFF))
+        : (highlight ? const Color(0xFF1E1B18) : const Color(0x4D1E1B18));
+
+    final textColor = widget.isDark
+        ? (highlight ? Colors.white : const Color(0xBFFFFFFF))
+        : (highlight ? const Color(0xFF1E1B18) : const Color(0x991E1B18));
+
+    final bgColor = widget.isDark
+        ? (highlight ? const Color(0x1AFFFFFF) : Colors.transparent)
+        : (highlight ? const Color(0x14000000) : Colors.transparent);
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
@@ -474,16 +762,15 @@ class _HeaderButtonState extends State<_HeaderButton> {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 9),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-              color: highlight ? Colors.white : const Color(0x8CFFFFFF),
-            ),
+            color: bgColor,
+            border: Border.all(color: borderColor),
           ),
           child: Text(
             widget.label,
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: highlight ? Colors.white : const Color(0xBFFFFFFF),
+              color: textColor,
               letterSpacing: 0.3,
             ),
           ),
@@ -498,11 +785,13 @@ class _HeaderButtonState extends State<_HeaderButton> {
 class _AuthDropdown extends StatefulWidget {
   const _AuthDropdown({
     required this.mode,
+    required this.isDark,
     required this.servicioAuth,
     required this.onClose,
   });
 
   final String mode;
+  final bool isDark;
   final ServicioAuth servicioAuth;
   final VoidCallback onClose;
 
@@ -580,6 +869,32 @@ class _AuthDropdownState extends State<_AuthDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+
+    final panelBg = isDark
+        ? const Color(0xD10C0804)
+        : const Color(0xEEF8F7F5);
+
+    final panelBorder = isDark
+        ? const Color(0x1FFFFFFF)
+        : const Color(0x26000000);
+
+    final panelShadow = isDark
+        ? const Color(0xB2000000)
+        : const Color(0x26000000);
+
+    final dividerColor = isDark
+        ? Colors.white.withAlpha(25)
+        : const Color(0x20000000);
+
+    final dividerTextColor = isDark
+        ? Colors.white24
+        : const Color(0x601E1B18);
+
+    final forgotPassColor = isDark
+        ? const Color(0x99FFA03C)
+        : const Color(0xFFC43800);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -588,14 +903,14 @@ class _AuthDropdownState extends State<_AuthDropdown> {
           width: 300,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: const Color(0xD10C0804),
+            color: panelBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0x1FFFFFFF)),
-            boxShadow: const [
+            border: Border.all(color: panelBorder),
+            boxShadow: [
               BoxShadow(
-                color: Color(0xB2000000),
-                blurRadius: 80,
-                offset: Offset(0, 24),
+                color: panelShadow,
+                blurRadius: 70,
+                offset: const Offset(0, 20),
               ),
             ],
           ),
@@ -605,28 +920,38 @@ class _AuthDropdownState extends State<_AuthDropdown> {
             children: [
               // ── Campos ────────────────────────────────────────────────────
               if (widget.mode == 'register') ...[
-                _Label('Nombre'),
+                _Label('Nombre', isDark: isDark),
                 const SizedBox(height: 5),
-                _GlassInput(ctrl: _nombreCtrl, hint: 'Tu nombre'),
+                _GlassInput(ctrl: _nombreCtrl, hint: 'Tu nombre', isDark: isDark),
                 const SizedBox(height: 12),
               ],
-              _Label('Correo'),
+              _Label('Correo', isDark: isDark),
               const SizedBox(height: 5),
               _GlassInput(
                 ctrl: _emailCtrl,
                 hint: 'hola@ejemplo.com',
                 type: TextInputType.emailAddress,
+                isDark: isDark,
               ),
               const SizedBox(height: 12),
-              _Label('Contraseña'),
+              _Label('Contraseña', isDark: isDark),
               const SizedBox(height: 5),
-              _GlassInput(ctrl: _passCtrl, hint: '••••••••', obscure: true),
+              _GlassInput(
+                ctrl: _passCtrl,
+                hint: '••••••••',
+                obscure: true,
+                isDark: isDark,
+              ),
               if (widget.mode == 'register') ...[
                 const SizedBox(height: 12),
-                _Label('Confirmar contraseña'),
+                _Label('Confirmar contraseña', isDark: isDark),
                 const SizedBox(height: 5),
                 _GlassInput(
-                    ctrl: _confirmCtrl, hint: '••••••••', obscure: true),
+                  ctrl: _confirmCtrl,
+                  hint: '••••••••',
+                  obscure: true,
+                  isDark: isDark,
+                ),
               ],
 
               // ── Olvidé contraseña ─────────────────────────────────────────
@@ -640,9 +965,9 @@ class _AuthDropdownState extends State<_AuthDropdown> {
                       '¿Olvidaste tu contraseña?',
                       style: GoogleFonts.inter(
                         fontSize: 11,
-                        color: const Color(0x99FFA03C),
+                        color: forgotPassColor,
                         decoration: TextDecoration.underline,
-                        decorationColor: const Color(0x99FFA03C),
+                        decorationColor: forgotPassColor,
                       ),
                     ),
                   ),
@@ -653,8 +978,7 @@ class _AuthDropdownState extends State<_AuthDropdown> {
               if (_error != null) ...[
                 const SizedBox(height: 10),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0x30FF4400),
                     borderRadius: BorderRadius.circular(8),
@@ -663,7 +987,9 @@ class _AuthDropdownState extends State<_AuthDropdown> {
                   child: Text(
                     _error!,
                     style: GoogleFonts.inter(
-                        fontSize: 11, color: const Color(0xFFFF8060)),
+                      fontSize: 11,
+                      color: isDark ? const Color(0xFFFF8060) : const Color(0xFFC62828),
+                    ),
                   ),
                 ),
               ],
@@ -674,34 +1000,30 @@ class _AuthDropdownState extends State<_AuthDropdown> {
               _GlassButton(
                 label: widget.mode == 'login' ? 'Entrar' : 'Crear cuenta',
                 loading: _loading,
+                isDark: isDark,
                 onTap: _loading ? null : _submit,
               ),
 
               const SizedBox(height: 14),
               Row(children: [
-                Expanded(
-                    child: Divider(
-                        color: Colors.white.withAlpha(25), thickness: 1)),
+                Expanded(child: Divider(color: dividerColor, thickness: 1)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('o',
-                      style: GoogleFonts.inter(
-                          fontSize: 11, color: Colors.white24)),
+                  child: Text('o', style: GoogleFonts.inter(fontSize: 11, color: dividerTextColor)),
                 ),
-                Expanded(
-                    child: Divider(
-                        color: Colors.white.withAlpha(25), thickness: 1)),
+                Expanded(child: Divider(color: dividerColor, thickness: 1)),
               ]),
               const SizedBox(height: 14),
 
-              // ── Google ────────────────────────────────────────────────────
+              // ── Botón Google ──────────────────────────────────────────────
               _GlassButton(
                 label: 'Continuar con Google',
                 loading: false,
+                isDark: isDark,
                 onTap: _loading
                     ? null
                     : () => _run(() => widget.servicioAuth.loginConGoogle()),
-                icon: _GoogleIcon(),
+                icon: const _GoogleIcon(),
                 subtle: true,
               ),
             ],
@@ -715,8 +1037,9 @@ class _AuthDropdownState extends State<_AuthDropdown> {
 // ── Subwidgets del dropdown ───────────────────────────────────────────────────
 
 class _Label extends StatelessWidget {
-  const _Label(this.text);
+  const _Label(this.text, {required this.isDark});
   final String text;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -725,7 +1048,7 @@ class _Label extends StatelessWidget {
       style: GoogleFonts.inter(
         fontSize: 10,
         letterSpacing: 1.5,
-        color: const Color(0x59FFFFFF),
+        color: isDark ? const Color(0x59FFFFFF) : const Color(0x8C1E1B18),
         fontWeight: FontWeight.w500,
       ),
     );
@@ -736,12 +1059,14 @@ class _GlassInput extends StatefulWidget {
   const _GlassInput({
     required this.ctrl,
     required this.hint,
+    required this.isDark,
     this.obscure = false,
     this.type = TextInputType.text,
   });
 
   final TextEditingController ctrl;
   final String hint;
+  final bool isDark;
   final bool obscure;
   final TextInputType type;
 
@@ -754,31 +1079,38 @@ class _GlassInputState extends State<_GlassInput> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+
+    final bgColor = isDark
+        ? const Color(0x12FFFFFF)
+        : const Color(0x0A000000);
+
+    final borderColor = _focused
+        ? (isDark ? const Color(0x80FF8C00) : const Color(0xFFDB4406))
+        : (isDark ? const Color(0x26FFFFFF) : const Color(0x20000000));
+
+    final textColor = isDark ? Colors.white : const Color(0xFF1E1B18);
+    final hintColor = isDark ? const Color(0x40FFFFFF) : const Color(0x591E1B18);
+
     return Focus(
       onFocusChange: (f) => setState(() => _focused = f),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: const Color(0x12FFFFFF),
-          border: Border.all(
-            color: _focused
-                ? const Color(0x80FF8C00)
-                : const Color(0x26FFFFFF),
-          ),
+          color: bgColor,
+          border: Border.all(color: borderColor),
         ),
         child: TextField(
           controller: widget.ctrl,
           obscureText: widget.obscure,
           keyboardType: widget.type,
-          style: GoogleFonts.inter(fontSize: 13, color: Colors.white),
-          cursorColor: const Color(0xFFFF8C00),
+          style: GoogleFonts.inter(fontSize: 13, color: textColor),
+          cursorColor: isDark ? const Color(0xFFFF8C00) : const Color(0xFFDB4406),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: GoogleFonts.inter(
-                fontSize: 13, color: const Color(0x40FFFFFF)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            hintStyle: GoogleFonts.inter(fontSize: 13, color: hintColor),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             border: InputBorder.none,
           ),
         ),
@@ -791,6 +1123,7 @@ class _GlassButton extends StatefulWidget {
   const _GlassButton({
     required this.label,
     required this.loading,
+    required this.isDark,
     required this.onTap,
     this.icon,
     this.subtle = false,
@@ -798,6 +1131,7 @@ class _GlassButton extends StatefulWidget {
 
   final String label;
   final bool loading;
+  final bool isDark;
   final VoidCallback? onTap;
   final Widget? icon;
   final bool subtle;
@@ -811,13 +1145,24 @@ class _GlassButtonState extends State<_GlassButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = widget.isDark;
     final highlight = _hovered || !widget.subtle;
-    final borderColor = highlight
-        ? (widget.subtle ? const Color(0x80FFFFFF) : const Color(0x8CFFFFFF))
-        : const Color(0x33FFFFFF);
-    final textColor = highlight
-        ? (widget.subtle ? const Color(0xCCFFFFFF) : const Color(0xD9FFFFFF))
-        : const Color(0x8CFFFFFF);
+
+    final borderColor = isDark
+        ? (highlight
+            ? (widget.subtle ? const Color(0x80FFFFFF) : const Color(0x8CFFFFFF))
+            : const Color(0x33FFFFFF))
+        : (highlight
+            ? (widget.subtle ? const Color(0xFF1E1B18) : const Color(0xFFDB4406))
+            : const Color(0x28000000));
+
+    final textColor = isDark
+        ? (highlight
+            ? (widget.subtle ? const Color(0xCCFFFFFF) : const Color(0xD9FFFFFF))
+            : const Color(0x8CFFFFFF))
+        : (highlight
+            ? (widget.subtle ? const Color(0xFF1E1B18) : const Color(0xFFDB4406))
+            : const Color(0x8C1E1B18));
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -834,13 +1179,15 @@ class _GlassButtonState extends State<_GlassButton> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: widget.loading
-                ? const [
+                ? [
                     SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white54),
-                    )
+                        strokeWidth: 2,
+                        color: isDark ? Colors.white54 : const Color(0xFFDB4406),
+                      ),
+                    ),
                   ]
                 : [
                     if (widget.icon != null) ...[
@@ -864,14 +1211,13 @@ class _GlassButtonState extends State<_GlassButton> {
   }
 }
 
-// ── Ícono Google en colores reales ────────────────────────────────────────────
+// ── Ícono Google en 4 colores vectoriales ─────────────────────────────────────
 
 class _GoogleIcon extends StatelessWidget {
   const _GoogleIcon();
 
   @override
   Widget build(BuildContext context) {
-    // SVG paths del logo de Google renderizados con CustomPaint
     return SizedBox(
       width: 15,
       height: 15,
@@ -883,32 +1229,54 @@ class _GoogleIcon extends StatelessWidget {
 class _GooglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final s = size.width / 24;
-    canvas.scale(s);
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final strokeW = size.width * 0.22;
 
-    _fill(canvas, const Color(0xFF4285F4),
-        'M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92'
-        'c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57'
-        'c2.08-1.92 3.28-4.74 3.28-8.09z');
-    _fill(canvas, const Color(0xFF34A853),
-        'M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77'
-        'c-.98.66-2.23 1.06-3.71 1.06'
-        'c-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84'
-        'C3.99 20.53 7.7 23 12 23z');
-    _fill(canvas, const Color(0xFFFBBC05),
-        'M5.84 14.09c-.22-.66-.35-1.36-.35-2.09'
-        's.13-1.43.35-2.09V7.07H2.18'
-        'C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z');
-    _fill(canvas, const Color(0xFFEA4335),
-        'M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15'
-        'C17.45 2.09 14.97 1 12 1'
-        'C7.7 1 3.99 3.47 2.18 7.07l3.66 2.84'
-        'c.87-2.6 3.3-4.53 6.16-4.53z');
-  }
+    final rect = Rect.fromCircle(center: center, radius: radius - strokeW / 2);
 
-  void _fill(Canvas canvas, Color color, String _) {
-    // No-op placeholder — SVG path parsing needs path_parsing package
-    // The icon is rendered as a simple colored 'G' instead
+    final bluePaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.butt;
+
+    final greenPaint = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.butt;
+
+    final yellowPaint = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.butt;
+
+    final redPaint = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.butt;
+
+    // Arcos del logo 'G'
+    canvas.drawArc(rect, -math.pi * 0.80, math.pi * 0.55, false, redPaint);
+    canvas.drawArc(rect, -math.pi * 1.35, math.pi * 0.55, false, yellowPaint);
+    canvas.drawArc(rect, -math.pi * 1.90, math.pi * 0.55, false, greenPaint);
+    canvas.drawArc(rect, -math.pi * 0.25, math.pi * 0.35, false, bluePaint);
+
+    // Barra horizontal del 'G'
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeW
+      ..strokeCap = StrokeCap.butt;
+
+    canvas.drawLine(
+      Offset(center.dx - 1, center.dy),
+      Offset(size.width - strokeW / 4, center.dy),
+      barPaint,
+    );
   }
 
   @override
