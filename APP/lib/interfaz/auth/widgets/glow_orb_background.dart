@@ -1,19 +1,10 @@
 // ============================================================
 // glow_orb_background.dart — Fondo con esferas de luz difusas
 //
-// Renderiza 4 orbs de luz en tonos naranja/ámbar que se mueven
-// suavemente en trayectorias circulares independientes.
-//
-// Técnica:
-//   1. Cada orb es un Container circular con RadialGradient.
-//   2. Un Stack los superpone sobre el fondo oscuro.
-//   3. Un único BackdropFilter con ImageFilter.blur(80,80) sobre
-//      toda la capa los convierte en manchas de luz difusas.
-//   4. Cada AnimationController corre a velocidad y fase distintas
-//      para que los movimientos nunca se sincronicen (look orgánico).
-//
-// Ajuste de paleta: todos los colores vienen de AppColors, lo que
-// permite cambiar la estética global sin tocar este archivo.
+// Técnica correcta:
+//   • LayoutBuilder envuelve el Stack entero → conocemos w/h una vez
+//   • AnimatedBuilder devuelve Positioned directamente como hijo de Stack
+//   • BackdropFilter con blur 80 convierte los orbs en manchas difusas
 // ============================================================
 
 import 'dart:math' as math;
@@ -41,10 +32,9 @@ class _GlowOrbBackgroundState extends State<GlowOrbBackground>
       color: AppColors.orbNaranja,
       radius: 180,
       durationMs: 11000,
-      // Inicio en cuadrante superior-izquierdo
       centerX: 0.15,
       centerY: 0.12,
-      amplitude: 0.08, // cuánto se mueve en X/Y relativo al ancho/alto
+      amplitude: 0.08,
     ),
     _OrbConfig(
       color: AppColors.orbAmbar,
@@ -72,19 +62,19 @@ class _GlowOrbBackgroundState extends State<GlowOrbBackground>
     ),
   ];
 
-  late final List<AnimationController> _controllers;
-  // Desfase de fase inicial para que cada orb arranque en un ángulo distinto
+  // Desfase de fase para que los orbs no se muevan sincronizados
   static const _phaseOffsets = [0.0, 0.3, 0.6, 0.85];
+
+  late final List<AnimationController> _controllers;
 
   @override
   void initState() {
     super.initState();
     _controllers = List.generate(_orbConfigs.length, (i) {
-      final ctrl = AnimationController(
+      return AnimationController(
         vsync: this,
         duration: Duration(milliseconds: _orbConfigs[i].durationMs),
       )..repeat();
-      return ctrl;
     });
   }
 
@@ -98,31 +88,34 @@ class _GlowOrbBackgroundState extends State<GlowOrbBackground>
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      // Fondo base oscuro: café muy oscuro derivado del naranja
-      color: AppColors.fondoOscuro,
-      child: Stack(
-        children: [
-          // ── Capa de orbs ──────────────────────────────────────────────────
-          // Los orbs se pintan sin blur primero...
-          ...List.generate(_orbConfigs.length, (i) {
-            final config = _orbConfigs[i];
-            return AnimatedBuilder(
-              animation: _controllers[i],
-              builder: (context, _) {
-                final t = (_controllers[i].value + _phaseOffsets[i]) % 1.0;
-                // Movimiento circular suave via seno/coseno
-                final angle = t * 2 * math.pi;
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final w = constraints.maxWidth;
-                    final h = constraints.maxHeight;
-                    // Posición central relativa + desplazamiento sinusoidal
+    // LayoutBuilder en el nivel raíz → conocemos las dimensiones antes
+    // de construir el Stack, así Positioned siempre tiene un Stack como padre.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final w = constraints.maxWidth;
+        final h = constraints.maxHeight;
+
+        return ColoredBox(
+          color: AppColors.fondoOscuro,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              // ── Orbs animados ───────────────────────────────────────────
+              // Cada AnimatedBuilder devuelve un Positioned directamente,
+              // que es hijo inmediato del Stack → no hay conflicto de ParentData.
+              ...List.generate(_orbConfigs.length, (i) {
+                final config = _orbConfigs[i];
+                return AnimatedBuilder(
+                  animation: _controllers[i],
+                  builder: (context, _) {
+                    final t =
+                        (_controllers[i].value + _phaseOffsets[i]) % 1.0;
+                    final angle = t * 2 * math.pi;
+                    final r = config.radius.toDouble();
                     final cx = w * config.centerX +
                         w * config.amplitude * math.cos(angle);
                     final cy = h * config.centerY +
                         h * config.amplitude * math.sin(angle);
-                    final r = config.radius.toDouble();
 
                     return Positioned(
                       left: cx - r,
@@ -135,38 +128,38 @@ class _GlowOrbBackgroundState extends State<GlowOrbBackground>
                           gradient: RadialGradient(
                             colors: [
                               config.color,
-                              config.color.withAlpha(0), // desvanece al borde
+                              config.color.withAlpha(0),
                             ],
-                            stops: const [0.0, 1.0],
                           ),
                         ),
                       ),
                     );
                   },
                 );
-              },
-            );
-          }),
+              }),
 
-          // ── Blur global sobre los orbs ────────────────────────────────────
-          // sigmaX/Y 80 produce el efecto "lámpara de lava desenfocada".
-          // Se aplica SOLO sobre los orbs, no sobre el contenido encima.
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-              child: const ColoredBox(color: Colors.transparent),
-            ),
+              // ── Capa de blur global ─────────────────────────────────────
+              // Se aplica SOBRE los orbs pero BAJO el contenido de la app.
+              // sigma 80 → manchas de luz difusas estilo lámpara de lava.
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                  child: const ColoredBox(color: Colors.transparent),
+                ),
+              ),
+
+              // ── Contenido encima del fondo ──────────────────────────────
+              if (widget.child != null)
+                Positioned.fill(child: widget.child!),
+            ],
           ),
-
-          // ── Contenido encima ──────────────────────────────────────────────
-          if (widget.child != null) widget.child!,
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-// Configuración inmutable de cada orb (const → sin overhead en hot reload)
+// Configuración inmutable de cada orb (const → cero overhead)
 class _OrbConfig {
   const _OrbConfig({
     required this.color,
@@ -180,7 +173,7 @@ class _OrbConfig {
   final Color color;
   final int radius;
   final int durationMs;
-  final double centerX; // 0.0–1.0 relativo al ancho del contenedor
-  final double centerY; // 0.0–1.0 relativo al alto del contenedor
-  final double amplitude; // 0.0–1.0 relativo al ancho/alto
+  final double centerX;
+  final double centerY;
+  final double amplitude;
 }
