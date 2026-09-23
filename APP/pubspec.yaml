@@ -42,6 +42,14 @@ dependencies:
   firebase_storage: ^12.4.4
   google_sign_in: ^6.2.2
 
+  # ── UI: Glassmorphism Auth Screen ──────────────────────────────────────────
+  # Contenedores con blur, gradiente y borde configurable (iOS/Android/Web/Desktop)
+  glassmorphism: ^3.0.0
+  # Tipografía moderna sans-serif (Inter, Plus Jakarta Sans)
+  google_fonts: ^6.2.1
+  # Microinteracciones declarativas: aparición de tarjeta, toggle, glow pulse
+  flutter_animate: ^4.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
