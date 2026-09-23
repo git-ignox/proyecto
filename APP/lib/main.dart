@@ -26,7 +26,7 @@ import 'dominio/evaluadores/servicio_evaluacion.dart';
 import 'dominio/modelos/usuario_app.dart';
 import 'interfaz/direccion/pantalla_direccion.dart';
 import 'interfaz/pantalla_alumno.dart';
-import 'interfaz/pantalla_autenticacion.dart';
+import 'interfaz/pantalla_bienvenida.dart';
 import 'interfaz/pantalla_profesor.dart';
 
 Future<void> main() async {
@@ -133,7 +133,7 @@ class AppMatematicas extends StatelessWidget {
           final usuario = snapshot.data;
 
           if (usuario == null) {
-            return PantallaAutenticacion(servicioAuth: auth);
+            return PantallaBienvenida(servicioAuth: auth);
           }
 
           if (usuario.rol == RolUsuario.direccion) {
