@@ -173,33 +173,36 @@ class _PantallaBienvenidaState extends State<PantallaBienvenida>
     setState(() => _openPanel = mode);
 
     _overlayEntry = OverlayEntry(
-      builder: (ctx) => GestureDetector(
-        onTap: _closePanel,
-        behavior: HitTestBehavior.translucent,
-        child: Stack(
-          children: [
-            Positioned(
-              top: pos.dy + btnSize.height + 8,
-              right: screenW - (pos.dx + btnSize.width),
-              child: GestureDetector(
-                onTap: () {}, // consume taps dentro del panel
-                child: _AuthDropdown(
-                  mode: mode,
-                  isDark: _isDarkMode,
-                  servicioAuth: widget.servicioAuth,
-                  onClose: _closePanel,
-                )
-                    .animate()
-                    .fadeIn(duration: 220.ms)
-                    .slideY(
-                      begin: -0.06,
-                      end: 0,
-                      duration: 220.ms,
-                      curve: Curves.easeOut,
-                    ),
+      builder: (ctx) => Material(
+        color: Colors.transparent,
+        child: GestureDetector(
+          onTap: _closePanel,
+          behavior: HitTestBehavior.translucent,
+          child: Stack(
+            children: [
+              Positioned(
+                top: pos.dy + btnSize.height + 8,
+                right: screenW - (pos.dx + btnSize.width),
+                child: GestureDetector(
+                  onTap: () {}, // consume taps dentro del panel
+                  child: _AuthDropdown(
+                    mode: mode,
+                    isDark: _isDarkMode,
+                    servicioAuth: widget.servicioAuth,
+                    onClose: _closePanel,
+                  )
+                      .animate()
+                      .fadeIn(duration: 220.ms)
+                      .slideY(
+                        begin: -0.06,
+                        end: 0,
+                        duration: 220.ms,
+                        curve: Curves.easeOut,
+                      ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -399,202 +402,33 @@ class _Halo extends StatelessWidget {
   }
 }
 
-// ── Grilla glassmorphism interactiva con paneles móviles que acumulan opacidades ──
+// ── Grilla glassmorphism — diseño original del zip (10×10, pantalla completa) ─
 
-class _GlassGrid extends StatefulWidget {
+class _GlassGrid extends StatelessWidget {
   const _GlassGrid({required this.isDark});
 
   final bool isDark;
 
   @override
-  State<_GlassGrid> createState() => _GlassGridState();
-}
-
-class _TileItem {
-  final int id;
-  Offset offset;
-  final double size;
-  bool isDragging = false;
-
-  _TileItem({
-    required this.id,
-    required this.offset,
-    required this.size,
-  });
-}
-
-class _GlassGridState extends State<_GlassGrid> {
-  List<_TileItem>? _tiles;
-  Size? _lastSize;
-
-  void _initTiles(BoxConstraints c) {
-    final cols = (c.maxWidth / 400).round().clamp(1, 5);
-    final tileSize = c.maxWidth / cols;
-    final rows = (c.maxHeight / tileSize).ceil() + 1;
-    final startY = (c.maxHeight - (rows * tileSize)) / 2;
-
-    final items = <_TileItem>[];
-    int id = 0;
-    for (int r = 0; r < rows; r++) {
-      for (int col = 0; col < cols; col++) {
-        items.add(_TileItem(
-          id: id++,
-          offset: Offset(col * tileSize, startY + r * tileSize),
-          size: tileSize,
-        ));
-      }
-    }
-    _tiles = items;
-    _lastSize = Size(c.maxWidth, c.maxHeight);
-  }
-
-  // Doble clic en un panel: lo duplica creando uno nuevo con leve desfase
-  void _duplicateTile(_TileItem source) {
-    setState(() {
-      final newId = DateTime.now().microsecondsSinceEpoch;
-      final newTile = _TileItem(
-        id: newId,
-        offset: source.offset + const Offset(26, 26),
-        size: source.size,
-      );
-      _tiles!.add(newTile);
-    });
-  }
-
-  // Elimina un panel individual
-  void _deleteTile(_TileItem tile) {
-    setState(() {
-      _tiles!.remove(tile);
-    });
-  }
-
-  // Crea un nuevo panel al hacer doble clic en el fondo vacío
-  void _createTileAt(Offset pos, double size) {
-    setState(() {
-      final newId = DateTime.now().microsecondsSinceEpoch;
-      final newTile = _TileItem(
-        id: newId,
-        offset: Offset(pos.dx - size / 2, pos.dy - size / 2),
-        size: size,
-      );
-      _tiles!.add(newTile);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: LayoutBuilder(
-        builder: (context, c) {
-          if (_tiles == null ||
-              _lastSize == null ||
-              (_lastSize!.width - c.maxWidth).abs() > 40 ||
-              (_lastSize!.height - c.maxHeight).abs() > 40) {
-            _initTiles(c);
-          }
+        builder: (_, c) {
+          const cols = 10;
+          const rows = 10;
+          final cw = c.maxWidth / cols;
+          final ch = c.maxHeight / rows;
 
-          final cols = (c.maxWidth / 400).round().clamp(1, 5);
-          final tileSize = c.maxWidth / cols;
-
-          return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onDoubleTapDown: (details) {
-              _createTileAt(details.localPosition, tileSize);
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ..._tiles!.map((tile) {
-                  return Positioned(
-                    left: tile.offset.dx,
-                    top: tile.offset.dy,
-                    width: tile.size,
-                    height: tile.size,
-                    child: MouseRegion(
-                      cursor: tile.isDragging
-                          ? SystemMouseCursors.grabbing
-                          : SystemMouseCursors.grab,
-                      child: GestureDetector(
-                        onDoubleTap: () => _duplicateTile(tile),
-                        onSecondaryTap: () => _deleteTile(tile),
-                        onPanStart: (_) {
-                          setState(() {
-                            tile.isDragging = true;
-                            // Traer al frente para que quede en la capa superior y filtre/acumule sobre los demás
-                            _tiles!.remove(tile);
-                            _tiles!.add(tile);
-                          });
-                        },
-                        onPanUpdate: (details) {
-                          setState(() {
-                            tile.offset += details.delta;
-                          });
-                        },
-                        onPanEnd: (_) {
-                          setState(() {
-                            tile.isDragging = false;
-                          });
-                        },
-                        child: AnimatedScale(
-                          scale: tile.isDragging ? 1.025 : 1.0,
-                          duration: const Duration(milliseconds: 120),
-                          child: _GlassCell(
-                            isDark: widget.isDark,
-                            isDragging: tile.isDragging,
-                            onDelete: () => _deleteTile(tile),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-
-                // Botón discreto para restaurar la grilla si se eliminaron todos los paneles
-                if (_tiles!.isEmpty)
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _initTiles(c)),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          color: widget.isDark
-                              ? const Color(0x33FFFFFF)
-                              : const Color(0x18000000),
-                          border: Border.all(
-                            color: widget.isDark
-                                ? const Color(0x66FFFFFF)
-                                : const Color(0x33000000),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.refresh_rounded,
-                              size: 16,
-                              color: widget.isDark
-                                  ? Colors.white
-                                  : const Color(0xFF1E1B18),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Restaurar paneles de vidrio',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: widget.isDark
-                                    ? Colors.white
-                                    : const Color(0xFF1E1B18),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          return Stack(
+            children: List.generate(rows * cols, (i) {
+              final col = i % cols;
+              final row = i ~/ cols;
+              return Positioned(
+                left: col * cw,
+                top: row * ch,
+                child: _GlassCell(width: cw, height: ch, isDark: isDark),
+              );
+            }),
           );
         },
       ),
@@ -602,101 +436,52 @@ class _GlassGridState extends State<_GlassGrid> {
   }
 }
 
-// ── Celda de vidrio: interactiva, punto medio de difusión y opacidad acumulable ─
+// ── Celda de vidrio — fiel al zip: blur + saturate, thin border, sin bezels ──
 
 class _GlassCell extends StatelessWidget {
   const _GlassCell({
+    required this.width,
+    required this.height,
     required this.isDark,
-    required this.onDelete,
-    this.isDragging = false,
   });
 
+  final double width;
+  final double height;
   final bool isDark;
-  final VoidCallback onDelete;
-  final bool isDragging;
 
   @override
   Widget build(BuildContext context) {
-    // Matriz de amplificación en punto medio (saturación y luminancia equilibrada)
-    final amplifyFilter = ui.ColorFilter.matrix(
-      isDark
-          ? const [
-              1.18, -0.15, -0.03, 0, 3,
-              -0.05, 1.10, -0.03, 0, 3,
-              -0.05, -0.15, 1.20, 0, 3,
-              0,     0,     0,    1, 0,
-            ]
-          : const [
-              1.14, -0.12, -0.02, 0, 4,
-              -0.04, 1.08, -0.02, 0, 4,
-              -0.04, -0.12, 1.16, 0, 4,
-              0,     0,     0,    1, 0,
-            ],
-    );
+    // Saturate 1.6 vía color matrix (igual que el zip: saturate(1.6))
+    const saturateMatrix = <double>[
+      1.258, -0.167, -0.091, 0, 0,
+      -0.258, 1.167, 0.091, 0, 0,
+      -0.258, -0.167, 1.425, 0, 0,
+      0,      0,      0,     1, 0,
+    ];
 
-    // Punto medio exacto de difusión: sigma 16.0 (equilibrado entre 8 y 24)
-    // Al superponerse con otros paneles, los filtros se multiplican y acumulan automáticamente
-    final glassFilter = ui.ImageFilter.compose(
-      outer: ui.ImageFilter.blur(sigmaX: 16.0, sigmaY: 16.0),
-      inner: amplifyFilter,
-    );
-
-    return Padding(
-      // Espaciado más grueso y definido entre paneles (ranura de 10px)
-      padding: const EdgeInsets.all(5.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28.0),
-          boxShadow: isDragging
-              ? [
-                  BoxShadow(
-                    color: isDark
-                        ? const Color(0x66000000)
-                        : const Color(0x25000000),
-                    blurRadius: 25,
-                    offset: const Offset(0, 10),
-                  ),
-                ]
-              : null,
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.compose(
+          outer: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          inner: const ui.ColorFilter.matrix(saturateMatrix),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28.0),
-          child: BackdropFilter(
-            filter: glassFilter,
-            child: CustomPaint(
-              painter: _GlassTilePainter(isDark: isDark, radius: 28.0),
-              // Interior con punto medio de opacidad/lente (se acumula al superponer paneles)
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(28.0),
-                      gradient: RadialGradient(
-                        center: Alignment.center,
-                        radius: 0.9,
-                        colors: isDark
-                            ? const [
-                                Color(0x06FFFFFF), // Punto medio sutil de luz
-                                Colors.transparent,
-                              ]
-                            : const [
-                                Color(0x0DFFFFFF),
-                                Colors.transparent,
-                              ],
-                        stops: const [0.0, 1.0],
-                      ),
-                    ),
-                  ),
-                  // Botón discreto para eliminar panel en la esquina superior derecha
-                  Positioned(
-                    top: 14,
-                    right: 14,
-                    child: _DeleteTileButton(
-                      isDark: isDark,
-                      onDelete: onDelete,
-                    ),
-                  ),
-                ],
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0x09FFFFFF) // rgba(255,255,255,0.035)
+                : const Color(0x0A000000),
+            border: Border(
+              right: BorderSide(
+                color: isDark
+                    ? const Color(0x12FFFFFF) // rgba(255,255,255,0.07)
+                    : const Color(0x12000000),
+              ),
+              bottom: BorderSide(
+                color: isDark
+                    ? const Color(0x12FFFFFF)
+                    : const Color(0x12000000),
               ),
             ),
           ),
@@ -704,110 +489,6 @@ class _GlassCell extends StatelessWidget {
       ),
     );
   }
-}
-
-// ── Botón discreto de eliminar panel ──────────────────────────────────────────
-
-class _DeleteTileButton extends StatefulWidget {
-  const _DeleteTileButton({
-    required this.isDark,
-    required this.onDelete,
-  });
-
-  final bool isDark;
-  final VoidCallback onDelete;
-
-  @override
-  State<_DeleteTileButton> createState() => _DeleteTileButtonState();
-}
-
-class _DeleteTileButtonState extends State<_DeleteTileButton> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = widget.isDark;
-    final color = isDark
-        ? (_hovered ? Colors.white : const Color(0x66FFFFFF))
-        : (_hovered ? const Color(0xFF1E1B18) : const Color(0x401E1B18));
-    final bgColor = isDark
-        ? (_hovered ? const Color(0x4DFF3B30) : const Color(0x18FFFFFF))
-        : (_hovered ? const Color(0x33FF3B30) : const Color(0x10000000));
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: Tooltip(
-        message: 'Eliminar panel (o clic derecho)',
-        child: GestureDetector(
-          onTap: widget.onDelete,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: bgColor,
-              border: Border.all(
-                color: isDark ? const Color(0x33FFFFFF) : const Color(0x20000000),
-                width: 0.8,
-              ),
-            ),
-            child: Icon(
-              Icons.close_rounded,
-              size: 13,
-              color: color,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Pintor de borde de vidrio natural limpio (sin reflejos artificiales en esquinas) ─
-
-class _GlassTilePainter extends CustomPainter {
-  final bool isDark;
-  final double radius;
-
-  _GlassTilePainter({required this.isDark, this.radius = 28.0});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.width <= 0 || size.height <= 0) return;
-
-    final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-
-    // Contorno de vidrio natural, limpio y translúcido sin reflejos artificiales en las esquinas
-    final borderGradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [
-              Colors.white.withValues(alpha: 0.22),
-              Colors.white.withValues(alpha: 0.06),
-              Colors.black.withValues(alpha: 0.30),
-            ]
-          : [
-              Colors.white.withValues(alpha: 0.65),
-              Colors.white.withValues(alpha: 0.25),
-              Colors.black.withValues(alpha: 0.10),
-            ],
-      stops: const [0.0, 0.45, 1.0],
-    );
-
-    final strokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..shader = borderGradient.createShader(rect);
-
-    canvas.drawRRect(rrect, strokePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _GlassTilePainter oldDelegate) =>
-      oldDelegate.isDark != isDark || oldDelegate.radius != radius;
 }
 
 // ── Texto central rotativo ────────────────────────────────────────────────────
