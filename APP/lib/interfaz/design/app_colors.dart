@@ -62,4 +62,30 @@ abstract final class AppColors {
 
   /// Color base del orb naranja vivo para el accent orb.
   static const Color orbVivo = Color(0x33F5602A);
+
+  // ── Paleta Cuaderno Editorial ─────────────────────────────────────────────
+  /// Naranja principal para acciones (#F28C28).
+  static const Color naranjaCuaderno = Color(0xFFF28C28);
+
+  /// Crema suave de papel físico para modo claro (#F7F0DF).
+  static const Color cremaPapel = Color(0xFFF7F0DF);
+
+  /// Negro editorial de alto contraste para textos y títulos (#171717).
+  static const Color negroEditorial = Color(0xFF171717);
+
+  /// Gris oscuro para descripciones editoriales (#3A3A3A).
+  static const Color grisOscuroEditorial = Color(0xFF3A3A3A);
+
+  /// Gris medio para detalles estructurados (#777777).
+  static const Color grisMedioEditorial = Color(0xFF777777);
+
+  /// Gris tenue para líneas del cuaderno (#D6D0C4).
+  static const Color grisLineaPapel = Color(0xFFD6D0C4);
+
+  /// Rojo clásico para la línea vertical del margen izquierdo (#D9534F).
+  static const Color rojoMargen = Color(0xFFD9534F);
+
+  /// Rojo suavizado para margen en modo oscuro (#C94A46).
+  static const Color rojoMargenOscuro = Color(0xFFC94A46);
 }
+

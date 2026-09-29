@@ -40,9 +40,11 @@ class PantallaAutenticacion extends StatefulWidget {
   const PantallaAutenticacion({
     super.key,
     required this.servicioAuth,
+    this.modoLoginInicial = true,
   });
 
   final ServicioAuth servicioAuth;
+  final bool modoLoginInicial;
 
   @override
   State<PantallaAutenticacion> createState() => _PantallaAutenticacionState();
@@ -50,11 +52,18 @@ class PantallaAutenticacion extends StatefulWidget {
 
 class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
   // ── Estado de UI ──────────────────────────────────────────────────────────
-  bool _modoLogin = true;   // true = Login, false = Registro
+  late bool _modoLogin;   // true = Login, false = Registro
   bool _cargando = false;
   String? _errorMensaje;
 
+  @override
+  void initState() {
+    super.initState();
+    _modoLogin = widget.modoLoginInicial;
+  }
+
   // ── Formularios ───────────────────────────────────────────────────────────
+
   final _formLoginKey = GlobalKey<FormState>();
   final _formRegistroKey = GlobalKey<FormState>();
 
@@ -158,6 +167,15 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (Navigator.of(context).canPop())
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            tooltip: 'Volver a inicio',
+                            icon: const Icon(Icons.arrow_back, color: AppColors.crema),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
                       _buildHeader(),
                       const SizedBox(height: 28),
                       _buildToggle(),
@@ -651,20 +669,26 @@ class _GlassOutlineButton extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: accentColor, size: 22),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.crema.withAlpha(200),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: accentColor, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: AppColors.crema.withAlpha(200),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
