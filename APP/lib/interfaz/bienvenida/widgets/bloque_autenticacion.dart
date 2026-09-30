@@ -345,13 +345,16 @@ class _PanelFlotanteState extends State<_PanelFlotante>
   String _formatear(String e) {
     if (e.contains('user-not-found') ||
         e.contains('wrong-password') ||
-        e.contains('invalid-credential')) return 'Correo o contraseña incorrectos.';
-    if (e.contains('email-already-in-use')) return 'Ya existe una cuenta con este correo.';
-    if (e.contains('weak-password')) return 'La contraseña debe tener al menos 6 caracteres.';
-    if (e.contains('invalid-email')) return 'El formato de correo no es válido.';
-    if (e.contains('GIDClientID') || e.contains('No active configuration'))
+        e.contains('invalid-credential')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+    if (e.contains('email-already-in-use')) { return 'Ya existe una cuenta con este correo.'; }
+    if (e.contains('weak-password')) { return 'La contraseña debe tener al menos 6 caracteres.'; }
+    if (e.contains('invalid-email')) { return 'El formato de correo no es válido.'; }
+    if (e.contains('GIDClientID') || e.contains('No active configuration')) {
       return 'Google requiere configuración adicional. Usá correo/contraseña.';
-    if (e.contains('cancelado')) return 'Inicio con Google cancelado.';
+    }
+    if (e.contains('cancelado')) { return 'Inicio con Google cancelado.'; }
     return e.replaceAll('Exception: ', '').replaceAll('firebase_auth/', '');
   }
 
