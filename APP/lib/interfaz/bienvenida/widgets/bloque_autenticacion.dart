@@ -105,35 +105,32 @@ class _BloqueAutenticacionState extends State<BloqueAutenticacion> {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: widget.anchoMaximo),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Botón Iniciar Sesión ────────────────────────────────────────
-          _BtnAcceso(
-            key: _keyLogin,
-            label: 'Iniciar Sesión',
-            tema: widget.tema,
-            esPrincipal: true,
-            activo: _panelAbierto == true,
-            onPressed: () => _abrirPanel(true),
-          ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Botón Iniciar Sesión ──────────────────────────────────────────
+        _BtnAcceso(
+          key: _keyLogin,
+          label: 'Iniciar Sesión',
+          tema: widget.tema,
+          esPrincipal: true,
+          activo: _panelAbierto == true,
+          onPressed: () => _abrirPanel(true),
+        ),
 
-          const SizedBox(height: 10),
+        const SizedBox(width: 8),
 
-          // ── Botón Crear Cuenta ──────────────────────────────────────────
-          _BtnAcceso(
-            key: _keyRegistro,
-            label: 'Crear Cuenta',
-            tema: widget.tema,
-            esPrincipal: false,
-            activo: _panelAbierto == false,
-            onPressed: () => _abrirPanel(false),
-          ),
-        ],
-      ),
+        // ── Botón Crear Cuenta ────────────────────────────────────────────
+        _BtnAcceso(
+          key: _keyRegistro,
+          label: 'Crear Cuenta',
+          tema: widget.tema,
+          esPrincipal: false,
+          activo: _panelAbierto == false,
+          onPressed: () => _abrirPanel(false),
+        ),
+      ],
     );
   }
 }
@@ -198,8 +195,10 @@ class _BtnAccesoState extends State<_BtnAcceso> {
         onTap: widget.onPressed,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          height: 48,
+          height: 42,
+          constraints: const BoxConstraints(minWidth: 128),
           alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             color: bg,
             borderRadius: BorderRadius.circular(7),

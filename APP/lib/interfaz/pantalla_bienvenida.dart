@@ -1,16 +1,10 @@
 // ============================================================
 // pantalla_bienvenida.dart — Pantalla de Bienvenida / Inicio
 //
-// Estética: Cuaderno físico moderno reinterpretado digitalmente
-//   • Tipografía Impact para títulos de alto impacto visual
-//   • Tipografía Times New Roman MT para descripción editorial concisa
-//   • Paleta cromática: Crema (#F7F0DF), Naranja (#F28C28), Negro (#171717) y Rojo (#D9534F)
-//   • Fondo tipo hoja de cuaderno con líneas horizontales tenues y margen rojo
-//   • Cero círculos decorativos innecesarios
-//   • Título rotativo multi-idioma con transición suave
-//   • Bloque de acceso limpio: Iniciar Sesión vs Crear Cuenta
-//   • Responsive fluido (Desktop a 2 columnas, Mobile en columna única)
-//   • Detección automática de tema claro/oscuro del sistema
+// Layout unificado: Row en toda resolución
+//   • Izquierda: Título rotativo + descripción (alineados al top)
+//   • Derecha:   Botones de acceso uno al lado del otro (alineados al top)
+//   • En pantallas muy estrechas (< 480px) colapsa a columna
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -45,24 +39,24 @@ class PantallaBienvenida extends StatelessWidget {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 768;
+              // Pantallas muy estrechas (< 480px) usan columna, el resto fila
+              final usarFila = constraints.maxWidth >= 480;
 
-              // En móvil dejamos espacio después de la línea roja (44px) + margen
-              // En desktop dejamos espacio después de la línea roja (68px) + margen
-              final double leftPadding = isDesktop ? 96.0 : 64.0;
-              final double rightPadding = isDesktop ? 64.0 : 28.0;
-              final double verticalPadding = isDesktop ? 48.0 : 24.0;
+              final double leftPadding = usarFila ? 72.0 : 52.0;
+              final double rightPadding = usarFila ? 32.0 : 20.0;
+              final double topPadding = 28.0;
+              final double bottomPadding = 20.0;
 
               return Padding(
                 padding: EdgeInsets.fromLTRB(
                   leftPadding,
-                  verticalPadding,
+                  topPadding,
                   rightPadding,
-                  verticalPadding,
+                  bottomPadding,
                 ),
-                child: isDesktop
-                    ? _buildDistribucionDesktop(tema)
-                    : _buildDistribucionMobile(tema),
+                child: usarFila
+                    ? _buildFila(tema)
+                    : _buildColumna(tema),
               );
             },
           ),
@@ -71,72 +65,53 @@ class PantallaBienvenida extends StatelessWidget {
     );
   }
 
-  /// Distribución Desktop / Pantallas amplias (2 columnas con abundante espacio negativo)
-  Widget _buildDistribucionDesktop(TemaCuaderno tema) {
+  /// Layout en fila: texto izquierda ↔ botones derecha, ambos alineados al top.
+  Widget _buildFila(TemaCuaderno tema) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start, // ← alineación al top
       children: [
-        // Columna izquierda: Título rotativo + Descripción concisa
+        // ── Columna izquierda: Título + descripción ──────────────────────
         Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextoBienvenidaRotativo(tema: tema, saludos: catalogoSaludos),
-                const SizedBox(height: 16),
-                DetallesDecorativosCuaderno(tema: tema),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextoBienvenidaRotativo(tema: tema, saludos: catalogoSaludos),
+              const SizedBox(height: 14),
+              DetallesDecorativosCuaderno(tema: tema),
+            ],
           ),
         ),
 
-        const SizedBox(width: 48),
+        const SizedBox(width: 32),
 
-        // Columna derecha: Bloque de autenticación
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: BloqueAutenticacion(
-            tema: tema,
-            servicioAuth: servicioAuth,
-            anchoMaximo: 320,
-          ),
+        // ── Derecha: Botones lado a lado, pegados al top ─────────────────
+        BloqueAutenticacion(
+          tema: tema,
+          servicioAuth: servicioAuth,
+          anchoMaximo: 340,
         ),
       ],
     );
   }
 
-  /// Distribución Mobile / Pantallas compactas (Columna única fluida con scroll de seguridad)
-  Widget _buildDistribucionMobile(TemaCuaderno tema) {
-    return LayoutBuilder(
-      builder: (context, viewportConstraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: viewportConstraints.maxHeight,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  TextoBienvenidaRotativo(tema: tema, saludos: catalogoSaludos),
-                  const SizedBox(height: 14),
-                  DetallesDecorativosCuaderno(tema: tema),
-                  const Spacer(),
-                  const SizedBox(height: 32),
-                  BloqueAutenticacion(
-                    tema: tema,
-                    servicioAuth: servicioAuth,
-                    anchoMaximo: double.infinity,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
+  /// Layout en columna para pantallas muy estrechas.
+  Widget _buildColumna(TemaCuaderno tema) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextoBienvenidaRotativo(tema: tema, saludos: catalogoSaludos),
+          const SizedBox(height: 14),
+          DetallesDecorativosCuaderno(tema: tema),
+          const SizedBox(height: 28),
+          BloqueAutenticacion(
+            tema: tema,
+            servicioAuth: servicioAuth,
+            anchoMaximo: double.infinity,
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
