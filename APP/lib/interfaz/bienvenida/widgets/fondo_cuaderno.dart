@@ -32,7 +32,9 @@ class FondoCuaderno extends StatelessWidget {
           topInset: padding.top,
           bottomInset: padding.bottom,
         ),
-        child: child,
+        // SizedBox.expand garantiza que el painter recibe el tamaño completo
+        // del padre (toda la pantalla), no solo el área del child.
+        child: SizedBox.expand(child: child),
       ),
     );
   }
