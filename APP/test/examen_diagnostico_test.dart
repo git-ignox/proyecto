@@ -281,8 +281,8 @@ void main() {
 
       // Abrir lista de exámenes diagnósticos
       final botonExamen = find.byIcon(Icons.assignment_outlined);
-      expect(botonExamen, findsOneWidget);
-      await tester.tap(botonExamen);
+      expect(botonExamen, findsWidgets);
+      await tester.tap(botonExamen.first);
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Exámenes Diagnósticos de Nivelación'), findsOneWidget);

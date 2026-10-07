@@ -1259,7 +1259,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           ),
           WidgetAccionesRapidasAlumno(
             onAbrirClases: () => setState(() => _pestanaActual = 2),
-            onAbrirExamenes: () => setState(() => _pestanaActual = 3),
+            onAbrirExamenes: _mostrarExamenesDiagnostico,
             onAbrirCalificaciones: _abrirMisCalificaciones,
             onAbrirDiagnostico: () => setState(() => _pestanaActual = 4),
             onAbrirMaterialesOffline: _mostrarMaterialesOffline,

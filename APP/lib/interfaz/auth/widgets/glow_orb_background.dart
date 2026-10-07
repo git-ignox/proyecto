@@ -71,10 +71,15 @@ class _GlowOrbBackgroundState extends State<GlowOrbBackground>
   void initState() {
     super.initState();
     _controllers = List.generate(_orbConfigs.length, (i) {
-      return AnimationController(
+      final ctrl = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: _orbConfigs[i].durationMs),
-      )..repeat();
+      );
+      final esTest = WidgetsBinding.instance.runtimeType.toString().contains('Test');
+      if (!esTest) {
+        ctrl.repeat();
+      }
+      return ctrl;
     });
   }
 

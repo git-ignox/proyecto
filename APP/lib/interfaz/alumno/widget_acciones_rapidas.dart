@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../design/app_colors.dart';
 
 /// Bloque de acciones rápidas para el alumno con accesos visuales directos
 /// a Clases, Exámenes, Calificaciones, Refuerzo y Materiales Offline.
+/// Estilo Claude: tarjetas con fondo blanco/pergamino, bordes hairline #E8E6DC,
+/// paleta editorial de acentos (salvia, pizarra, terracota, ámbar) y tipografía cuidada.
 class WidgetAccionesRapidasAlumno extends StatelessWidget {
   const WidgetAccionesRapidasAlumno({
     super.key,
@@ -32,21 +36,25 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 '⚡ Acciones Rápidas',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.1,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.claudeTextoPrincipal,
+                  letterSpacing: -0.2,
                 ),
               ),
               Text(
                 'Tu aula digital',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: AppColors.claudeTextoSecundario,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               final anchoTarjeta = (constraints.maxWidth - 12) / 2;
@@ -59,9 +67,8 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                     titulo: 'Mis Clases',
                     subtitulo: totalClases > 0 ? '$totalClases curso(s)' : 'Unirse con código',
                     icono: Icons.class_outlined,
-                    colorFondo: const Color(0xFFE8F5E9),
-                    colorIcono: Colors.green.shade700,
-                    colorBorde: Colors.green.shade200,
+                    colorAcento: AppColors.claudeVerde,
+                    colorFondoIcono: const Color(0xFFF0F4EC),
                     badgeTexto: totalClases > 0 ? '$totalClases' : null,
                     onTap: onAbrirClases,
                   ),
@@ -70,9 +77,8 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                     titulo: 'Exámenes',
                     subtitulo: totalExamenes > 0 ? '$totalExamenes asignado(s)' : 'Diagnósticos',
                     icono: Icons.assignment_outlined,
-                    colorFondo: const Color(0xFFFFF8E1),
-                    colorIcono: Colors.amber.shade800,
-                    colorBorde: Colors.amber.shade300,
+                    colorAcento: AppColors.claudeAzul,
+                    colorFondoIcono: const Color(0xFFEEF4FA),
                     badgeTexto: totalExamenes > 0 ? '$totalExamenes' : null,
                     onTap: onAbrirExamenes,
                   ),
@@ -81,9 +87,8 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                     titulo: 'Mis Notas',
                     subtitulo: 'Boletín y brechas',
                     icono: Icons.grading_outlined,
-                    colorFondo: const Color(0xFFE0F7FA),
-                    colorIcono: Colors.teal.shade700,
-                    colorBorde: Colors.teal.shade200,
+                    colorAcento: AppColors.claudeTerracota,
+                    colorFondoIcono: const Color(0xFFFDF4F0),
                     onTap: onAbrirCalificaciones,
                   ),
                   _TarjetaAccion(
@@ -91,52 +96,73 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                     titulo: 'Mi Diagnóstico',
                     subtitulo: 'Refuerzo adaptativo',
                     icono: Icons.psychology_outlined,
-                    colorFondo: const Color(0xFFEDE7F6),
-                    colorIcono: Colors.deepPurple.shade700,
-                    colorBorde: Colors.deepPurple.shade200,
+                    colorAcento: AppColors.claudeAmbar,
+                    colorFondoIcono: const Color(0xFFFAF3E8),
                     onTap: onAbrirDiagnostico,
                   ),
                 ],
               );
             },
           ),
-          const SizedBox(height: 8),
-          // Botón ancho para Modo Offline
-          InkWell(
-            onTap: onAbrirMaterialesOffline,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.blueGrey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blueGrey.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.cloud_done_outlined, color: Colors.blueGrey.shade700, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Materiales sin Conexión (Offline)',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: Colors.blueGrey.shade900,
-                          ),
-                        ),
-                        Text(
-                          'Descarga contenidos para practicar sin internet',
-                          style: TextStyle(fontSize: 11, color: Colors.blueGrey.shade700),
-                        ),
-                      ],
+          const SizedBox(height: 10),
+          // Botón ancho para Modo Offline con estilo Claude Oatmeal / Superficie Suave
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onAbrirMaterialesOffline,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                decoration: BoxDecoration(
+                  color: AppColors.claudeSuperficieSuave,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.claudeBorde, width: 1.0),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.claudeBorde, width: 0.8),
+                      ),
+                      child: Icon(
+                        Icons.cloud_done_outlined,
+                        color: AppColors.claudeTextoSecundario,
+                        size: 18,
+                      ),
                     ),
-                  ),
-                  const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.blueGrey),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Materiales sin Conexión (Offline)',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: AppColors.claudeTextoPrincipal,
+                            ),
+                          ),
+                          Text(
+                            'Descarga contenidos para practicar sin internet',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: AppColors.claudeTextoSecundario,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 13,
+                      color: AppColors.claudeTextoAtenuado,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -152,9 +178,8 @@ class _TarjetaAccion extends StatelessWidget {
     required this.titulo,
     required this.subtitulo,
     required this.icono,
-    required this.colorFondo,
-    required this.colorIcono,
-    required this.colorBorde,
+    required this.colorAcento,
+    required this.colorFondoIcono,
     required this.onTap,
     this.badgeTexto,
   });
@@ -163,9 +188,8 @@ class _TarjetaAccion extends StatelessWidget {
   final String titulo;
   final String subtitulo;
   final IconData icono;
-  final Color colorFondo;
-  final Color colorIcono;
-  final Color colorBorde;
+  final Color colorAcento;
+  final Color colorFondoIcono;
   final VoidCallback onTap;
   final String? badgeTexto;
 
@@ -178,15 +202,15 @@ class _TarjetaAccion extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: Container(
           width: ancho,
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
-            color: colorFondo,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colorBorde, width: 1.2),
+            border: Border.all(color: AppColors.claudeBorde, width: 1.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 4,
+                color: Colors.black.withValues(alpha: 0.025),
+                blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -196,17 +220,14 @@ class _TarjetaAccion extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorFondoIcono,
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorIcono.withValues(alpha: 0.15),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: colorAcento.withValues(alpha: 0.25),
+                    width: 0.8,
+                  ),
                 ),
-                child: Icon(icono, color: colorIcono, size: 22),
+                child: Icon(icono, color: colorAcento, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -218,27 +239,27 @@ class _TarjetaAccion extends StatelessWidget {
                         Expanded(
                           child: Text(
                             titulo,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.grey.shade900,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.5,
+                              color: AppColors.claudeTextoPrincipal,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (badgeTexto != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                             decoration: BoxDecoration(
-                              color: colorIcono,
+                              color: colorAcento,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               badgeTexto!,
-                              style: const TextStyle(
+                              style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -247,9 +268,9 @@ class _TarjetaAccion extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitulo,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 11,
-                        color: Colors.grey.shade700,
+                        color: AppColors.claudeTextoSecundario,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

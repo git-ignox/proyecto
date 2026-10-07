@@ -27,6 +27,7 @@ class FuenteDatosClases implements RepositorioClases {
 
   // Almacenamiento en memoria
   final Map<String, ClaseEscolar> _clases = {};
+  int _contadorClases = 0;
   final StreamController<List<ClaseEscolar>> _streamController =
       StreamController<List<ClaseEscolar>>.broadcast();
 
@@ -141,7 +142,7 @@ class FuenteDatosClases implements RepositorioClases {
     } while (_clases.values.any((c) => c.coincideCodigo(codigo)) && intentos < 20);
 
     final clase = ClaseEscolar(
-      id: 'CLASE-${DateTime.now().millisecondsSinceEpoch}',
+      id: 'CLASE-${DateTime.now().microsecondsSinceEpoch}_${_contadorClases++}',
       codigoAcceso: codigo,
       nombre: nombre,
       gradoGrupo: gradoGrupo,

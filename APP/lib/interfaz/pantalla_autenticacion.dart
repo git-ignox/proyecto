@@ -97,6 +97,9 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
     });
     try {
       await accion();
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       final msg = _formatearError(e.toString());
       setState(() => _errorMensaje = msg);
@@ -129,20 +132,33 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
     }
     if (error.contains('user-not-found') ||
         error.contains('wrong-password') ||
-        error.contains('invalid-credential')) {
+        error.contains('invalid-credential') ||
+        error.contains('INVALID_LOGIN_CREDENTIALS')) {
       return 'Correo o contraseña incorrectos.';
     }
-    if (error.contains('email-already-in-use')) {
+    if (error.contains('email-already-in-use') ||
+        error.contains('EMAIL_EXISTS')) {
       return 'Ya existe una cuenta con este correo.';
     }
-    if (error.contains('weak-password')) {
+    if (error.contains('weak-password') ||
+        error.contains('WEAK_PASSWORD')) {
       return 'La contraseña debe tener al menos 6 caracteres.';
     }
-    if (error.contains('invalid-email')) {
+    if (error.contains('invalid-email') ||
+        error.contains('INVALID_EMAIL')) {
       return 'El formato de correo no es válido.';
     }
-    if (error.contains('operation-not-allowed')) {
+    if (error.contains('operation-not-allowed') ||
+        error.contains('OPERATION_NOT_ALLOWED')) {
       return 'Habilitá este método en la consola de Firebase.';
+    }
+    if (error.contains('network-request-failed') ||
+        error.contains('NETWORK_ERROR') ||
+        error.contains('SocketException')) {
+      return 'Error de conexión. Verificá tu conexión a internet.';
+    }
+    if (error.contains('too-many-requests')) {
+      return 'Demasiados intentos fallidos. Intenta más tarde.';
     }
     return error
         .replaceAll('Exception: ', '')
@@ -307,8 +323,8 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildToggleButton('Iniciar sesión', true),
-          _buildToggleButton('Crear cuenta', false),
+          _buildToggleButton('Iniciar Sesión', true),
+          _buildToggleButton('Crear Cuenta', false),
         ],
       ),
     )
@@ -332,7 +348,7 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
         padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? AppColors.naranja : Colors.transparent,
           borderRadius: BorderRadius.circular(50),
@@ -579,7 +595,7 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
         // Alumno Invitado (acceso rápido)
         _GlassOutlineButton(
           icon: Icons.rocket_launch_outlined,
-          label: 'Entrar como Alumno Invitado',
+          label: 'Entrar como Alumno Invitado (Rápido)',
           onPressed: _cargando
               ? null
               : () => _ejecutarAccionAuth(
