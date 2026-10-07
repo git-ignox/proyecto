@@ -79,43 +79,41 @@ class TemaCuaderno {
     return isDark ? TemaCuaderno.dark() : TemaCuaderno.light();
   }
 
-  /// Configuración de modo claro: papel crema cálido y tinta oscura.
+  /// Configuración de modo claro: papel crema cálido y estética editorial Claude.
   factory TemaCuaderno.light() {
     return const TemaCuaderno(
       brightness: Brightness.light,
-      background: Color(0xFFF7F0DF), // Crema suave de cuaderno físico
-      paperLine: Color(
-        0x18A69C8B,
-      ), // Líneas horizontales mucho más tenues y sutiles
-      marginLine: Color(0xFFD9534F), // Rojo margen clásico
-      primaryText: Color(0xFF171717), // Negro editorial
-      secondaryText: Color(0xFF3A3A3A), // Gris oscuro legible
-      annotationText: Color(0xFF4A443C), // Grafito de lápiz
-      primaryButton: Color(0xFFF28C28), // Naranja principal
-      primaryButtonText: Color(0xFF171717), // Máximo contraste legible
-      secondaryButtonBorder: Color(0x66171717),
-      secondaryButtonText: Color(0xFF171717),
-      decorativeElement: Color(0x558A8072),
-      accentHighlight: Color(0x1AF28C28),
+      background: Color(0xFFF7F0DF), // Crema suave de papel físico (#F7F0DF / Claude tone)
+      paperLine: Color(0x18A69C8B), // Líneas horizontales tenues
+      marginLine: Color(0xFFD97757), // Terracota Claude (#D97757)
+      primaryText: Color(0xFF141413), // Negro carbón Claude (#141413)
+      secondaryText: Color(0xFF73726C), // Gris cálido Claude (#73726C)
+      annotationText: Color(0xFF788C5D), // Verde salvia Claude (#788C5D)
+      primaryButton: Color(0xFFD97757), // Terracota oficial Crail Orange (#D97757)
+      primaryButtonText: Color(0xFFFFFFFF), // Blanco sobre terracota
+      secondaryButtonBorder: Color(0xFFE8E6DC), // Borde hairline sutil Claude
+      secondaryButtonText: Color(0xFF141413),
+      decorativeElement: Color(0xFFB0AEA5),
+      accentHighlight: Color(0x1AD97757),
     );
   }
 
-  /// Configuración de modo oscuro: cuaderno en interpretación nocturna.
+  /// Configuración de modo oscuro: cuaderno en interpretación nocturna Claude.
   factory TemaCuaderno.dark() {
     return const TemaCuaderno(
       brightness: Brightness.dark,
-      background: Color(0xFF171717), // Negro / grafito oscuro profundo
+      background: Color(0xFF171717), // Negro grafito profundo (#171717)
       paperLine: Color(0x0EFFFFFF), // Líneas muy sutiles y tenues
-      marginLine: Color(0xFFC94A46), // Rojo suavizado para descansar la vista
-      primaryText: Color(0xFFF7F0DF), // Crema sobre fondo oscuro
-      secondaryText: Color(0xFFB0AAA0), // Gris claro editorial
-      annotationText: Color(0xFFD6D0C4), // Trazado claro tipo tiza suave
-      primaryButton: Color(0xFFF28C28), // Naranja vibrante accesible
-      primaryButtonText: Color(0xFF171717), // Texto oscuro contrastado
-      secondaryButtonBorder: Color(0x66F7F0DF),
-      secondaryButtonText: Color(0xFFF7F0DF),
+      marginLine: Color(0xFFD97757), // Terracota suave
+      primaryText: Color(0xFFFAF9F5), // Blanco cálido Claude sobre oscuro
+      secondaryText: Color(0xFFB0AEA5), // Gris claro editorial Claude
+      annotationText: Color(0xFFE8E6DC),
+      primaryButton: Color(0xFFD97757), // Terracota oficial Claude (#D97757)
+      primaryButtonText: Color(0xFFFFFFFF),
+      secondaryButtonBorder: Color(0x33FAF9F5),
+      secondaryButtonText: Color(0xFFFAF9F5),
       decorativeElement: Color(0x44FFFFFF),
-      accentHighlight: Color(0x26F28C28),
+      accentHighlight: Color(0x26D97757),
     );
   }
 }

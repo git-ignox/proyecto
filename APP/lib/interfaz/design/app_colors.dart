@@ -87,5 +87,63 @@ abstract final class AppColors {
 
   /// Rojo suavizado para margen en modo oscuro (#C94A46).
   static const Color rojoMargenOscuro = Color(0xFFC94A46);
+
+  // ── Paleta Oficial Claude / Anthropic Design System ────────────────────────
+  /// Terracota insignia de Claude (#D97757 / Crail Orange).
+  static const Color claudeTerracota = Color(0xFFD97757);
+
+  /// Terracota oscuro para estados hover y presionados (#C15F3C).
+  static const Color claudeTerracotaOscuro = Color(0xFFC15F3C);
+
+  /// Terracota muy claro para fondos de selección (#FBECE7).
+  static const Color claudeTerracotaClaro = Color(0xFFFBECE7);
+
+  /// Fondo apergaminado cálido insignia de Claude (#FAF9F5).
+  static const Color claudeFondo = Color(0xFFFAF9F5);
+
+  /// Fondo de tarjeta o superficie blanca cálida (#FFFFFF).
+  static const Color claudeSuperficie = Color(0xFFFFFFFF);
+
+  /// Fondo secundario de tarjeta / contenedor suave (#F3F1EA).
+  static const Color claudeSuperficieSuave = Color(0xFFF3F1EA);
+
+  /// Borde hairline sutil (#E8E6DC).
+  static const Color claudeBorde = Color(0xFFE8E6DC);
+
+  /// Borde intermedio / foco (#D5D2C7).
+  static const Color claudeBordeFoco = Color(0xFFD5D2C7);
+
+  /// Texto oscuro principal (#141413 / Obsidian Black).
+  static const Color claudeTextoPrincipal = Color(0xFF141413);
+
+  /// Texto secundario / gris medio (#73726C).
+  static const Color claudeTextoSecundario = Color(0xFF73726C);
+
+  /// Texto atenuado / placeholder (#B0AEA5).
+  static const Color claudeTextoAtenuado = Color(0xFFB0AEA5);
+
+  /// Verde salvia / oliva (#788C5D).
+  static const Color claudeVerde = Color(0xFF788C5D);
+
+  /// Verde salvia claro (#EEF2E8).
+  static const Color claudeVerdeClaro = Color(0xFFEEF2E8);
+
+  /// Azul pizarra (#6A9BCC).
+  static const Color claudeAzul = Color(0xFF6A9BCC);
+
+  /// Azul pizarra claro (#E8F0F8).
+  static const Color claudeAzulClaro = Color(0xFFE8F0F8);
+
+  /// Ámbar / Miel cálido (#D29034).
+  static const Color claudeAmbar = Color(0xFFD29034);
+
+  /// Ámbar claro (#FAF2E6).
+  static const Color claudeAmbarClaro = Color(0xFFFAF2E6);
+
+  /// Fondo oscuro modo noche (#1F1E1D).
+  static const Color claudeFondoOscuro = Color(0xFF1F1E1D);
+
+  /// Superficie oscura modo noche (#262523).
+  static const Color claudeSuperficieOscura = Color(0xFF262523);
 }
 

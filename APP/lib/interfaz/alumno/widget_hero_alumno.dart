@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../dominio/modelos/usuario_app.dart';
+import '../design/app_colors.dart';
 
-/// Banner de cabecera motivacional para el estudiante con saludo contextual,
-/// nivel de maestría matemática, puntos acumulados y progreso gamificado.
+/// Banner de cabecera motivacional para el estudiante con estética de Claude.
+/// Paleta cálida terracota (#D97757), tipografía editorial y gamificación positiva.
 class WidgetHeroAlumno extends StatelessWidget {
   const WidgetHeroAlumno({
     super.key,
@@ -42,28 +44,28 @@ class WidgetHeroAlumno extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final saludo = _obtenerSaludo();
-    final nombre = usuario.nombre.isNotEmpty ? usuario.nombre : 'Estudiante';
     final (nivel, rango, progreso, faltantes) = _calcularNivel();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
-            Colors.indigo.shade800,
-            Colors.indigo.shade600,
-            Colors.deepPurple.shade600,
+            Color(0xFFC15F3C), // Terracota profundo Claude
+            AppColors.claudeTerracota, // Crail Orange #D97757
+            Color(0xFFE28B6E), // Terracota luminoso
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0x33FFFFFF), width: 1),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.indigo.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
+            color: Color(0x22D97757),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -83,57 +85,58 @@ class WidgetHeroAlumno extends StatelessWidget {
                       children: [
                         Text(
                           '$saludo! ',
-                          style: TextStyle(
-                            color: Colors.indigo.shade100,
-                            fontSize: 14,
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFFFBECE7),
+                            fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Icon(
                           Icons.waving_hand,
-                          color: Colors.amberAccent,
-                          size: 16,
+                          color: AppColors.claudeAmbar,
+                          size: 15,
                         ),
                       ],
                     ),
                     const SizedBox(height: 2),
-                    const Text(
+                    Text(
                       '¡Listo para aprender hoy!',
-                      style: TextStyle(
+                      style: GoogleFonts.lora(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.2,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              // Medalla de Rango o Puntos detallados
+              // Medalla de Puntos EXP estilo pill de Claude
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade400,
+                  color: AppColors.claudeFondo,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
+                  border: Border.all(color: const Color(0x33FFFFFF)),
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      color: Color(0x1A000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.stars, color: Colors.indigo, size: 20),
+                    const Icon(Icons.stars, color: AppColors.claudeAmbar, size: 18),
                     const SizedBox(width: 5),
                     Text(
                       '${usuario.puntosAcumulados} EXP',
-                      style: const TextStyle(
-                        color: Colors.indigo,
-                        fontWeight: FontWeight.w900,
+                      style: GoogleFonts.poppins(
+                        color: AppColors.claudeTextoPrincipal,
+                        fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
                     ),
@@ -150,15 +153,15 @@ class WidgetHeroAlumno extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withValues(alpha: 0.22),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Nivel $nivel',
-                  style: const TextStyle(
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
                   ),
                 ),
               ),
@@ -166,9 +169,9 @@ class WidgetHeroAlumno extends StatelessWidget {
               Expanded(
                 child: Text(
                   rango,
-                  style: const TextStyle(
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     fontSize: 13,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -181,23 +184,21 @@ class WidgetHeroAlumno extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: precisionGlobal! >= 70
-                          ? Colors.tealAccent.withValues(alpha: 0.25)
-                          : Colors.amberAccent.withValues(alpha: 0.25),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.trending_up,
                           size: 14,
-                          color: precisionGlobal! >= 70 ? Colors.tealAccent : Colors.amberAccent,
+                          color: AppColors.claudeFondo,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '${precisionGlobal!.toStringAsFixed(0)}% precisión',
-                          style: const TextStyle(
+                          style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -209,16 +210,16 @@ class WidgetHeroAlumno extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // Barra de progreso del nivel
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: progreso.clamp(0.0, 1.0),
-              minHeight: 7,
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.amberAccent),
+              minHeight: 6,
+              backgroundColor: Colors.white.withValues(alpha: 0.25),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.claudeFondo),
             ),
           ),
           const SizedBox(height: 6),
@@ -229,15 +230,15 @@ class WidgetHeroAlumno extends StatelessWidget {
                 faltantes > 0
                     ? '$faltantes pts para el siguiente nivel'
                     : '¡Nivel máximo alcanzado! 🚀',
-                style: TextStyle(
-                  color: Colors.indigo.shade100,
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFFFBECE7),
                   fontSize: 11,
                 ),
               ),
               Text(
                 'Institución: ${usuario.institucionId}',
-                style: TextStyle(
-                  color: Colors.indigo.shade200,
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFFFBECE7),
                   fontSize: 10,
                 ),
               ),

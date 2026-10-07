@@ -105,7 +105,10 @@ void main() {
     expect(find.text('Diagnóstico'), findsOneWidget);
 
     // 6. Navegar a la pestaña 'Mis Clases'
-    final tabMisClases = find.byIcon(Icons.class_outlined);
+    final tabMisClases = find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Mis Clases'),
+    );
     await tester.tap(tabMisClases);
     await tester.pumpAndSettle();
 
@@ -114,7 +117,10 @@ void main() {
     expect(find.text('Profesor: Docente Demo'), findsOneWidget);
 
     // 7. Navegar a la pestaña 'Evaluaciones'
-    final tabEvaluaciones = find.byIcon(Icons.assignment_outlined);
+    final tabEvaluaciones = find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Evaluaciones'),
+    );
     await tester.tap(tabEvaluaciones);
     await tester.pumpAndSettle();
 
@@ -122,7 +128,10 @@ void main() {
     expect(find.text('📝 Exámenes Diagnósticos de Nivelación'), findsOneWidget);
 
     // 8. Navegar a la pestaña 'Diagnóstico'
-    final tabDiagnostico = find.byIcon(Icons.insights_outlined);
+    final tabDiagnostico = find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Diagnóstico'),
+    );
     await tester.tap(tabDiagnostico);
     await tester.pumpAndSettle();
 

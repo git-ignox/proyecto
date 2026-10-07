@@ -98,4 +98,47 @@ abstract final class AppTextStyles {
         fontWeight: FontWeight.w500,
         color: AppColors.cremaMedio,
       );
+
+  // ── Claude Design System Typography (Poppins & Lora) ───────────────────────
+  /// Titular principal estilo editorial Claude (Lora).
+  static TextStyle get claudeDisplaySerif => GoogleFonts.lora(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        color: AppColors.claudeTextoPrincipal,
+        letterSpacing: -0.4,
+        height: 1.2,
+      );
+
+  /// Titular moderno estilo Claude (Poppins).
+  static TextStyle get claudeHeading => GoogleFonts.poppins(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: AppColors.claudeTextoPrincipal,
+        letterSpacing: -0.3,
+        height: 1.25,
+      );
+
+  /// Subtítulo editorial sereno.
+  static TextStyle get claudeSubtitle => GoogleFonts.lora(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: AppColors.claudeTextoSecundario,
+        height: 1.5,
+      );
+
+  /// Cuerpo de texto Claude para interfaz y tarjetas.
+  static TextStyle get claudeBody => GoogleFonts.poppins(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: AppColors.claudeTextoPrincipal,
+        height: 1.5,
+      );
+
+  /// Etiqueta de botón pill estilo Claude.
+  static TextStyle get claudeButtonLabel => GoogleFonts.poppins(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+        letterSpacing: 0.1,
+      );
 }
