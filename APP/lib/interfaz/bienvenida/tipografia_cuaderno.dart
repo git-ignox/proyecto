@@ -1,11 +1,10 @@
-// ============================================================
+
 // tipografia_cuaderno.dart — Familias tipográficas del diseño
 //
 // Jerarquía visual obligatoria:
 //   1. Impact          → Títulos grandes, impacto visual dominante
 //   2. Times New Roman → Contenido explicativo, párrafos editoriales
 //   3. Comic Sans MS   → Pequeñas anotaciones, apuntes manuscritos
-// ============================================================
 
 import 'package:flutter/material.dart';
 
@@ -19,18 +18,10 @@ abstract final class TipografiaCuaderno {
     required Color color,
     required double fontSize,
     double letterSpacing = -0.6,
-    double height = 0.95,
+    double height = 4,
   }) {
     return TextStyle(
       fontFamily: 'Impact',
-      fontFamilyFallback: const [
-        'Anton',
-        'Bebas Neue',
-        'Trebuchet MS',
-        'Arial Black',
-        'sans-serif-condensed',
-        'sans-serif',
-      ],
       fontSize: fontSize,
       fontWeight: FontWeight.w900,
       color: color,

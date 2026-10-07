@@ -32,6 +32,12 @@ import '../datos/coordinador_sincronizacion_offline.dart';
 import '../datos/fuente_datos_materiales_offline.dart';
 import 'offline/widget_tarjeta_disponibilidad_offline.dart';
 import 'offline/hoja_gestion_materiales_offline.dart';
+import '../dominio/modelos/clase_escolar.dart';
+import '../dominio/modelos/diagnostico_alumno.dart';
+import 'alumno/widget_acciones_rapidas.dart';
+import 'alumno/widget_hero_alumno.dart';
+import 'alumno/widget_modulos_aprendizaje.dart';
+import 'alumno/widget_resumen_metricas.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
 /// Enfocada en resolver problemas, diagnóstico de errores, práctica de refuerzo y exámenes diagnósticos con avance.
@@ -97,6 +103,10 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
   bool _evaluando = false;
 
   List<String> _clasesInscritasUids = [];
+  int _pestanaActual = 0;
+  DiagnosticoAlumno? _diagnostico;
+  List<ExamenDiagnostico> _examenes = [];
+  List<ClaseEscolar> _clases = [];
 
   @override
   void initState() {
@@ -104,6 +114,8 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     _coordinadorOffline = widget.coordinadorOffline;
     _cargarEjercicios();
     _cargarClasesAlumno();
+    _cargarDiagnostico();
+    _cargarExamenes();
   }
 
   void _mostrarMaterialesOffline() {
@@ -117,10 +129,25 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     );
   }
 
+  Future<void> _cargarDiagnostico() async {
+    final diag = await widget.repositorioDiagnostico.obtenerDiagnostico(widget.usuario.uid);
+    if (mounted) {
+      setState(() => _diagnostico = diag);
+    }
+  }
+
+  Future<void> _cargarExamenes() async {
+    final exams = await widget.repositorioDiagnostico.obtenerExamenes();
+    if (mounted) {
+      setState(() => _examenes = exams);
+    }
+  }
+
   Future<void> _cargarClasesAlumno() async {
     final clases = await widget.repositorioClases.obtenerClasesPorAlumno(widget.usuario.uid);
     if (mounted) {
       setState(() {
+        _clases = clases;
         _clasesInscritasUids = clases.map((c) => c.id).toList();
       });
     }
@@ -239,6 +266,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     if (res.esCorrecto) {
       await widget.servicioAuth.sumarPuntos(ejercicio.puntos);
     }
+    _cargarDiagnostico();
   }
 
   void _mostrarDiagnostico() async {
@@ -1116,34 +1144,6 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           ],
         ),
         actions: [
-          // Botón Mis Clases & Classroom
-          IconButton(
-            icon: const Icon(Icons.class_outlined, color: Colors.greenAccent),
-            tooltip: 'Mis Clases & Unirse con Código',
-            onPressed: _mostrarMisClases,
-          ),
-
-          // Botón Materiales Offline
-          IconButton(
-            icon: const Icon(Icons.cloud_done_outlined, color: Colors.lightGreenAccent),
-            tooltip: 'Materiales sin Conexión (Offline)',
-            onPressed: _mostrarMaterialesOffline,
-          ),
-
-          // Botón Mis Calificaciones & Brechas
-          IconButton(
-            icon: const Icon(Icons.grading_outlined, color: Colors.cyanAccent),
-            tooltip: 'Mis Calificaciones & Brechas',
-            onPressed: _abrirMisCalificaciones,
-          ),
-
-          // Botón Exámenes Diagnósticos
-          IconButton(
-            icon: const Icon(Icons.assignment_outlined, color: Colors.amberAccent),
-            tooltip: 'Exámenes Diagnósticos',
-            onPressed: _mostrarExamenesDiagnostico,
-          ),
-
           // Botón Diagnóstico y Refuerzo
           IconButton(
             icon: const Icon(Icons.analytics_outlined),
@@ -1186,7 +1186,62 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           ),
         ],
       ),
-      body: Column(
+      body: _construirCuerpoSegunPestana(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _pestanaActual,
+        onDestinationSelected: (idx) => setState(() => _pestanaActual = idx),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.edit_note_outlined),
+            selectedIcon: Icon(Icons.edit_note),
+            label: 'Práctica',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.class_outlined),
+            selectedIcon: Icon(Icons.class_),
+            label: 'Mis Clases',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment),
+            label: 'Evaluaciones',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights),
+            label: 'Diagnóstico',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _construirCuerpoSegunPestana() {
+    switch (_pestanaActual) {
+      case 0:
+        return _construirVistaInicio();
+      case 1:
+        return _construirVistaPractica();
+      case 2:
+        return _construirVistaMisClases();
+      case 3:
+        return _construirVistaEvaluaciones();
+      case 4:
+        return _construirVistaDiagnostico();
+      default:
+        return _construirVistaInicio();
+    }
+  }
+
+  Widget _construirVistaInicio() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           WidgetSupervisionAula(
             alumno: widget.usuario,
@@ -1197,15 +1252,713 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           WidgetTarjetaDisponibilidadOffline(
             coordinador: _coordinadorOffline,
           ),
-          Expanded(
-            child: _cargando
-                ? const Center(child: CircularProgressIndicator())
-                : _ejercicios.isEmpty
-                    ? _construirEstadoVacio()
-                    : _construirCuerpoEjercicio(),
+          WidgetHeroAlumno(
+            usuario: widget.usuario,
+            precisionGlobal: _diagnostico?.porcentajePrecision,
+            onVerDiagnostico: () => setState(() => _pestanaActual = 4),
+          ),
+          WidgetAccionesRapidasAlumno(
+            onAbrirClases: () => setState(() => _pestanaActual = 2),
+            onAbrirExamenes: () => setState(() => _pestanaActual = 3),
+            onAbrirCalificaciones: _abrirMisCalificaciones,
+            onAbrirDiagnostico: () => setState(() => _pestanaActual = 4),
+            onAbrirMaterialesOffline: _mostrarMaterialesOffline,
+            totalClases: _clases.length,
+            totalExamenes: _examenes.length,
+          ),
+          if (_cargando)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_ejercicios.isEmpty)
+            _construirEstadoVacio()
+          else
+            _construirTarjetaRetoDestacado(),
+          WidgetModulosAprendizajeAlumno(
+            onIniciarModulo: (op, nivel) => _generarPracticaRapida(op: op, nivel: nivel),
+          ),
+          if (_diagnostico != null)
+            WidgetResumenMetricasAlumno(
+              diagnostico: _diagnostico!,
+              onVerDetalles: () => setState(() => _pestanaActual = 4),
+              onPracticarRefuerzo: _generarRefuerzoAdaptativo,
+            ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _construirTarjetaRetoDestacado() {
+    final ejercicio = _ejercicios[_indiceActual];
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.indigo.shade100, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.indigo.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.bolt, color: Colors.indigo.shade700, size: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Reto Matemático de Hoy (${_indiceActual + 1}/${_ejercicios.length})',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ],
+              ),
+              TextButton.icon(
+                onPressed: () => setState(() => _pestanaActual = 1),
+                icon: const Icon(Icons.open_in_new, size: 14),
+                label: const Text('Lienzo Completo', style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              Chip(
+                label: Text('Tema: ${ejercicio.codigoTema}'),
+                backgroundColor: Colors.blue.shade50,
+                visualDensity: VisualDensity.compact,
+              ),
+              Chip(
+                label: Text('Nivel ${ejercicio.nivel}'),
+                backgroundColor: Colors.purple.shade50,
+                visualDensity: VisualDensity.compact,
+              ),
+              Chip(
+                label: Text('+${ejercicio.puntos} puntos'),
+                backgroundColor: Colors.amber.shade100,
+                avatar: const Icon(Icons.star, size: 14, color: Colors.amber),
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+          if (ejercicio.tags.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: ejercicio.tags
+                  .map((t) => Chip(
+                        avatar: const Icon(Icons.local_offer_outlined, size: 14, color: Colors.indigo),
+                        label: Text(t, style: const TextStyle(fontSize: 12, color: Colors.indigo)),
+                        backgroundColor: Colors.indigo.shade50,
+                        visualDensity: VisualDensity.compact,
+                      ))
+                  .toList(),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Card(
+            elevation: 0,
+            color: Colors.grey.shade50,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Text(
+                ejercicio.enunciado,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          _construirEntradaRespuesta(ejercicio),
+          const SizedBox(height: 14),
+          ElevatedButton.icon(
+            onPressed: _evaluando ? null : _evaluarRespuesta,
+            icon: _evaluando
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.check_circle_outline),
+            label: const Text('CALIFICAR RESPUESTA', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              backgroundColor: Colors.indigo,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _indiceActual > 0 ? () => _cambiarEjercicio(_indiceActual - 1) : null,
+                icon: const Icon(Icons.arrow_back, size: 16),
+                label: const Text('Anterior'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _indiceActual < _ejercicios.length - 1 ? () => _cambiarEjercicio(_indiceActual + 1) : null,
+                icon: const Icon(Icons.arrow_forward, size: 16),
+                label: const Text('Siguiente'),
+              ),
+            ],
+          ),
+          if (_resultado != null) ...[
+            const SizedBox(height: 12),
+            _construirPanelResultado(_resultado!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _construirVistaPractica() {
+    return Column(
+      children: [
+        WidgetSupervisionAula(
+          alumno: widget.usuario,
+          clasesInscritasUids: _clasesInscritasUids,
+          repositorioSesiones: widget.repositorioSesiones,
+          repositorioAuditoria: widget.repositorioAuditoria,
+        ),
+        Expanded(
+          child: _cargando
+              ? const Center(child: CircularProgressIndicator())
+              : _ejercicios.isEmpty
+                  ? _construirEstadoVacio()
+                  : _construirCuerpoEjercicio(),
+        ),
+      ],
+    );
+  }
+
+  Widget _construirVistaMisClases() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WidgetSupervisionAula(
+            alumno: widget.usuario,
+            clasesInscritasUids: _clasesInscritasUids,
+            repositorioSesiones: widget.repositorioSesiones,
+            repositorioAuditoria: widget.repositorioAuditoria,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '🏫 Mis Clases Inscritas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton.icon(
+                onPressed: _mostrarDialogoUnirse,
+                icon: const Icon(Icons.vpn_key_outlined, size: 16),
+                label: const Text('Unirse con Código'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade700,
+                  foregroundColor: Colors.white,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_clases.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.school_outlined, size: 60, color: Colors.grey.shade400),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Aún no estás inscrito en ninguna clase.',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Pide el código de acceso a tu docente (ej. MAT-101) para comenzar.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _mostrarDialogoUnirse,
+                    icon: const Icon(Icons.add),
+                    label: const Text('INGRESAR CÓDIGO DE CLASE'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ..._clases.map((clase) => Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(Icons.class_outlined, color: Colors.green.shade700, size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    clase.nombre,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  Text(
+                                    clase.gradoGrupo,
+                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 20),
+                        Row(
+                          children: [
+                            const Icon(Icons.person_outline, size: 16, color: Colors.indigo),
+                            const SizedBox(width: 6),
+                            Text('Profesor: ${clase.profesorNombre}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.people_outline, size: 16, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Text('${clase.totalAlumnos} alumnos en el curso', style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                          ],
+                        ),
+                        if (clase.descripcion.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(clase.descripcion, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                        ],
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _abrirMisCalificaciones,
+                            icon: const Icon(Icons.grading, size: 16),
+                            label: const Text('Ver Mis Notas & Brechas de Aprendizaje'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+          const SizedBox(height: 16),
+          Card(
+            color: Colors.blueGrey.shade50,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            child: ListTile(
+              leading: Icon(Icons.cloud_done_outlined, color: Colors.blueGrey.shade700, size: 28),
+              title: const Text('Materiales Descargados (Offline)', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('Accede a guías y fichas sin conexión'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _mostrarMaterialesOffline,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _construirVistaEvaluaciones() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WidgetSupervisionAula(
+            alumno: widget.usuario,
+            clasesInscritasUids: _clasesInscritasUids,
+            repositorioSesiones: widget.repositorioSesiones,
+            repositorioAuditoria: widget.repositorioAuditoria,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.teal.shade700, Colors.teal.shade500],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.grading, color: Colors.white, size: 36),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Boletín de Calificaciones',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Text(
+                        'Revisa tus notas y análisis de brechas pedagógicas',
+                        style: TextStyle(color: Colors.teal.shade100, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _abrirMisCalificaciones,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.teal.shade900,
+                  ),
+                  child: const Text('Ver Notas'),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '📝 Exámenes Diagnósticos de Nivelación',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.open_in_browser_outlined),
+                tooltip: 'Abrir en hoja deslizable',
+                onPressed: _mostrarExamenesDiagnostico,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Diseñados por tus profesores para verificar tu avance y habilitar nuevos temas',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 12),
+          if (_examenes.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: const Text(
+                'No tienes exámenes diagnósticos pendientes en este momento.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          else
+            ..._examenes.map((exam) => Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          exam.titulo,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(exam.descripcion, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.indigo.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.indigo.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.flag_outlined, color: Colors.indigo, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Meta: ${(exam.umbralAvance <= 1.0 ? exam.umbralAvance * 100 : exam.umbralAvance).toInt()}% de aciertos mínimos (${exam.criterioAvance.etiqueta})',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.indigo),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          onPressed: () => _iniciarExamenDiagnostico(exam),
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('PRESENTAR EXAMEN DIAGNÓSTICO'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.indigo.shade700,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(double.infinity, 42),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+        ],
+      ),
+    );
+  }
+
+  Widget _construirVistaDiagnostico() {
+    return FutureBuilder<DiagnosticoAlumno>(
+      future: widget.repositorioDiagnostico.obtenerDiagnostico(widget.usuario.uid),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final diag = snapshot.data!;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WidgetSupervisionAula(
+                alumno: widget.usuario,
+                clasesInscritasUids: _clasesInscritasUids,
+                repositorioSesiones: widget.repositorioSesiones,
+                repositorioAuditoria: widget.repositorioAuditoria,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.insights, color: Colors.indigo.shade700, size: 26),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Mi Diagnóstico Pedagógico',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _construirTarjetaMetrica(
+                      'Precisión Global',
+                      '${diag.porcentajePrecision}%',
+                      diag.porcentajePrecision >= 70 ? Colors.green : Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _construirTarjetaMetrica(
+                      'Intentos Totales',
+                      '${diag.totalIntentos}',
+                      Colors.indigo,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _construirTarjetaMetrica(
+                      'Errores Detectados',
+                      '${diag.errores}',
+                      diag.errores > 0 ? Colors.red : Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (diag.tagsCriticos.isNotEmpty)
+                ElevatedButton.icon(
+                  onPressed: () => _generarRefuerzoAdaptativo(diag.tagsCriticos),
+                  icon: const Icon(Icons.fitness_center),
+                  label: const Text('PRACTICAR MIS PUNTOS DÉBILES (REFUERZO)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              const SizedBox(height: 20),
+              const Text(
+                '🔍 Errores Más Prominentes:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              if (diag.erroresProminentes.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '¡Excelente! No tienes errores prominentes o recurrentes en tus prácticas.',
+                          style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...diag.erroresProminentes.map((err) => Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(err.categoria.icono, style: const TextStyle(fontSize: 20)),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      err.categoria.etiqueta,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                                Chip(
+                                  label: Text('${err.conteo} fallos', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+                                  backgroundColor: err.conteo >= 3 ? Colors.red.shade700 : Colors.orange.shade700,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(err.descripcion, style: const TextStyle(fontSize: 13)),
+                            const SizedBox(height: 6),
+                            if (err.tagsRelacionados.isNotEmpty)
+                              Wrap(
+                                spacing: 4,
+                                children: err.tagsRelacionados
+                                    .map((t) => Chip(
+                                          label: Text('#$t', style: const TextStyle(fontSize: 10)),
+                                          visualDensity: VisualDensity.compact,
+                                          backgroundColor: Colors.grey.shade100,
+                                        ))
+                                    .toList(),
+                              ),
+                          ],
+                        ),
+                      ),
+                    )),
+              const SizedBox(height: 20),
+              const Text(
+                '💡 ¿En qué te debemos de ayudar?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ...diag.recomendacionesRefuerzo.map((rec) => Card(
+                    color: Colors.indigo.shade50,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(color: Colors.indigo.shade200),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  rec.titulo,
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.indigo.shade900),
+                                ),
+                              ),
+                              Text(rec.prioridad.etiqueta, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(rec.explicacion, style: const TextStyle(fontSize: 13)),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lightbulb_outline, size: 16, color: Colors.amber),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    rec.accionSugerida,
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+        );
+      },
     );
   }
 
