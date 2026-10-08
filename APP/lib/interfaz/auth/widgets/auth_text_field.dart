@@ -15,7 +15,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../design/app_colors.dart';
 
 /// Campo de texto glassmorphism para formularios de autenticación.
 ///
@@ -69,25 +68,25 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
   @override
   Widget build(BuildContext context) {
-    // Borde cambia suavemente entre crema-tenue y naranja-vivo al enfocar
+    // Borde cambia suavemente entre blanco-tenue y terracota-Claude al enfocar
     final borderColor = _hasFocus
-        ? AppColors.naranja.withAlpha(180)   // naranja al ~70% en foco
-        : AppColors.crema.withAlpha(51);     // crema al ~20% en reposo
+        ? const Color(0xFFD97757).withOpacity(0.9) // Terracota Claude en foco
+        : Colors.white.withOpacity(0.14);          // Traslúcido tenue en reposo
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        // Fondo tenue crema/glass para el campo
-        color: AppColors.crema.withAlpha(20),
-        border: Border.all(color: borderColor, width: 1.2),
-        // Glow sutil naranja cuando está en foco
+        borderRadius: BorderRadius.circular(12),
+        // Fondo tenue de vidrio para el campo
+        color: Colors.white.withOpacity(0.06),
+        border: Border.all(color: borderColor, width: 1.0),
+        // Glow sutil cuando está en foco
         boxShadow: _hasFocus
             ? [
                 BoxShadow(
-                  color: AppColors.naranja.withAlpha(40),
-                  blurRadius: 12,
+                  color: const Color(0xFFD97757).withOpacity(0.25),
+                  blurRadius: 10,
                   offset: Offset.zero,
                 ),
               ]
@@ -102,44 +101,47 @@ class _AuthTextFieldState extends State<AuthTextField> {
         textInputAction: widget.textInputAction,
         onFieldSubmitted: widget.onFieldSubmitted,
         style: GoogleFonts.plusJakartaSans(
-          color: AppColors.crema,
-          fontSize: 15,
+          color: const Color(0xFFFAF9F5),
+          fontSize: 14.5,
           fontWeight: FontWeight.w500,
         ),
-        cursorColor: AppColors.naranja,
+        cursorColor: const Color(0xFFD97757),
         decoration: InputDecoration(
           labelText: widget.label,
           labelStyle: GoogleFonts.plusJakartaSans(
-            color: AppColors.crema.withAlpha(178), // crema al 70%
-            fontSize: 14,
+            color: Colors.white.withOpacity(0.50),
+            fontSize: 13.5,
             fontWeight: FontWeight.w400,
           ),
           floatingLabelStyle: GoogleFonts.plusJakartaSans(
-            color: AppColors.naranjaVivo,
+            color: const Color(0xFFD97757),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
-          prefixIcon: Icon(widget.icon, color: AppColors.naranja, size: 20),
+          prefixIcon: Icon(
+            widget.icon,
+            color: _hasFocus
+                ? const Color(0xFFD97757)
+                : Colors.white.withOpacity(0.50),
+            size: 19,
+          ),
           suffixIcon: widget.suffixIcon,
-          // Sin borde propio — el borde lo maneja el AnimatedContainer externo
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           focusedErrorBorder: InputBorder.none,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          // Error con color cálido, sin borde rojo agresivo
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           errorStyle: GoogleFonts.plusJakartaSans(
-            color: const Color(0xFFFF6B35), // naranja-rojo cálido
+            color: const Color(0xFFFF6B55),
             fontSize: 11,
           ),
         ),
       ),
     )
-        // Animación de entrada: fade + slide desde abajo al aparecer
         .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, duration: 300.ms, curve: Curves.easeOut);
+        .fadeIn(duration: 250.ms)
+        .slideY(begin: 0.08, end: 0, duration: 250.ms, curve: Curves.easeOut);
   }
 }

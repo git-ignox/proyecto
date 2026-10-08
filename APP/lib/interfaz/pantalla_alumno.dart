@@ -38,6 +38,10 @@ import 'alumno/widget_acciones_rapidas.dart';
 import 'alumno/widget_hero_alumno.dart';
 import 'alumno/widget_modulos_aprendizaje.dart';
 import 'alumno/widget_resumen_metricas.dart';
+import 'alumno/widget_portal_alumno_claude.dart';
+import 'design/app_colors.dart';
+import 'widgets/claude_auth_components.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
 /// Enfocada en resolver problemas, diagnóstico de errores, práctica de refuerzo y exámenes diagnósticos con avance.
@@ -126,6 +130,622 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
       builder: (ctx) => HojaGestionMaterialesOffline(
         coordinador: _coordinadorOffline,
       ),
+    );
+  }
+
+  String _obtenerIniciales(String nombre) {
+    if (nombre.isEmpty) return 'DL';
+    final partes = nombre.trim().split(RegExp(r'\s+'));
+    if (partes.length == 1) return partes[0].substring(0, 1).toUpperCase();
+    return (partes[0][0] + partes[1][0]).toUpperCase();
+  }
+
+  void _mostrarDialogoAnuncios() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.campaign_rounded, color: Color(0xFF7C3AED), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Anuncios del colegio',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    'Colegio San Agustín • Ciclo 2026',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 460,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _itemAnuncio(
+                titulo: '🎉 Semana Aniversario 2026',
+                fecha: 'Hoy, 09:30 AM',
+                descripcion: 'Las actividades deportivas y científicas inician este viernes. Revisa el cronograma en portería.',
+                etiqueta: 'Institucional',
+                colorEtiqueta: AppColors.claudeTerracota,
+              ),
+              const Divider(height: 20, color: AppColors.claudeBorde),
+              _itemAnuncio(
+                titulo: '📊 Reportes del 3er Bimestre',
+                fecha: 'Ayer, 16:00 PM',
+                descripcion: 'Los informes de avance pedagógico ya están disponibles en la sección de progreso.',
+                etiqueta: 'Académico',
+                colorEtiqueta: AppColors.claudeVerde,
+              ),
+              const Divider(height: 20, color: AppColors.claudeBorde),
+              _itemAnuncio(
+                titulo: '🔬 Olimpiada de Ciencias y Matemáticas',
+                fecha: '05 oct., 2026',
+                descripcion: 'Inscripciones abiertas para estudiantes de Secundaria. Consulta con tu profesor.',
+                etiqueta: 'Convocatoria',
+                colorEtiqueta: AppColors.claudeAzul,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemAnuncio({
+    required String titulo,
+    required String fecha,
+    required String descripcion,
+    required String etiqueta,
+    required Color colorEtiqueta,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                titulo,
+                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: colorEtiqueta.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                etiqueta,
+                style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: colorEtiqueta),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+        Text(fecha, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.claudeTextoAtenuado)),
+        const SizedBox(height: 4),
+        Text(descripcion, style: GoogleFonts.poppins(fontSize: 12.5, color: AppColors.claudeTextoSecundario, height: 1.35)),
+      ],
+    );
+  }
+
+  void _mostrarDialogoMensajes() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFCCB),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF65A30D), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Mensajes',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    'Bandeja de mensajes de profesores',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 460,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _itemMensaje('Prof. Claudia Morales', 'Biología', 'Guía de laboratorio subida al aula virtual', 'Hace 2 horas'),
+              const Divider(height: 16, color: AppColors.claudeBorde),
+              _itemMensaje('Prof. Fernando Soto', 'Matemáticas', '¡Excelente resolución en el cálculo de fracciones!', 'Ayer'),
+              const Divider(height: 16, color: AppColors.claudeBorde),
+              _itemMensaje('Tutoría Tercero C', 'Tutoría', 'Recordatorio de entrega de materiales para el taller', '3 días atrás'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemMensaje(String remitente, String materia, String texto, String tiempo) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 18,
+          backgroundColor: AppColors.claudeTerracotaClaro,
+          child: Text(remitente.substring(0, 1), style: const TextStyle(color: AppColors.claudeTerracota, fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(remitente, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal)),
+                  Text(tiempo, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.claudeTextoAtenuado)),
+                ],
+              ),
+              Text(materia, style: GoogleFonts.poppins(fontSize: 11, color: AppColors.claudeTerracota, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 2),
+              Text(texto, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _mostrarDialogoCalendario() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.calendar_month_outlined, color: Color(0xFFD97706), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Calendario Escolar',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    '7° oct., 2026 • Colegio San Agustín',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 460,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.claudeSuperficieSuave,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.claudeBorde),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.today, color: AppColors.claudeTerracota, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Hoy: Miércoles, 7 de octubre de 2026',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.claudeTextoPrincipal),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Próximas fechas del calendario:',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.claudeTextoPrincipal),
+              ),
+              const SizedBox(height: 10),
+              _itemEventoCalendario('12 Oct', 'Feriado Nacional - Día del Encuentro'),
+              _itemEventoCalendario('18 Oct', 'Examen Diagnóstico Bimestral de Aritmética'),
+              _itemEventoCalendario('25 Oct', 'Presentación de Proyectos en Computación ATSA'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemEventoCalendario(String fecha, String titulo) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.claudeTerracotaClaro,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              fecha,
+              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.claudeTerracota),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              titulo,
+              style: GoogleFonts.poppins(fontSize: 12.5, color: AppColors.claudeTextoPrincipal),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarDialogoHorarios() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFE4E6),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.event_note_outlined, color: Color(0xFFE11D48), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Distribución de las clases',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    'Tercero de Secundaria C • Horario Semanal',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 480,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _filaHorario('08:00 - 09:30', 'Biología', 'Aula 12', const Color(0xFFFCE7F3), const Color(0xFFDB2777)),
+              const SizedBox(height: 8),
+              _filaHorario('09:45 - 11:15', 'Matemáticas', 'Aula 10', const Color(0xFFFBECE7), AppColors.claudeTerracota),
+              const SizedBox(height: 8),
+              _filaHorario('11:30 - 13:00', 'Ciencias Sociales', 'Aula 14', const Color(0xFFD1FAE5), const Color(0xFF059669)),
+              const SizedBox(height: 8),
+              _filaHorario('14:00 - 15:30', 'Computación ATSA', 'Laboratorio Informática', const Color(0xFFFFE4E6), const Color(0xFFDC2626)),
+              const SizedBox(height: 8),
+              _filaHorario('15:45 - 17:00', 'Arte Diversificado Teatro', 'Auditorio Central', const Color(0xFFE0F2FE), const Color(0xFF0284C7)),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filaHorario(String hora, String materia, String aula, Color fondo, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: fondo.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: fondo),
+      ),
+      child: Row(
+        children: [
+          Text(hora, style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(materia, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: color)),
+          ),
+          Text(aula, style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.claudeTextoSecundario)),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarDialogoAsistencia() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF9C3),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.fact_check_outlined, color: Color(0xFFCA8A04), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Asistencia',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    '100% de asistencia regular acumulada',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.verified, color: Color(0xFF16A34A), size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Asistencia Perfecta', style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 13.5, color: const Color(0xFF15803D))),
+                          Text('0 tardanzas • 0 faltas injustificadas', style: GoogleFonts.poppins(fontSize: 11.5, color: const Color(0xFF166534))),
+                        ],
+                      ),
+                    ),
+                    Text('100%', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800, color: const Color(0xFF15803D))),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              _itemAsistenciaMateria('Matemáticas', '24/24 sesiones', '100%'),
+              _itemAsistenciaMateria('Ciencias Sociales', '22/22 sesiones', '100%'),
+              _itemAsistenciaMateria('Biología', '20/20 sesiones', '100%'),
+              _itemAsistenciaMateria('Computación ATSA', '18/18 sesiones', '100%'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemAsistenciaMateria(String materia, String sesiones, String porcentaje) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(materia, style: GoogleFonts.poppins(fontSize: 12.5, color: AppColors.claudeTextoPrincipal)),
+          Row(
+            children: [
+              Text(sesiones, style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.claudeTextoSecundario)),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6)),
+                child: Text(porcentaje, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFF15803D))),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarDialogoPoliticas() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppColors.claudeBorde),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFCCFBF1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.verified_user_outlined, color: Color(0xFF0D9488), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Políticas y recursos escolares',
+                    style: GoogleFonts.lora(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal),
+                  ),
+                  Text(
+                    'Manual de convivencia y biblioteca escolar',
+                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 480,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _itemPolitica('📘 Manual de Convivencia Escolar', 'Reglamento interno sobre puntualidad, respeto mutuo y convivencia escolar.'),
+              const Divider(height: 16, color: AppColors.claudeBorde),
+              _itemPolitica('🛡️ Uso Responsable de Dispositivos', 'Lineamientos para el uso pedagógico de tablets y ordenadores en el aula.'),
+              const Divider(height: 16, color: AppColors.claudeBorde),
+              _itemPolitica('💾 Recursos sin Conexión', 'Descarga de cuadernos de trabajo y fichas de ejercicios para estudiar sin internet.'),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _mostrarMaterialesOffline();
+                  },
+                  icon: const Icon(Icons.download_for_offline_outlined, size: 18),
+                  label: const Text('Abrir Gestor de Materiales Offline'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.claudeTerracota,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('Cerrar', style: GoogleFonts.poppins(color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemPolitica(String titulo, String subtitulo) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(titulo, style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.claudeTextoPrincipal)),
+        const SizedBox(height: 2),
+        Text(subtitulo, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario, height: 1.35)),
+      ],
     );
   }
 
@@ -1128,95 +1748,284 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            const Icon(Icons.school_outlined),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : 'Portal del Alumno',
-                overflow: TextOverflow.ellipsis,
+      backgroundColor: AppColors.claudeFondo,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(66),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              bottom: BorderSide(color: AppColors.claudeBorde, width: 1.0),
+            ),
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0),
+              child: Row(
+                children: [
+                  // Logo e Identidad Claude (círculo terracota con asterisco / monograma)
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: const BoxDecoration(
+                            color: AppColors.claudeTerracota,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: ClaudeAsteriskLogo(
+                              size: 19,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Título "Inicio - 2026" y "Colegio San Agustín"
+                        Flexible(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Inicio - 2026',
+                                style: GoogleFonts.lora(
+                                  fontSize: 16.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.claudeTextoPrincipal,
+                                  letterSpacing: -0.2,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                widget.usuario.institucionId.isNotEmpty ? widget.usuario.institucionId : 'Colegio San Agustín',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: AppColors.claudeTextoSecundario,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Puntos del alumno (chip terracota / ámbar)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.claudeTerracotaClaro,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.claudeTerracota.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.stars_rounded, size: 15, color: AppColors.claudeTerracota),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.usuario.puntosAcumulados} pts',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.claudeTerracotaOscuro,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  // Perfil de alumno con dropdown (DL o iniciales)
+                  PopupMenuButton<String>(
+                    tooltip: 'Menú de Usuario',
+                    onSelected: (val) {
+                      if (val == 'demo') {
+                        widget.servicioAuth.alternarRol();
+                      } else if (val == 'logout') {
+                        widget.servicioAuth.cerrarSesion();
+                      } else if (val == 'diag') {
+                        _mostrarDiagnostico();
+                      }
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: AppColors.claudeBorde),
+                    ),
+                    color: Colors.white,
+                    itemBuilder: (ctx) => [
+                      PopupMenuItem(
+                        enabled: false,
+                        child: Text(
+                          widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : 'Dotzauer Lafuente, Ignacio',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      const PopupMenuItem(
+                        value: 'diag',
+                        child: Row(
+                          children: [
+                            Icon(Icons.analytics_outlined, size: 18),
+                            SizedBox(width: 8),
+                            Text('Mi Diagnóstico y Refuerzo'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'demo',
+                        child: Row(
+                          children: [
+                            Icon(Icons.swap_horiz, size: 18),
+                            SizedBox(width: 8),
+                            Text('Alternar a modo Docente (Demo)'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, size: 18, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 6.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircleAvatar(
+                            radius: 13,
+                            backgroundColor: const Color(0xFF0E7490),
+                            child: Text(
+                              _obtenerIniciales(widget.usuario.nombre),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 120),
+                            child: Text(
+                              widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : 'Dotzauer Lafuente, Ignacio',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.claudeTextoPrincipal,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(Icons.arrow_drop_down, size: 16, color: AppColors.claudeTextoSecundario),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Botón Diagnóstico y Refuerzo
+                  IconButton(
+                    icon: const Icon(Icons.analytics_outlined, size: 19),
+                    tooltip: 'Mi Diagnóstico y Refuerzo',
+                    color: AppColors.claudeTextoSecundario,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _mostrarDiagnostico,
+                  ),
+                  // Botón Calendario
+                  IconButton(
+                    icon: const Icon(Icons.calendar_today_outlined, size: 19),
+                    tooltip: 'Calendario Escolar',
+                    color: AppColors.claudeTextoSecundario,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _mostrarDialogoCalendario,
+                  ),
+                  // Botón Campana con Badge "8"
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none_outlined, size: 21),
+                        tooltip: 'Notificaciones y Avisos',
+                        color: AppColors.claudeTextoSecundario,
+                        visualDensity: VisualDensity.compact,
+                        onPressed: _mostrarDialogoAnuncios,
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE11D48),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Text(
+                            '8',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
+          ),
+        ),
+      ),
+      body: _construirCuerpoSegunPestana(),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: AppColors.claudeBorde, width: 1.0),
+          ),
+        ),
+        child: NavigationBar(
+          backgroundColor: Colors.white,
+          indicatorColor: AppColors.claudeTerracotaClaro,
+          selectedIndex: _pestanaActual,
+          onDestinationSelected: (idx) => setState(() => _pestanaActual = idx),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home, color: AppColors.claudeTerracota),
+              label: 'Inicio',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.edit_note_outlined),
+              selectedIcon: Icon(Icons.edit_note, color: AppColors.claudeTerracota),
+              label: 'Práctica',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.class_outlined),
+              selectedIcon: Icon(Icons.class_, color: AppColors.claudeTerracota),
+              label: 'Mis Clases',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.assignment_outlined),
+              selectedIcon: Icon(Icons.assignment, color: AppColors.claudeTerracota),
+              label: 'Evaluaciones',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.insights_outlined),
+              selectedIcon: Icon(Icons.insights, color: AppColors.claudeTerracota),
+              label: 'Diagnóstico',
             ),
           ],
         ),
-        actions: [
-          // Botón Diagnóstico y Refuerzo
-          IconButton(
-            icon: const Icon(Icons.analytics_outlined),
-            tooltip: 'Mi Diagnóstico y Refuerzo',
-            onPressed: _mostrarDiagnostico,
-          ),
-
-          // Puntos del Alumno
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.amber.shade400,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.stars, size: 18, color: Colors.indigo),
-                const SizedBox(width: 4),
-                Text(
-                  '${widget.usuario.puntosAcumulados} pts',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-
-          // Alternar rol (Atajo de demo)
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Atajo de Demostración: Alternar a modo Profesor (para presentar sin reloguear)',
-            onPressed: () => widget.servicioAuth.alternarRol(),
-          ),
-
-          // Cerrar sesión
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => widget.servicioAuth.cerrarSesion(),
-          ),
-        ],
-      ),
-      body: _construirCuerpoSegunPestana(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _pestanaActual,
-        onDestinationSelected: (idx) => setState(() => _pestanaActual = idx),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.edit_note_outlined),
-            selectedIcon: Icon(Icons.edit_note),
-            label: 'Práctica',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.class_outlined),
-            selectedIcon: Icon(Icons.class_),
-            label: 'Mis Clases',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment),
-            label: 'Evaluaciones',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.insights_outlined),
-            selectedIcon: Icon(Icons.insights),
-            label: 'Diagnóstico',
-          ),
-        ],
       ),
     );
   }
@@ -1249,6 +2058,27 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             repositorioSesiones: widget.repositorioSesiones,
             repositorioAuditoria: widget.repositorioAuditoria,
           ),
+          WidgetPortalAlumnoClaude(
+            usuario: widget.usuario,
+            clases: _clases,
+            examenes: _examenes,
+            diagnostico: _diagnostico,
+            onAbrirClases: () => setState(() => _pestanaActual = 2),
+            onAbrirExamenes: _mostrarExamenesDiagnostico,
+            onAbrirCalificaciones: _abrirMisCalificaciones,
+            onAbrirDiagnostico: () => setState(() => _pestanaActual = 4),
+            onAbrirMaterialesOffline: _mostrarMaterialesOffline,
+            onVerCalendario: _mostrarDialogoCalendario,
+            onVerHorarios: _mostrarDialogoHorarios,
+            onVerAnuncios: _mostrarDialogoAnuncios,
+            onVerMensajes: _mostrarDialogoMensajes,
+            onVerAsistencia: _mostrarDialogoAsistencia,
+            onVerPoliticas: _mostrarDialogoPoliticas,
+            onMiraLoQueSigue: () => setState(() => _pestanaActual = 1),
+            onSeleccionarClase: (c) {
+              setState(() => _pestanaActual = 2);
+            },
+          ),
           WidgetTarjetaDisponibilidadOffline(
             coordinador: _coordinadorOffline,
           ),
@@ -1270,7 +2100,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: AppColors.claudeTerracota),
               ),
             )
           else if (_ejercicios.isEmpty)
@@ -1301,12 +2131,12 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.indigo.shade100, width: 1.5),
-        boxShadow: [
+        border: Border.all(color: AppColors.claudeBorde, width: 1.0),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.indigo.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Color(0x06000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -1316,49 +2146,57 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.indigo.shade50,
-                      borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.claudeTerracotaClaro,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.bolt, color: AppColors.claudeTerracota, size: 18),
                     ),
-                    child: Icon(Icons.bolt, color: Colors.indigo.shade700, size: 20),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Reto Matemático de Hoy (${_indiceActual + 1}/${_ejercicios.length})',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Reto Matemático de Hoy (${_indiceActual + 1}/${_ejercicios.length})',
+                        style: GoogleFonts.lora(fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.claudeTextoPrincipal),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               TextButton.icon(
                 onPressed: () => setState(() => _pestanaActual = 1),
-                icon: const Icon(Icons.open_in_new, size: 14),
-                label: const Text('Lienzo Completo', style: TextStyle(fontSize: 12)),
+                icon: const Icon(Icons.open_in_new, size: 14, color: AppColors.claudeTerracota),
+                label: Text('Lienzo Completo', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTerracota, fontWeight: FontWeight.w600)),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 6,
             runSpacing: 4,
             children: [
               Chip(
-                label: Text('Tema: ${ejercicio.codigoTema}'),
-                backgroundColor: Colors.blue.shade50,
+                label: Text('Tema: ${ejercicio.codigoTema}', style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.claudeTextoPrincipal)),
+                backgroundColor: AppColors.claudeSuperficieSuave,
+                side: const BorderSide(color: AppColors.claudeBorde),
                 visualDensity: VisualDensity.compact,
               ),
               Chip(
-                label: Text('Nivel ${ejercicio.nivel}'),
-                backgroundColor: Colors.purple.shade50,
+                label: Text('Nivel ${ejercicio.nivel}', style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.claudeTextoPrincipal)),
+                backgroundColor: AppColors.claudeSuperficieSuave,
+                side: const BorderSide(color: AppColors.claudeBorde),
                 visualDensity: VisualDensity.compact,
               ),
               Chip(
-                label: Text('+${ejercicio.puntos} puntos'),
-                backgroundColor: Colors.amber.shade100,
-                avatar: const Icon(Icons.star, size: 14, color: Colors.amber),
+                label: Text('+${ejercicio.puntos} puntos', style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: const Color(0xFFB45309))),
+                backgroundColor: const Color(0xFFFEF3C7),
+                side: const BorderSide(color: Color(0xFFFDE68A)),
+                avatar: const Icon(Icons.star, size: 14, color: Color(0xFFD97706)),
                 visualDensity: VisualDensity.compact,
               ),
             ],
@@ -1370,27 +2208,28 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
               runSpacing: 4,
               children: ejercicio.tags
                   .map((t) => Chip(
-                        avatar: const Icon(Icons.local_offer_outlined, size: 14, color: Colors.indigo),
-                        label: Text(t, style: const TextStyle(fontSize: 12, color: Colors.indigo)),
-                        backgroundColor: Colors.indigo.shade50,
+                        avatar: const Icon(Icons.local_offer_outlined, size: 13, color: AppColors.claudeTerracota),
+                        label: Text(t, style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.claudeTerracotaOscuro)),
+                        backgroundColor: AppColors.claudeTerracotaClaro,
+                        side: BorderSide(color: AppColors.claudeTerracota.withValues(alpha: 0.2)),
                         visualDensity: VisualDensity.compact,
                       ))
                   .toList(),
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Card(
             elevation: 0,
-            color: Colors.grey.shade50,
+            color: AppColors.claudeSuperficieSuave,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: Colors.grey.shade200),
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: AppColors.claudeBorde),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(14.0),
+              padding: const EdgeInsets.all(16.0),
               child: Text(
                 ejercicio.enunciado,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.claudeTextoPrincipal, height: 1.45),
               ),
             ),
           ),
@@ -1400,14 +2239,15 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
           ElevatedButton.icon(
             onPressed: _evaluando ? null : _evaluarRespuesta,
             icon: _evaluando
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.check_circle_outline),
-            label: const Text('CALIFICAR RESPUESTA', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            label: Text('CALIFICAR RESPUESTA', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              backgroundColor: Colors.indigo,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              backgroundColor: AppColors.claudeTerracota,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 0,
             ),
           ),
           const SizedBox(height: 10),
@@ -1418,11 +2258,21 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
                 onPressed: _indiceActual > 0 ? () => _cambiarEjercicio(_indiceActual - 1) : null,
                 icon: const Icon(Icons.arrow_back, size: 16),
                 label: const Text('Anterior'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.claudeTextoPrincipal,
+                  side: const BorderSide(color: AppColors.claudeBorde),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
               ),
               OutlinedButton.icon(
                 onPressed: _indiceActual < _ejercicios.length - 1 ? () => _cambiarEjercicio(_indiceActual + 1) : null,
                 icon: const Icon(Icons.arrow_forward, size: 16),
                 label: const Text('Siguiente'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.claudeTextoPrincipal,
+                  side: const BorderSide(color: AppColors.claudeBorde),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
               ),
             ],
           ),

@@ -1,23 +1,24 @@
 // ============================================================
 // bloque_autenticacion.dart — Bloque de acciones de acceso tipo Claude
 //
-// Jerarquía visual clara:
-//   1. Botón Principal: "Iniciar Sesión" — Terracota (#D97757),
-//      bordes limpios redondeados, tipografía moderna Poppins.
-//   2. Acción Secundaria: "Crear Cuenta" — Estilo minimalista editorial,
-//      borde fino y suave contraste pergamino.
+// Apariencia idéntica a Claude & macOS Glassmorphism:
+//   1. Botón Principal: "Iniciar Sesión" — Sólido crema/hueso (#ECE7DE),
+//      bordes limpios redondeados (12px), tipografía oscura obsidian (#1E1D1B).
+//   2. Acción Secundaria: "Crear Cuenta" — Estilo vidrio oscuro traslúcido
+//      con borde hairline sutil y texto claro apergaminado.
+//   3. Opciones complementarias: "Continuar con Google" y Acceso rápido.
 //
 // Flujo integrado de navegación hacia PantallaAutenticacion.
 // ============================================================
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../datos/servicio_auth.dart';
 import '../../pantalla_autenticacion.dart';
+import '../../widgets/claude_auth_components.dart';
 import '../tema_cuaderno.dart';
 
-/// Bloque con botones de autenticación con estética Claude / editorial cálida.
+/// Bloque con botones de autenticación con la estética Claude / macOS Glassmorphism.
 class BloqueAutenticacion extends StatelessWidget {
   const BloqueAutenticacion({
     super.key,
@@ -53,7 +54,7 @@ class BloqueAutenticacion extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. Botón Principal: Iniciar Sesión (Terracota dominante, bordes redondeados limpios)
+          // 1. Botón Principal: Iniciar Sesión (Sólido crema Claude con texto carbón oscuro)
           _BotonPrincipalAcceso(
             label: 'Iniciar Sesión',
             tema: tema,
@@ -61,7 +62,7 @@ class BloqueAutenticacion extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // 2. Acción Secundaria: Crear Cuenta (Borde fino, minimalista)
+          // 2. Acción Secundaria: Crear Cuenta (Vidrio oscuro con borde fino)
           _BotonSecundarioAcceso(
             label: 'Crear Cuenta',
             tema: tema,
@@ -73,8 +74,9 @@ class BloqueAutenticacion extends StatelessWidget {
   }
 }
 
-/// Botón principal con alta jerarquía visual, fondo terracota Claude y animación táctil sutil.
-class _BotonPrincipalAcceso extends StatefulWidget {
+/// Botón principal con alta jerarquía visual: fondo crema cálido Claude (#ECE7DE)
+/// y texto oscuro (#1E1D1B).
+class _BotonPrincipalAcceso extends StatelessWidget {
   const _BotonPrincipalAcceso({
     required this.label,
     required this.tema,
@@ -86,82 +88,18 @@ class _BotonPrincipalAcceso extends StatefulWidget {
   final VoidCallback onPressed;
 
   @override
-  State<_BotonPrincipalAcceso> createState() => _BotonPrincipalAccesoState();
-}
-
-class _BotonPrincipalAccesoState extends State<_BotonPrincipalAcceso> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() {
-        _hovered = false;
-        _pressed = false;
-      }),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _pressed = true),
-        onTapUp: (_) => setState(() => _pressed = false),
-        onTapCancel: () => setState(() => _pressed = false),
-        onTap: widget.onPressed,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          height: 48,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: widget.tema.primaryButton,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: _hovered && !_pressed
-                ? [
-                    BoxShadow(
-                      color: widget.tema.primaryButton.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ]
-                : const [],
-          ),
-          transform: Matrix4.diagonal3Values(
-            _pressed ? 0.985 : 1.0,
-            _pressed ? 0.985 : 1.0,
-            1.0,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.w600,
-                      color: widget.tema.primaryButtonText,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 18,
-                    color: widget.tema.primaryButtonText,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return ClaudePrimaryButton(
+      label: label,
+      onPressed: onPressed,
+      height: 48,
+      borderRadius: 12,
     );
   }
 }
 
-/// Botón secundario con menor jerarquía visual, fondo transparente y borde Claude hairline.
-class _BotonSecundarioAcceso extends StatefulWidget {
+/// Botón secundario: vidrio oscuro traslúcido con borde hairline y texto blanco cálido.
+class _BotonSecundarioAcceso extends StatelessWidget {
   const _BotonSecundarioAcceso({
     required this.label,
     required this.tema,
@@ -173,48 +111,12 @@ class _BotonSecundarioAcceso extends StatefulWidget {
   final VoidCallback onPressed;
 
   @override
-  State<_BotonSecundarioAcceso> createState() => _BotonSecundarioAccesoState();
-}
-
-class _BotonSecundarioAccesoState extends State<_BotonSecundarioAcceso> {
-  bool _hovered = false;
-
-  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 46),
-          side: BorderSide(
-            color: _hovered
-                ? widget.tema.primaryButton
-                : widget.tema.secondaryButtonBorder,
-            width: 1.2,
-          ),
-          backgroundColor: _hovered
-              ? widget.tema.primaryButton.withValues(alpha: 0.08)
-              : Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        onPressed: widget.onPressed,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              widget.label,
-              style: GoogleFonts.poppins(
-                color: widget.tema.secondaryButtonText,
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.2,
-              ),
-            ),
-          ),
-        ),
-      ),
+    return ClaudeSecondaryButton(
+      label: label,
+      onPressed: onPressed,
+      height: 48,
+      borderRadius: 12,
     );
   }
 }
