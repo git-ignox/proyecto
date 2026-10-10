@@ -136,7 +136,7 @@ class AppMatematicas extends StatelessWidget {
           surface: AppColors.claudeSuperficie,
           onSurface: AppColors.claudeTextoPrincipal,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
@@ -144,7 +144,7 @@ class AppMatematicas extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        dialogTheme: DialogTheme(
+        dialogTheme: DialogThemeData(
           backgroundColor: AppColors.claudeSuperficie,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(

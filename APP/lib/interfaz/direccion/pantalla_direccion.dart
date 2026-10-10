@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../design/app_colors.dart';
+import '../widgets/mac_glass_widgets.dart';
 import '../../datos/repositorio_auditoria.dart';
 import '../../datos/repositorio_clases.dart';
 import '../../datos/repositorio_politicas.dart';
@@ -242,103 +245,106 @@ class _PantallaDireccionState extends State<PantallaDireccion>
       (s) => s.restriccionesSuspendidasEmergencia,
     );
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.blueGrey.shade900,
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade700,
-                shape: BoxShape.circle,
+    return MacDesktopBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF161514).withValues(alpha: 0.88),
+          elevation: 0,
+          foregroundColor: AppColors.claudeTextoPrincipal,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.claudeTerracota,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
               ),
-              child: const Icon(Icons.account_balance, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Colegio San Martín de Tours',
+                      style: GoogleFonts.lora(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
+                    ),
+                    Text(
+                      'Panel de Dirección — ${widget.usuario.nombre}',
+                      style: GoogleFonts.poppins(fontSize: 12, color: AppColors.claudeTextoSecundario),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            // Botón de Emergencia Institucional
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ElevatedButton.icon(
+                onPressed: _dialogoEmergenciaInstitucional,
+                icon: Icon(
+                  hayEmergenciaActiva ? Icons.restart_alt : Icons.emergency,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  hayEmergenciaActiva ? 'RESTAURAR REGLAS' : 'EMERGENCIA',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      hayEmergenciaActiva ? Colors.green.shade700 : const Color(0xFFE11D48),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Actualizar datos',
+              onPressed: _cargarDatos,
+            ),
+            IconButton(
+              icon: const Icon(Icons.swap_horiz),
+              tooltip: 'Alternar Rol (Demo: Alumno / Profesor / Dirección)',
+              onPressed: () => widget.servicioAuth.alternarRol(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Cerrar Sesión',
+              onPressed: () => widget.servicioAuth.cerrarSesion(),
+            ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            labelColor: AppColors.claudeTerracota,
+            unselectedLabelColor: AppColors.claudeTextoSecundario,
+            indicatorColor: AppColors.claudeTerracota,
+            tabs: const [
+              Tab(icon: Icon(Icons.dashboard_outlined), text: 'Resumen'),
+              Tab(icon: Icon(Icons.security_outlined), text: 'Políticas Apps'),
+              Tab(icon: Icon(Icons.school_outlined), text: 'Institución'),
+              Tab(icon: Icon(Icons.history_edu_outlined), text: 'Auditoría'),
+            ],
+          ),
+        ),
+        body: _cargando
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                controller: _tabController,
                 children: [
-                  const Text(
-                    'Colegio San Martín de Tours',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Panel de Dirección — ${widget.usuario.nombre}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade300),
-                  ),
+                  _construirTabResumen(),
+                  _construirTabPoliticas(),
+                  _construirTabInstitucion(),
+                  _construirTabAuditoria(),
                 ],
               ),
-            ),
-          ],
-        ),
-        actions: [
-          // Botón de Emergencia Institucional
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ElevatedButton.icon(
-              onPressed: _dialogoEmergenciaInstitucional,
-              icon: Icon(
-                hayEmergenciaActiva ? Icons.restart_alt : Icons.emergency,
-                size: 18,
-                color: Colors.white,
-              ),
-              label: Text(
-                hayEmergenciaActiva ? 'RESTAURAR REGLAS' : 'EMERGENCIA',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    hayEmergenciaActiva ? Colors.green.shade700 : Colors.red.shade800,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Actualizar datos',
-            onPressed: _cargarDatos,
-          ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Alternar Rol (Demo Rápida: Alumno / Profesor / Dirección)',
-            onPressed: () => widget.servicioAuth.alternarRol(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar Sesión',
-            onPressed: () => widget.servicioAuth.cerrarSesion(),
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.amberAccent,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.amberAccent,
-          tabs: const [
-            Tab(icon: Icon(Icons.dashboard_outlined), text: 'Resumen'),
-            Tab(icon: Icon(Icons.security_outlined), text: 'Políticas Apps'),
-            Tab(icon: Icon(Icons.school_outlined), text: 'Institución'),
-            Tab(icon: Icon(Icons.history_edu_outlined), text: 'Auditoría'),
-          ],
-        ),
       ),
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _construirTabResumen(),
-                _construirTabPoliticas(),
-                _construirTabInstitucion(),
-                _construirTabAuditoria(),
-              ],
-            ),
     );
   }
 

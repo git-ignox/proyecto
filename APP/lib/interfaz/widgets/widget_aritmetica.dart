@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../dominio/modelos/aritmetico.dart';
+import '../design/app_colors.dart';
 
 /// Widget visual unificado para renderizar operaciones aritméticas en:
 /// - Formato vertical escolar (columna y galera tradicional de división).
@@ -30,10 +31,19 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
   Widget build(BuildContext context) {
     final ej = widget.ejercicio;
 
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.claudeBorde),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
         child: Column(
@@ -45,22 +55,22 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.indigo.shade50,
+                    color: AppColors.claudeTerracota.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.indigo.shade200),
+                    border: Border.all(color: AppColors.claudeTerracota.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     _obtenerEtiquetaModo(ej),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.indigo.shade700,
+                      color: AppColors.claudeTerracota,
                     ),
                   ),
                 ),
                 Text(
                   'Incógnita: ${_nombreIncognita(ej.incognita)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                  style: TextStyle(fontSize: 12, color: AppColors.claudeTextoSecundario, fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -146,7 +156,7 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
             children: [
               opEsIncognita
                   ? _construirSelectorOperador()
-                  : _textoGrande(ej.operacion.simbolo, color: Colors.indigo, esNegrita: true),
+                  : _textoGrande(ej.operacion.simbolo, color: AppColors.claudeTerracota, esNegrita: true),
               const SizedBox(width: 16),
               bEsIncognita
                   ? _construirCasillaInput(widget.controladorTexto, ancho: 100)
@@ -158,8 +168,8 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
           // Línea divisoria de la operación
           Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
-            height: 3,
-            color: Colors.black87,
+            height: 2,
+            color: Colors.white.withValues(alpha: 0.25),
           ),
 
           // Fila 3: Resultado (c)
@@ -167,7 +177,7 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
             padding: const EdgeInsets.only(right: 8.0),
             child: cEsIncognita
                 ? _construirCasillaInput(widget.controladorTexto, ancho: 120, destacado: true)
-                : _textoGrande(_formatear(ej.resultadoExacto), color: Colors.teal.shade800),
+                : _textoGrande(_formatear(ej.resultadoExacto), color: const Color(0xFF68D391)),
           ),
         ],
       ),
@@ -208,7 +218,7 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
                         ? _construirCasillaInput(widget.controladorResto!, ancho: 80, etiqueta: 'Resto')
                         : _textoGrande(
                             ej.restoEsperado != null ? '${ej.restoEsperado}' : '0',
-                            color: Colors.purple.shade700,
+                            color: Colors.amber.shade400,
                             tamano: 22,
                           )),
               ),
@@ -217,9 +227,9 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
 
           // Lado derecho: Galera con divisor (b) arriba y cociente (c) abajo
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
-                left: BorderSide(color: Colors.black87, width: 3),
+                left: BorderSide(color: Colors.white.withValues(alpha: 0.35), width: 2.5),
               ),
             ),
             child: Column(
@@ -234,16 +244,16 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
                 ),
                 // Barra horizontal inferior de la galera
                 Container(
-                  height: 3,
+                  height: 2.5,
                   width: 120,
-                  color: Colors.black87,
+                  color: Colors.white.withValues(alpha: 0.35),
                 ),
                 // Cociente (c)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: cEsIncognita
                       ? _construirCasillaInput(widget.controladorTexto, ancho: 90, destacado: true, etiqueta: 'Cociente')
-                      : _textoGrande(_formatear(ej.resultadoExacto), color: Colors.indigo.shade800),
+                      : _textoGrande(_formatear(ej.resultadoExacto), color: AppColors.claudeTerracota),
                 ),
               ],
             ),
@@ -274,7 +284,7 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
         // op
         opEsIncognita
             ? _construirSelectorOperador()
-            : _textoGrande(ej.operacion.simbolo, color: Colors.indigo, esNegrita: true),
+            : _textoGrande(ej.operacion.simbolo, color: AppColors.claudeTerracota, esNegrita: true),
 
         // b
         bEsIncognita
@@ -282,12 +292,12 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
             : _textoGrande(_formatear(ej.operando2)),
 
         // =
-        _textoGrande('=', color: Colors.grey.shade700),
+        _textoGrande('=', color: AppColors.claudeTextoSecundario),
 
         // c
         cEsIncognita
             ? _construirCasillaInput(widget.controladorTexto, ancho: 90, destacado: true)
-            : _textoGrande(_formatear(ej.resultadoExacto), color: Colors.teal.shade800),
+            : _textoGrande(_formatear(ej.resultadoExacto), color: const Color(0xFF68D391)),
       ],
     );
   }
@@ -315,9 +325,9 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
               // Línea de fracción
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 4),
-                height: 3,
+                height: 2.5,
                 width: 90,
-                color: Colors.black87,
+                color: Colors.white.withValues(alpha: 0.35),
               ),
               // Denominador (b)
               bEsIncognita
@@ -328,13 +338,13 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
         ),
 
         const SizedBox(width: 16),
-        _textoGrande('=', color: Colors.grey.shade700),
+        _textoGrande('=', color: AppColors.claudeTextoSecundario),
         const SizedBox(width: 16),
 
         // Resultado (c)
         cEsIncognita
             ? _construirCasillaInput(widget.controladorTexto, ancho: 90, destacado: true)
-            : _textoGrande(_formatear(ej.resultadoExacto), color: Colors.teal.shade800),
+            : _textoGrande(_formatear(ej.resultadoExacto), color: const Color(0xFF68D391)),
       ],
     );
   }
@@ -350,17 +360,21 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (etiqueta != null) ...[
-          Text(etiqueta, style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+          Text(etiqueta, style: const TextStyle(fontSize: 11, color: AppColors.claudeTextoSecundario)),
           const SizedBox(height: 2),
         ],
         Container(
           width: ancho,
           decoration: BoxDecoration(
-            color: destacado ? Colors.amber.shade50 : Colors.blue.shade50,
+            color: destacado
+                ? AppColors.claudeTerracota.withValues(alpha: 0.16)
+                : AppColors.claudeSuperficieSuave,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: destacado ? Colors.orange.shade700 : Colors.indigo,
-              width: 2,
+              color: destacado
+                  ? AppColors.claudeTerracota
+                  : Colors.white.withValues(alpha: 0.22),
+              width: destacado ? 2 : 1.2,
             ),
           ),
           child: TextField(
@@ -371,13 +385,13 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
               fontSize: 26,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
-              color: Colors.indigo,
+              color: AppColors.claudeTextoPrincipal,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: '?',
-              hintStyle: TextStyle(color: Colors.grey),
+              hintStyle: TextStyle(color: AppColors.claudeTextoSecundario.withValues(alpha: 0.5)),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             ),
             onChanged: (_) {
               if (widget.onRespuestaCambiada != null) {
@@ -396,15 +410,16 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: AppColors.claudeTerracota.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.shade700, width: 2),
+        border: Border.all(color: AppColors.claudeTerracota, width: 2),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
+          dropdownColor: AppColors.claudeSuperficie,
           value: widget.controladorTexto.text.isNotEmpty ? widget.controladorTexto.text : null,
-          hint: const Text('?', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.indigo)),
-          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.indigo),
+          hint: const Text('?', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota)),
+          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
           items: opciones.map((op) {
             return DropdownMenuItem(
               value: op,
@@ -438,7 +453,7 @@ class _WidgetAritmeticaState extends State<WidgetAritmetica> {
         fontSize: tamano,
         fontWeight: esNegrita ? FontWeight.bold : FontWeight.w600,
         fontFamily: 'monospace',
-        color: color ?? Colors.black87,
+        color: color ?? AppColors.claudeTextoPrincipal,
       ),
     );
   }

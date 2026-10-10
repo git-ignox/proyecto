@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'design/app_colors.dart';
 import '../datos/fuente_datos_clases.dart';
 import '../datos/fuente_datos_diagnostico.dart';
 import '../datos/repositorio_clases.dart';
@@ -1765,114 +1767,131 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
   Widget build(BuildContext context) {
     return MacDesktopBackground(
       child: Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigo.shade800,
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            const Icon(Icons.assignment_ind_outlined),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Docente: ${widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : "Profesor"}',
-                    style: const TextStyle(fontSize: 15),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  InkWell(
-                    onTap: _mostrarSelectorInstitucionDocente,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.account_balance, size: 12, color: Colors.lightGreenAccent),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            widget.usuario.institucionId == 'INST-SAN-MARTIN'
-                                ? 'Colegio San Martín'
-                                : (widget.usuario.institucionId == 'INST-BELGRANO'
-                                    ? 'Instituto Belgrano'
-                                    : widget.usuario.institucionId),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.lightGreenAccent,
-                              decoration: TextDecoration.underline,
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(66),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF161514).withValues(alpha: 0.88),
+              border: const Border(
+                bottom: BorderSide(color: AppColors.claudeBorde, width: 1.0),
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.assignment_ind_outlined, color: AppColors.claudeTextoPrincipal),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Docente: ${widget.usuario.nombre.isNotEmpty ? widget.usuario.nombre : "Profesor"}',
+                            style: GoogleFonts.lora(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.claudeTextoPrincipal,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const Icon(Icons.arrow_drop_down, size: 14, color: Colors.lightGreenAccent),
-                      ],
+                          InkWell(
+                            onTap: _mostrarSelectorInstitucionDocente,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.account_balance, size: 12, color: AppColors.claudeTerracota),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    widget.usuario.institucionId == 'INST-SAN-MARTIN'
+                                        ? 'Colegio San Martín'
+                                        : (widget.usuario.institucionId == 'INST-BELGRANO'
+                                            ? 'Instituto Belgrano'
+                                            : (widget.usuario.institucionId.isNotEmpty ? widget.usuario.institucionId : 'Colegio San Agustín')),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      color: AppColors.claudeTerracota,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_drop_down, size: 14, color: AppColors.claudeTerracota),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    IconButton(
+                      icon: const Icon(Icons.cast_for_education, color: AppColors.claudeTerracota),
+                      tooltip: 'Iniciar / Gestionar Modo Clase & Examen',
+                      onPressed: _abrirGestionModoClase,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.class_outlined, color: AppColors.claudeVerde),
+                      tooltip: 'Gestionar Clases & Classroom',
+                      onPressed: _mostrarGestorClassroom,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.assignment_turned_in_outlined, color: AppColors.claudeAmbar),
+                      tooltip: 'Evaluaciones, Notas & Triage de Brechas',
+                      onPressed: _abrirSelectorEvaluacionesDocente,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.auto_stories_outlined, color: AppColors.claudeAzul),
+                      tooltip: 'Reportes Pedagógicos por Período',
+                      onPressed: _abrirSelectorReportesDocente,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.account_tree_outlined, color: Colors.tealAccent),
+                      tooltip: 'Planificación & Mapa Curricular',
+                      onPressed: _abrirSelectorMapaCurricularDocente,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.fact_check_outlined, color: Colors.amberAccent),
+                      tooltip: 'Exámenes Diagnósticos & Avance',
+                      onPressed: _mostrarGestorExamenes,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.insights, color: Colors.cyanAccent),
+                      tooltip: 'Monitor de Diagnóstico y Errores',
+                      onPressed: _mostrarDiagnosticoDocente,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.play_circle_fill, color: AppColors.claudeTerracota),
+                      tooltip: 'Vista de prueba de ejercicios',
+                      onPressed: _probarModoAlumno,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.swap_horiz, color: AppColors.claudeTextoSecundario),
+                      tooltip: 'Atajo de Demostración: Alternar a modo Alumno',
+                      onPressed: () => widget.servicioAuth.alternarRol(),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.logout, color: Colors.redAccent),
+                      tooltip: 'Cerrar sesión',
+                      onPressed: () => widget.servicioAuth.cerrarSesion(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.cast_for_education, color: Colors.lightGreenAccent),
-            tooltip: 'Iniciar / Gestionar Modo Clase & Examen',
-            onPressed: _abrirGestionModoClase,
-          ),
-          IconButton(
-            icon: const Icon(Icons.class_outlined, color: Colors.greenAccent),
-            tooltip: 'Gestionar Clases & Classroom',
-            onPressed: _mostrarGestorClassroom,
-          ),
-          IconButton(
-            icon: const Icon(Icons.assignment_turned_in_outlined, color: Colors.orangeAccent),
-            tooltip: 'Evaluaciones, Notas & Triage de Brechas',
-            onPressed: _abrirSelectorEvaluacionesDocente,
-          ),
-          IconButton(
-            icon: const Icon(Icons.auto_stories_outlined, color: Colors.purpleAccent),
-            tooltip: 'Reportes Pedagógicos por Período',
-            onPressed: _abrirSelectorReportesDocente,
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_tree_outlined, color: Colors.tealAccent),
-            tooltip: 'Planificación & Mapa Curricular',
-            onPressed: _abrirSelectorMapaCurricularDocente,
-          ),
-          IconButton(
-            icon: const Icon(Icons.fact_check_outlined, color: Colors.amberAccent),
-            tooltip: 'Exámenes Diagnósticos & Avance',
-            onPressed: _mostrarGestorExamenes,
-          ),
-          IconButton(
-            icon: const Icon(Icons.insights, color: Colors.cyanAccent),
-            tooltip: 'Monitor de Diagnóstico y Errores',
-            onPressed: _mostrarDiagnosticoDocente,
-          ),
-          IconButton(
-            icon: const Icon(Icons.play_circle_fill, color: Colors.amber),
-            tooltip: 'Vista de prueba de ejercicios',
-            onPressed: _probarModoAlumno,
-          ),
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Atajo de Demostración: Alternar a modo Alumno (para presentar sin reloguear)',
-            onPressed: () => widget.servicioAuth.alternarRol(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => widget.servicioAuth.cerrarSesion(),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _abrirCrearEjercicio,
-        icon: const Icon(Icons.add),
-        label: const Text('Crear Ejercicio'),
-        backgroundColor: Colors.indigo.shade700,
-        foregroundColor: Colors.white,
-      ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _abrirCrearEjercicio,
+          icon: const Icon(Icons.add),
+          label: const Text('Crear Ejercicio'),
+          backgroundColor: AppColors.claudeBotonPrimario,
+          foregroundColor: AppColors.claudeBotonPrimarioTexto,
+        ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

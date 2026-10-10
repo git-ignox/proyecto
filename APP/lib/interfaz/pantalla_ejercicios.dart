@@ -10,7 +10,9 @@ import '../dominio/modelos/numerico.dart';
 import '../dominio/modelos/resultado_evaluacion.dart';
 import '../dominio/modelos/seleccion_multiple.dart';
 import '../dominio/modelos/tipo_ejercicio.dart';
+import 'design/app_colors.dart';
 import 'pantalla_crear_ejercicio.dart';
+import 'widgets/mac_glass_widgets.dart';
 import 'widgets/widget_aritmetica.dart';
 
 /// Pantalla interactiva para probar y calificar ejercicios matemáticos
@@ -146,8 +148,10 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
   void _mostrarDialogoGenerador() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.claudeSuperficie,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        side: BorderSide(color: AppColors.claudeBorde),
       ),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.all(20.0),
@@ -157,50 +161,63 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
           children: [
             const Text(
               'Generar Pregunta de Aritmética',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
             ),
             const SizedBox(height: 12),
-            const Text('Elige la operación que deseas practicar:', style: TextStyle(color: Colors.grey)),
+            const Text(
+              'Elige la operación que deseas practicar:',
+              style: TextStyle(color: AppColors.claudeTextoSecundario),
+            ),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 ActionChip(
-                  avatar: const Icon(Icons.add_circle, color: Colors.blue),
+                  avatar: const Icon(Icons.add_circle, color: Colors.blueAccent),
                   label: const Text('Suma (+)'),
+                  backgroundColor: AppColors.claudeSuperficieSuave,
+                  side: const BorderSide(color: AppColors.claudeBorde),
                   onPressed: () {
                     Navigator.pop(ctx);
                     _generarAritmeticaRapida(op: OperacionAritmetica.suma);
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.remove_circle, color: Colors.orange),
+                  avatar: const Icon(Icons.remove_circle, color: Colors.orangeAccent),
                   label: const Text('Resta (-)'),
+                  backgroundColor: AppColors.claudeSuperficieSuave,
+                  side: const BorderSide(color: AppColors.claudeBorde),
                   onPressed: () {
                     Navigator.pop(ctx);
                     _generarAritmeticaRapida(op: OperacionAritmetica.resta);
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.cancel, color: Colors.green),
+                  avatar: const Icon(Icons.cancel, color: Colors.greenAccent),
                   label: const Text('Multiplicación (×)'),
+                  backgroundColor: AppColors.claudeSuperficieSuave,
+                  side: const BorderSide(color: AppColors.claudeBorde),
                   onPressed: () {
                     Navigator.pop(ctx);
                     _generarAritmeticaRapida(op: OperacionAritmetica.multiplicacion);
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.safety_divider, color: Colors.purple),
+                  avatar: const Icon(Icons.safety_divider, color: Colors.purpleAccent),
                   label: const Text('División (Galera)'),
+                  backgroundColor: AppColors.claudeSuperficieSuave,
+                  side: const BorderSide(color: AppColors.claudeBorde),
                   onPressed: () {
                     Navigator.pop(ctx);
                     _generarAritmeticaRapida(op: OperacionAritmetica.division);
                   },
                 ),
                 ActionChip(
-                  avatar: const Icon(Icons.casino, color: Colors.red),
+                  avatar: const Icon(Icons.casino, color: Colors.redAccent),
                   label: const Text('¡Aleatoria Sorpresa!'),
+                  backgroundColor: AppColors.claudeSuperficieSuave,
+                  side: const BorderSide(color: AppColors.claudeBorde),
                   onPressed: () {
                     Navigator.pop(ctx);
                     _generarAritmeticaRapida();
@@ -279,47 +296,56 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
     if (_ejercicios.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('App Matemáticas'),
+          backgroundColor: const Color(0xFF161514).withValues(alpha: 0.88),
+          surfaceTintColor: Colors.transparent,
+          shape: const Border(bottom: BorderSide(color: AppColors.claudeBorde, width: 1)),
+          title: const Text('App Matemáticas', style: TextStyle(color: AppColors.claudeTextoPrincipal, fontWeight: FontWeight.bold)),
           actions: [
             _construirBotonModo(modo),
           ],
         ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.calculate_outlined, size: 72, color: Colors.indigo.shade300),
-                const SizedBox(height: 16),
-                const Text(
-                  'No hay ejercicios creados aún',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Genera una pregunta de aritmética en formato vertical/galera o crea un ejercicio personalizado.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => _generarAritmeticaRapida(),
-                  icon: const Icon(Icons.auto_awesome),
-                  label: const Text('GENERAR PREGUNTA DE ARITMÉTICA'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        body: MacDesktopBackground(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.calculate_outlined, size: 72, color: AppColors.claudeTerracota),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No hay ejercicios creados aún',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
                   ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: _abrirCrearEjercicio,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Crear Ejercicio Manual'),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Genera una pregunta de aritmética en formato vertical/galera o crea un ejercicio personalizado.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.claudeTextoSecundario),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => _generarAritmeticaRapida(),
+                    icon: const Icon(Icons.auto_awesome, color: Color(0xFF1E1D1B)),
+                    label: const Text('GENERAR PREGUNTA DE ARITMÉTICA', style: TextStyle(color: Color(0xFF1E1D1B), fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFECE7DE),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: _abrirCrearEjercicio,
+                    icon: const Icon(Icons.add, color: AppColors.claudeTextoPrincipal),
+                    label: const Text('Crear Ejercicio Manual', style: TextStyle(color: AppColors.claudeTextoPrincipal)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.claudeBorde),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -330,15 +356,21 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ejercicio ${_indiceActual + 1} de ${_ejercicios.length}'),
+        backgroundColor: const Color(0xFF161514).withValues(alpha: 0.88),
+        surfaceTintColor: Colors.transparent,
+        shape: const Border(bottom: BorderSide(color: AppColors.claudeBorde, width: 1)),
+        title: Text(
+          'Ejercicio ${_indiceActual + 1} de ${_ejercicios.length}',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.claudeTextoPrincipal),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.auto_awesome, color: Colors.indigo),
+            icon: const Icon(Icons.auto_awesome, color: AppColors.claudeTerracota),
             tooltip: 'Generar práctica aritmética rápida',
             onPressed: _mostrarDialogoGenerador,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
             tooltip: 'Eliminar ejercicio',
             onPressed: _eliminarEjercicioActual,
           ),
@@ -347,135 +379,166 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _abrirCrearEjercicio,
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo Ejercicio'),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add, color: Color(0xFF1E1D1B)),
+        label: const Text('Nuevo Ejercicio', style: TextStyle(color: Color(0xFF1E1D1B), fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xFFECE7DE),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Metadatos del ejercicio con los 3 parámetros numéricos (Tema, Subtema, Lección)
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                Chip(
-                  label: Text('Tema: ${ejercicio.tema} | Subtema: ${ejercicio.subtema} | Lección: ${ejercicio.leccion} (${ejercicio.codigoTema})'),
-                  backgroundColor: Colors.blue.shade100,
-                  avatar: const Icon(Icons.account_tree_outlined, size: 18),
-                ),
-                Chip(
-                  label: Text('Nivel ${ejercicio.nivel}'),
-                  backgroundColor: Colors.purple.shade100,
-                ),
-                Chip(
-                  label: Text(ejercicio.tipo.name),
-                  backgroundColor: Colors.teal.shade100,
-                ),
-                Chip(
-                  label: Text('${ejercicio.puntos} pts'),
-                  backgroundColor: Colors.amber.shade100,
+      body: MacDesktopBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Metadatos del ejercicio con los 3 parámetros numéricos (Tema, Subtema, Lección)
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  Chip(
+                    label: Text(
+                      'Tema: ${ejercicio.tema} | Subtema: ${ejercicio.subtema} | Lección: ${ejercicio.leccion} (${ejercicio.codigoTema})',
+                      style: const TextStyle(fontSize: 12, color: AppColors.claudeTextoPrincipal),
+                    ),
+                    backgroundColor: AppColors.claudeSuperficieSuave,
+                    side: const BorderSide(color: AppColors.claudeBorde),
+                    avatar: const Icon(Icons.account_tree_outlined, size: 18, color: AppColors.claudeTerracota),
+                  ),
+                  Chip(
+                    label: Text('Nivel ${ejercicio.nivel}', style: const TextStyle(fontSize: 12, color: AppColors.claudeTextoPrincipal)),
+                    backgroundColor: AppColors.claudeSuperficieSuave,
+                    side: const BorderSide(color: AppColors.claudeBorde),
+                  ),
+                  Chip(
+                    label: Text(ejercicio.tipo.name, style: const TextStyle(fontSize: 12, color: AppColors.claudeTextoPrincipal)),
+                    backgroundColor: AppColors.claudeSuperficieSuave,
+                    side: const BorderSide(color: AppColors.claudeBorde),
+                  ),
+                  Chip(
+                    label: Text('${ejercicio.puntos} pts', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.amberAccent)),
+                    backgroundColor: AppColors.claudeSuperficieSuave,
+                    side: const BorderSide(color: AppColors.claudeBorde),
+                  ),
+                ],
+              ),
+              if (ejercicio.tags.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: ejercicio.tags
+                      .map((t) => Chip(
+                            avatar: const Icon(Icons.local_offer_outlined, size: 14, color: AppColors.claudeTerracota),
+                            label: Text(t, style: const TextStyle(fontSize: 12, color: AppColors.claudeTerracota)),
+                            backgroundColor: AppColors.claudeSuperficieSuave,
+                            side: const BorderSide(color: AppColors.claudeBorde),
+                            visualDensity: VisualDensity.compact,
+                          ))
+                      .toList(),
                 ),
               ],
-            ),
-            if (ejercicio.tags.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: ejercicio.tags
-                    .map((t) => Chip(
-                          avatar: const Icon(Icons.local_offer_outlined, size: 14, color: Colors.indigo),
-                          label: Text(t, style: const TextStyle(fontSize: 12, color: Colors.indigo)),
-                          backgroundColor: Colors.indigo.shade50,
-                          visualDensity: VisualDensity.compact,
-                        ))
-                    .toList(),
-              ),
-            ],
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Enunciado
-            Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+              // Enunciado
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.claudeBorde),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(18.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Enunciado:',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.claudeTextoPrincipal),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       ejercicio.enunciado,
-                      style: const TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16, color: AppColors.claudeTextoPrincipal),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Entrada de respuesta según el tipo de ejercicio
-            _construirEntradaRespuesta(ejercicio),
-            const SizedBox(height: 16),
+              // Entrada de respuesta según el tipo de ejercicio
+              _construirEntradaRespuesta(ejercicio),
+              const SizedBox(height: 16),
 
-            // Botón de acción Calificar
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _evaluando ? null : _evaluarRespuesta,
-                    icon: _evaluando
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.check_circle_outline),
-                    label: const Text('CALIFICAR RESPUESTA', style: TextStyle(fontSize: 15)),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: Colors.indigo,
-                      foregroundColor: Colors.white,
+              // Botón de acción Calificar
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _evaluando ? null : _evaluarRespuesta,
+                      icon: _evaluando
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF1E1D1B)),
+                            )
+                          : const Icon(Icons.check_circle_outline, color: Color(0xFF1E1D1B)),
+                      label: const Text(
+                        'CALIFICAR RESPUESTA',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E1D1B)),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: const Color(0xFFECE7DE),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
+                ],
+              ),
+              const SizedBox(height: 8),
 
-            // Botones de navegación
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _indiceActual > 0
-                      ? () => _cambiarEjercicio(_indiceActual - 1)
-                      : null,
-                  icon: const Icon(Icons.arrow_back),
-                  label: const Text('Anterior'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: _indiceActual < _ejercicios.length - 1
-                      ? () => _cambiarEjercicio(_indiceActual + 1)
-                      : null,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Siguiente'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              // Botones de navegación
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _indiceActual > 0
+                        ? () => _cambiarEjercicio(_indiceActual - 1)
+                        : null,
+                    icon: const Icon(Icons.arrow_back, color: AppColors.claudeTextoPrincipal),
+                    label: const Text('Anterior', style: TextStyle(color: AppColors.claudeTextoPrincipal)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.claudeBorde),
+                      backgroundColor: AppColors.claudeSuperficieSuave.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _indiceActual < _ejercicios.length - 1
+                        ? () => _cambiarEjercicio(_indiceActual + 1)
+                        : null,
+                    icon: const Icon(Icons.arrow_forward, color: AppColors.claudeTextoPrincipal),
+                    label: const Text('Siguiente', style: TextStyle(color: AppColors.claudeTextoPrincipal)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.claudeBorde),
+                      backgroundColor: AppColors.claudeSuperficieSuave.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
 
-            // Panel de resultados de la evaluación algorítmica
-            if (_resultado != null) _construirPanelResultado(_resultado!),
-            const SizedBox(height: 60), // Espacio para el FloatingActionButton
-          ],
+              // Panel de resultados de la evaluación algorítmica
+              if (_resultado != null) _construirPanelResultado(_resultado!),
+              const SizedBox(height: 60), // Espacio para el FloatingActionButton
+            ],
+          ),
         ),
       ),
     );
@@ -486,13 +549,13 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
       onPressed: _alternarModoEvaluacion,
       icon: Icon(
         modo == ModoEvaluacion.offline ? Icons.cloud_off : Icons.cloud_done,
-        color: modo == ModoEvaluacion.offline ? Colors.orange : Colors.green,
+        color: modo == ModoEvaluacion.offline ? Colors.orangeAccent : const Color(0xFF68D391),
       ),
       label: Text(
         modo == ModoEvaluacion.offline ? 'OFFLINE' : 'ONLINE',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: modo == ModoEvaluacion.offline ? Colors.orange : Colors.green,
+          color: modo == ModoEvaluacion.offline ? Colors.orangeAccent : const Color(0xFF68D391),
         ),
       ),
     );
@@ -515,25 +578,28 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Selecciona una opción:', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Selecciona una opción:', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal)),
           const SizedBox(height: 8),
           ...ejercicio.opciones.map((op) {
             final estaSeleccionada = _opcionSeleccionadaId == op.id;
-            return Card(
-              color: estaSeleccionada ? Colors.indigo.shade50 : null,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: estaSeleccionada ? Colors.indigo : Colors.grey.shade300,
-                  width: estaSeleccionada ? 2 : 1,
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: estaSeleccionada
+                    ? AppColors.claudeTerracota.withValues(alpha: 0.15)
+                    : AppColors.claudeSuperficie.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: estaSeleccionada ? AppColors.claudeTerracota : AppColors.claudeBorde,
+                  width: estaSeleccionada ? 1.8 : 1,
                 ),
-                borderRadius: BorderRadius.circular(8),
               ),
               child: ListTile(
                 leading: Icon(
                   estaSeleccionada ? Icons.radio_button_checked : Icons.radio_button_off,
-                  color: estaSeleccionada ? Colors.indigo : Colors.grey,
+                  color: estaSeleccionada ? AppColors.claudeTerracota : AppColors.claudeTextoSecundario,
                 ),
-                title: Text(op.texto),
+                title: Text(op.texto, style: const TextStyle(color: AppColors.claudeTextoPrincipal)),
                 onTap: () {
                   setState(() => _opcionSeleccionadaId = op.id);
                 },
@@ -552,14 +618,29 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
             ejercicio is Numerico
                 ? 'Ingresa el valor numérico (ej. 1.25 o 5/4):'
                 : 'Ingresa la expresión simplificada (ej. (x-3)(x+3)):',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _controladorTexto,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            style: const TextStyle(color: AppColors.claudeTextoPrincipal),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.claudeSuperficieSuave,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeBorde),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeBorde),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeTerracota, width: 1.8),
+              ),
               hintText: 'Tu respuesta...',
+              hintStyle: const TextStyle(color: AppColors.claudeTextoSecundario),
             ),
           ),
         ],
@@ -572,15 +653,30 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
         children: [
           const Text(
             'Escribe tu procedimiento o desarrollo:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.claudeTextoPrincipal),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _controladorTexto,
             maxLines: 5,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
+            style: const TextStyle(color: AppColors.claudeTextoPrincipal),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.claudeSuperficieSuave,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeBorde),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeBorde),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.claudeTerracota, width: 1.8),
+              ),
               hintText: 'Escribe paso a paso tu solución...',
+              hintStyle: const TextStyle(color: AppColors.claudeTextoSecundario),
             ),
           ),
         ],
@@ -592,124 +688,129 @@ class _PantallaEjerciciosState extends State<PantallaEjercicios> {
 
   /// Construye el panel con el desglose de métricas algorítmicas y retroalimentación
   Widget _construirPanelResultado(ResultadoEvaluacion res) {
-    final color = res.esCorrecto ? Colors.green : (res.puntaje > 0.0 ? Colors.orange : Colors.red);
+    final color = res.esCorrecto ? const Color(0xFF68D391) : (res.puntaje > 0.0 ? Colors.orangeAccent : Colors.redAccent);
 
-    return Card(
-      color: color.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: color, width: 2),
-        borderRadius: BorderRadius.circular(8),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.claudeSuperficie.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color, width: 1.8),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  res.esCorrecto ? Icons.check_circle : (res.puntaje > 0 ? Icons.info : Icons.cancel),
+      padding: const EdgeInsets.all(18.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                res.esCorrecto ? Icons.check_circle : (res.puntaje > 0 ? Icons.info : Icons.cancel),
+                color: color,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                res.esCorrecto ? '¡CORRECTO!' : (res.puntaje > 0 ? 'PARCIALMENTE CORRECTO' : 'INCORRECTO'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                   color: color,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  res.esCorrecto ? '¡CORRECTO!' : (res.puntaje > 0 ? 'PARCIALMENTE CORRECTO' : 'INCORRECTO'),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: color,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  'Puntaje: ${(res.puntaje * 100).toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 20),
-            Text(
-              res.retroalimentacion,
-              style: const TextStyle(fontSize: 15),
-            ),
-            if (res.similitudHibrida > 0) ...[
-              const SizedBox(height: 12),
-              const Text(
-                'Métricas del Motor de Similitud:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
-              const SizedBox(height: 6),
-              Text('• Similitud Híbrida Global: ${(res.similitudHibrida * 100).toStringAsFixed(1)}%'),
-              Text('• Levenshtein (distancia de edición): ${(res.similitudLevenshtein * 100).toStringAsFixed(1)}%'),
-              Text('• Jaccard (tokens y n-gramas): ${(res.similitudJaccard * 100).toStringAsFixed(1)}%'),
-              Text('• Coseno TF-IDF (relevancia semántica): ${(res.similitudCoseno * 100).toStringAsFixed(1)}%'),
-            ],
-            if (res.palabrasClaveEncontradas.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const Spacer(),
               Text(
-                '✓ Conceptos detectados: ${res.palabrasClaveEncontradas.join(", ")}',
-                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
-              ),
-            ],
-            if (res.palabrasClaveFaltantes.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                '✗ Conceptos faltantes: ${res.palabrasClaveFaltantes.join(", ")}',
-                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
-              ),
-            ],
-            if (!res.esCorrecto && res.errorDetectado != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(res.errorDetectado!.categoria.icono, style: const TextStyle(fontSize: 18)),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'Diagnóstico del Error: ${res.errorDetectado!.categoria.etiqueta}',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red.shade900, fontSize: 13),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade100,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            res.errorDetectado!.severidad.etiqueta,
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange.shade900),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '💡 Consejo Didáctico: ${res.errorDetectado!.sugerenciaPedagogica}',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.indigo),
-                    ),
-                  ],
+                'Puntaje: ${(res.puntaje * 100).toStringAsFixed(1)}%',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: color,
                 ),
               ),
             ],
+          ),
+          const Divider(height: 20, color: AppColors.claudeBorde),
+          Text(
+            res.retroalimentacion,
+            style: const TextStyle(fontSize: 15, color: AppColors.claudeTextoPrincipal),
+          ),
+          if (res.similitudHibrida > 0) ...[
+            const SizedBox(height: 12),
+            const Text(
+              'Métricas del Motor de Similitud:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.claudeTextoPrincipal),
+            ),
+            const SizedBox(height: 6),
+            Text('• Similitud Híbrida Global: ${(res.similitudHibrida * 100).toStringAsFixed(1)}%', style: const TextStyle(color: AppColors.claudeTextoSecundario)),
+            Text('• Levenshtein (distancia de edición): ${(res.similitudLevenshtein * 100).toStringAsFixed(1)}%', style: const TextStyle(color: AppColors.claudeTextoSecundario)),
+            Text('• Jaccard (tokens y n-gramas): ${(res.similitudJaccard * 100).toStringAsFixed(1)}%', style: const TextStyle(color: AppColors.claudeTextoSecundario)),
+            Text('• Coseno TF-IDF (relevancia semántica): ${(res.similitudCoseno * 100).toStringAsFixed(1)}%', style: const TextStyle(color: AppColors.claudeTextoSecundario)),
           ],
-        ),
+          if (res.palabrasClaveEncontradas.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              '✓ Conceptos detectados: ${res.palabrasClaveEncontradas.join(", ")}',
+              style: const TextStyle(color: Color(0xFF68D391), fontWeight: FontWeight.w500),
+            ),
+          ],
+          if (res.palabrasClaveFaltantes.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              '✗ Conceptos faltantes: ${res.palabrasClaveFaltantes.join(", ")}',
+              style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500),
+            ),
+          ],
+          if (!res.esCorrecto && res.errorDetectado != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.claudeSuperficieSuave,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(res.errorDetectado!.categoria.icono, style: const TextStyle(fontSize: 18)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Diagnóstico del Error: ${res.errorDetectado!.categoria.etiqueta}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.claudeTerracota.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          res.errorDetectado!.severidad.etiqueta,
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '💡 Consejo Didáctico: ${res.errorDetectado!.sugerenciaPedagogica}',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.claudeTextoPrincipal),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
