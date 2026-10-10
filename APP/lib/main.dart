@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'interfaz/design/app_colors.dart';
 import 'firebase_options.dart';
 import 'datos/fuente_datos_auditoria.dart';
 import 'datos/fuente_datos_clases.dart';
@@ -123,7 +125,56 @@ class AppMatematicas extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scrollBehavior: const AppComportamientoScroll(),
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColors.claudeFondo,
+        canvasColor: AppColors.claudeFondo,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColors.claudeBotonPrimario,
+          onPrimary: AppColors.claudeBotonPrimarioTexto,
+          secondary: AppColors.claudeTerracota,
+          onSecondary: Colors.white,
+          surface: AppColors.claudeSuperficie,
+          onSurface: AppColors.claudeTextoPrincipal,
+        ),
+        cardTheme: CardTheme(
+          color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: AppColors.claudeBorde, width: 1.0),
+          ),
+          elevation: 0,
+        ),
+        dialogTheme: DialogTheme(
+          backgroundColor: AppColors.claudeSuperficie,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppColors.claudeBorde, width: 1.0),
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: AppColors.claudeSuperficie,
+          surfaceTintColor: Colors.transparent,
+          modalBackgroundColor: AppColors.claudeSuperficie,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF161514),
+          foregroundColor: AppColors.claudeTextoPrincipal,
+          elevation: 0,
+        ),
+        popupMenuTheme: PopupMenuThemeData(
+          color: AppColors.claudeSuperficie,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: AppColors.claudeBorde, width: 1.0),
+          ),
+        ),
+        textTheme: GoogleFonts.plusJakartaSansTextTheme(
+          ThemeData.dark().textTheme,
+        ).apply(
+          bodyColor: AppColors.claudeTextoPrincipal,
+          displayColor: AppColors.claudeTextoPrincipal,
+        ),
         useMaterial3: true,
       ),
       home: StreamBuilder<UsuarioApp?>(

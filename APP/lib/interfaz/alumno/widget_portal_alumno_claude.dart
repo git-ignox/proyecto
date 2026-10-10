@@ -299,7 +299,7 @@ class _WidgetPortalAlumnoClaudeState extends State<WidgetPortalAlumnoClaude> {
                 borderRadius: BorderRadius.circular(12),
                 side: const BorderSide(color: AppColors.claudeBorde),
               ),
-              color: Colors.white,
+              color: AppColors.claudeSuperficie,
               elevation: 4,
               itemBuilder: (ctx) => [
                 const PopupMenuItem(value: 0, child: Text('Todas las clases')),
@@ -310,7 +310,7 @@ class _WidgetPortalAlumnoClaudeState extends State<WidgetPortalAlumnoClaude> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.claudeSuperficie,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.claudeBorde, width: 1.0),
                 ),
@@ -375,14 +375,14 @@ class _WidgetPortalAlumnoClaudeState extends State<WidgetPortalAlumnoClaude> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.claudeBorde, width: 1.0),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -448,14 +448,14 @@ class _WidgetPortalAlumnoClaudeState extends State<WidgetPortalAlumnoClaude> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.claudeBorde, width: 1.0),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -697,14 +697,14 @@ class _TarjetaAccesoClaude extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.claudeBorde, width: 1.0),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x06000000),
-                blurRadius: 6,
-                offset: Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.20),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -822,14 +822,14 @@ class _TarjetaClaseClaude extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.claudeSuperficie.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.claudeBorde, width: 1.0),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x06000000),
-                blurRadius: 6,
-                offset: Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.20),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),

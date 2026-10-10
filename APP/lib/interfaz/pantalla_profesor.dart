@@ -38,6 +38,7 @@ import 'profesor/dialogo_gestion_modo_clase.dart';
 import '../datos/coordinador_sincronizacion_offline.dart';
 import '../datos/fuente_datos_materiales_offline.dart';
 import 'offline/dialogo_compartir_material_docente.dart';
+import 'widgets/mac_glass_widgets.dart';
 
 /// Interfaz especializada para el Profesor / Docente.
 /// Panel de administración para crear, catalogar, monitorear diagnósticos de errores,
@@ -1762,7 +1763,8 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MacDesktopBackground(
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.indigo.shade800,
         foregroundColor: Colors.white,
@@ -2074,6 +2076,7 @@ class _PantallaProfesorState extends State<PantallaProfesor> {
                 ],
               ),
             ),
+      ),
     );
   }
 

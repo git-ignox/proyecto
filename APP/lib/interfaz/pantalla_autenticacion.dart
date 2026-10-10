@@ -182,7 +182,7 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
     );
   }
 
-  /// Distribución Desktop: Ventana de macOS en el centro + Widgets macOS a la derecha
+  /// Distribución Desktop: Ventana de macOS en el centro + Widget Calendario a la derecha
   Widget _buildDistribucionDesktop() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -196,8 +196,8 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
         const SizedBox(width: 32),
 
-        // Barra de widgets de macOS (Calendario, Clima, Batería como en la foto)
-        const MacWidgetsSidebar()
+        // Solo el widget de Calendario
+        const MacCalendarWidget()
             .animate()
             .fadeIn(duration: 400.ms, delay: 150.ms)
             .slideX(begin: 0.08, end: 0, duration: 400.ms, delay: 150.ms),
@@ -205,47 +205,23 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
     );
   }
 
-  /// Distribución Mobile: Ventana centrada fluida + fila compacta de widgets
+  /// Distribución Mobile: Solo la ventana centrada
   Widget _buildDistribucionMobile() {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 440),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildVentanaPrincipal(),
-          const SizedBox(height: 20),
-          // Resumen compacto de widgets de macOS en móvil
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                const MacWeatherWidget(ancho: 170),
-                const SizedBox(width: 12),
-                const MacBatteryWidget(ancho: 170),
-              ],
-            ),
-          ),
-        ],
-      ),
+      child: _buildVentanaPrincipal(),
     );
   }
 
-  /// Ventana macOS con traffic lights, cabecera de Claude y contenido
+  /// Ventana con glassmorphism, sin traffic lights ni logo Claude
   Widget _buildVentanaPrincipal() {
-    return MacWindowFrame(
-      title: 'Claude',
-      anchoMaximo: 440,
-      onClose: Navigator.of(context).canPop()
-          ? () => Navigator.of(context).pop()
-          : null,
+    return MacGlassContainer(
+      borderRadius: 22,
+      padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Cabecera Claude: Logo asterisco + Título serif editorial
-          _buildClaudeHeader(),
-          const SizedBox(height: 18),
-
           // Selector segmentado Login / Registro
           _buildToggleSegmentado(),
           const SizedBox(height: 20),

@@ -41,6 +41,7 @@ import 'alumno/widget_resumen_metricas.dart';
 import 'alumno/widget_portal_alumno_claude.dart';
 import 'design/app_colors.dart';
 import 'widgets/claude_auth_components.dart';
+import 'widgets/mac_glass_widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Interfaz especializada para el Estudiante / Alumno.
@@ -144,7 +145,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -263,7 +264,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -355,7 +356,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -467,7 +468,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -553,7 +554,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -661,7 +662,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.claudeSuperficie,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -1747,14 +1748,15 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.claudeFondo,
+    return MacDesktopBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(66),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(
+          decoration: BoxDecoration(
+            color: const Color(0xFF161514).withValues(alpha: 0.88),
+            border: const Border(
               bottom: BorderSide(color: AppColors.claudeBorde, width: 1.0),
             ),
           ),
@@ -1764,25 +1766,10 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
               padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: Row(
                 children: [
-                  // Logo e Identidad Claude (círculo terracota con asterisco / monograma)
+                  // Título de la pantalla
                   Expanded(
                     child: Row(
                       children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: const BoxDecoration(
-                            color: AppColors.claudeTerracota,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: ClaudeAsteriskLogo(
-                              size: 19,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         // Título "Inicio - 2026" y "Colegio San Agustín"
                         Flexible(
                           child: Column(
@@ -1831,7 +1818,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
                           '${widget.usuario.puntosAcumulados} pts',
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w700,
-                            color: AppColors.claudeTerracotaOscuro,
+                            color: AppColors.claudeTerracota,
                             fontSize: 12,
                           ),
                         ),
@@ -1855,7 +1842,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
                       borderRadius: BorderRadius.circular(12),
                       side: const BorderSide(color: AppColors.claudeBorde),
                     ),
-                    color: Colors.white,
+                    color: AppColors.claudeSuperficie,
                     itemBuilder: (ctx) => [
                       PopupMenuItem(
                         enabled: false,
@@ -1987,14 +1974,14 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
       ),
       body: _construirCuerpoSegunPestana(),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(
+        decoration: BoxDecoration(
+          color: const Color(0xFF161514).withValues(alpha: 0.88),
+          border: const Border(
             top: BorderSide(color: AppColors.claudeBorde, width: 1.0),
           ),
         ),
         child: NavigationBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           indicatorColor: AppColors.claudeTerracotaClaro,
           selectedIndex: _pestanaActual,
           onDestinationSelected: (idx) => setState(() => _pestanaActual = idx),
@@ -2026,6 +2013,7 @@ class _PantallaAlumnoState extends State<PantallaAlumno> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
