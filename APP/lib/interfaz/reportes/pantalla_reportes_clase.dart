@@ -8,6 +8,7 @@ import '../../dominio/modelos/evaluacion.dart';
 import '../../dominio/modelos/reporte_pedagogico.dart';
 import 'dialogo_editar_reporte.dart';
 import 'vista_imprimible_reporte.dart';
+import '../design/app_colors.dart';
 
 /// Pantalla de gestión de reportes pedagógicos a nivel de curso/clase.
 /// Ofrece consolidado de la clase, matriz de riesgo multitemático (alumnos con 2+ brechas),
@@ -331,24 +332,32 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: AppColors.fondo(context),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Reportes Pedagógicos por Período',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
             ),
             Text(
               widget.nombreClase,
-              style: TextStyle(fontSize: 12, color: Colors.indigo.shade100),
+              style: TextStyle(fontSize: 12, color: AppColors.claudeTerracota),
             ),
           ],
         ),
-        backgroundColor: Colors.indigo.shade800,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.superficie(context),
+        foregroundColor: AppColors.textoPrincipal(context),
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: AppColors.borde(context),
+            height: 1,
+          ),
+        ),
       ),
       body: StreamBuilder<List<ReporteEstudiante>>(
         stream: widget.repositorioReportes.vigilarReportesPorClase(
@@ -405,10 +414,10 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                   children: [
                     Text(
                       'Reportes Congelados (${reportesFiltrados.length})',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.textoPrincipal(context),
                       ),
                     ),
                     if (reportes.isNotEmpty)
@@ -471,40 +480,35 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.superficie(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: AppColors.borde(context)),
+        boxShadow: AppColors.glowDetras(context, intensidad: 0.16),
       ),
       child: Row(
         children: [
-          Icon(Icons.calendar_month_outlined, color: Colors.indigo.shade700),
+          Icon(Icons.calendar_month_outlined, color: AppColors.claudeTerracota),
           const SizedBox(width: 10),
-          const Text(
+          Text(
             'Período Escolar:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textoPrincipal(context)),
           ),
           const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.indigo.shade50.withValues(alpha: 0.5),
+              color: AppColors.superficieSuave(context),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.indigo.shade100),
+              border: Border.all(color: AppColors.borde(context)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
+                dropdownColor: AppColors.superficie(context),
                 value: _periodoSeleccionado,
                 items: _periodosDisponibles.map((p) {
                   return DropdownMenuItem(
                     value: p,
-                    child: Text(p, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(p, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textoPrincipal(context))),
                   );
                 }).toList(),
                 onChanged: (val) {
@@ -518,7 +522,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
             onPressed: _abrirDialogoNuevoPeriodo,
             icon: const Icon(Icons.add_circle_outline, size: 20),
             tooltip: 'Crear otro período personalizado',
-            color: Colors.indigo,
+            color: AppColors.claudeTerracota,
           ),
           const Spacer(),
           FilledButton.icon(
@@ -534,7 +538,8 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               _generandoLote ? 'Congelando Snapshots...' : 'Generar Reportes del Período',
             ),
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.indigo,
+              backgroundColor: AppColors.claudeTerracota,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
@@ -548,13 +553,14 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: AppColors.esOscuro(context) ? const Color(0xFF2E2214) : Colors.amber.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.shade300, width: 1.2),
+        border: Border.all(color: Colors.amber.withValues(alpha: AppColors.esOscuro(context) ? 0.35 : 0.4), width: 1.2),
+        boxShadow: AppColors.glowDetras(context, color: Colors.amber, intensidad: 0.15),
       ),
       child: Row(
         children: [
-          Icon(Icons.sync_problem, color: Colors.amber.shade900, size: 22),
+          Icon(Icons.sync_problem, color: Colors.amber.shade400, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -565,13 +571,13 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
-                    color: Colors.amber.shade900,
+                    color: Colors.amber.shade400,
                   ),
                 ),
                 Text(
                   'Se modificaron calificaciones con posterioridad a la fecha del snapshot. '
                   'Sincroniza para actualizar el análisis curricular.',
-                  style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                  style: TextStyle(fontSize: 12, color: Colors.amber.shade300),
                 ),
               ],
             ),
@@ -609,11 +615,11 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
       children: [
         Row(
           children: [
-            Icon(Icons.dashboard_customize_outlined, size: 18, color: Colors.grey.shade800),
+            Icon(Icons.dashboard_customize_outlined, size: 18, color: AppColors.textoSecundario(context)),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'Consolidado del Curso y Matriz de Riesgo',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
             ),
           ],
         ),
@@ -625,7 +631,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 titulo: 'Alumnos Evaluados',
                 valor: '$total',
                 subtitulo: 'Snapshots congelados',
-                color: Colors.indigo,
+                color: AppColors.claudeTerracota,
                 icono: Icons.people_outline,
               ),
             ),
@@ -635,7 +641,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 titulo: 'Sin Brechas',
                 valor: '$sinBrechas',
                 subtitulo: 'Todos los temas >60%',
-                color: Colors.green,
+                color: Colors.green.shade400,
                 icono: Icons.check_circle_outline,
               ),
             ),
@@ -645,7 +651,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 titulo: 'En Seguimiento (1 tema)',
                 valor: '$unaBrecha',
                 subtitulo: 'Brecha focalizada',
-                color: Colors.amber.shade800,
+                color: Colors.amber.shade400,
                 icono: Icons.info_outline,
               ),
             ),
@@ -655,7 +661,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 titulo: 'Riesgo Crítico (2+ temas)',
                 valor: '$riesgoMulti',
                 subtitulo: 'Requiere tutoría urgente',
-                color: Colors.red.shade700,
+                color: Colors.red.shade400,
                 icono: Icons.warning_amber_rounded,
                 resaltado: riesgoMulti > 0,
               ),
@@ -667,19 +673,20 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
+              color: AppColors.esOscuro(context) ? const Color(0xFF261414) : Colors.red.shade50,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: Colors.red.withValues(alpha: AppColors.esOscuro(context) ? 0.35 : 0.4)),
+              boxShadow: AppColors.glowDetras(context, color: Colors.red, intensidad: 0.15),
             ),
             child: Row(
               children: [
-                Icon(Icons.campaign, color: Colors.red.shade800, size: 20),
+                Icon(Icons.campaign, color: Colors.red.shade400, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Alerta Pedagógica: $riesgoMulti estudiante(s) presentan dos o más brechas curriculares simultáneas en este período. '
                     'Usa el filtro "En Riesgo" para coordinar un plan de nivelación focalizado.',
-                    style: TextStyle(fontSize: 12.5, color: Colors.red.shade900, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 12.5, color: AppColors.esOscuro(context) ? Colors.red.shade200 : Colors.red.shade900, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -701,16 +708,10 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.superficie(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: resaltado ? color : Colors.grey.shade200, width: resaltado ? 1.5 : 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: resaltado ? color : AppColors.borde(context), width: resaltado ? 1.5 : 1),
+        boxShadow: AppColors.glowDetras(context, color: resaltado ? color : AppColors.claudeTerracota, intensidad: resaltado ? 0.2 : 0.12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -720,7 +721,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
             children: [
               Text(
                 titulo,
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textoSecundario(context)),
               ),
               Icon(icono, size: 18, color: color),
             ],
@@ -733,7 +734,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
           const SizedBox(height: 2),
           Text(
             subtitulo,
-            style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 10.5, color: AppColors.textoSecundario(context)),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -749,19 +750,17 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.superficie(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: enRiesgo ? Colors.red.shade300 : Colors.grey.shade200,
+          color: enRiesgo ? Colors.red.withValues(alpha: 0.5) : AppColors.borde(context),
           width: enRiesgo ? 1.5 : 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppColors.glowDetras(
+          context,
+          color: enRiesgo ? Colors.red : AppColors.claudeTerracota,
+          intensidad: enRiesgo ? 0.22 : 0.14,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -771,12 +770,14 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: enRiesgo ? Colors.red.shade100 : Colors.indigo.shade50,
+                backgroundColor: enRiesgo
+                    ? (AppColors.esOscuro(context) ? const Color(0xFF381A1A) : Colors.red.shade100)
+                    : AppColors.superficieSuave(context),
                 child: Text(
                   rep.alumnoNombre.isNotEmpty ? rep.alumnoNombre[0].toUpperCase() : 'A',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: enRiesgo ? Colors.red.shade800 : Colors.indigo.shade800,
+                    color: enRiesgo ? Colors.red.shade400 : AppColors.claudeTerracota,
                   ),
                 ),
               ),
@@ -789,27 +790,27 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                       children: [
                         Text(
                           rep.alumnoNombre,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
                         ),
                         const SizedBox(width: 8),
                         if (enRiesgo)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade100,
+                              color: AppColors.esOscuro(context) ? const Color(0xFF381A1A) : Colors.red.shade100,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.warning, size: 12, color: Colors.red.shade800),
+                                Icon(Icons.warning, size: 12, color: Colors.red.shade400),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${rep.totalTemasEnRiesgo} temas en riesgo',
                                   style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red.shade800,
+                                    color: Colors.red.shade400,
                                   ),
                                 ),
                               ],
@@ -819,7 +820,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.amber.shade100,
+                              color: AppColors.esOscuro(context) ? const Color(0xFF332512) : Colors.amber.shade100,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -827,7 +828,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.amber.shade900,
+                                color: Colors.amber.shade400,
                               ),
                             ),
                           )
@@ -835,7 +836,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade100,
+                              color: AppColors.esOscuro(context) ? const Color(0xFF132B1A) : Colors.green.shade100,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -843,7 +844,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green.shade800,
+                                color: Colors.green.shade400,
                               ),
                             ),
                           ),
@@ -851,28 +852,28 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                     ),
                     Text(
                       'Promedio: ${rep.promedioGeneral.toStringAsFixed(1)} • Logro: ${rep.porcentajeGeneral.toStringAsFixed(0)}% • Período: ${rep.periodo}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context)),
                     ),
                     if (_estaDesactualizado(rep)) ...[
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
+                          color: AppColors.esOscuro(context) ? const Color(0xFF332512) : Colors.amber.shade50,
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.amber.shade400),
+                          border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.history_toggle_off, size: 13, color: Colors.amber.shade900),
+                            Icon(Icons.history_toggle_off, size: 13, color: Colors.amber.shade400),
                             const SizedBox(width: 4),
                             Text(
                               'Nota modificada posterior al reporte (Desactualizado)',
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.amber.shade900,
+                                color: Colors.amber.shade400,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -885,7 +886,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.indigo.shade900,
+                                  color: AppColors.claudeTerracota,
                                   decoration: TextDecoration.underline,
                                 ),
                               ),
@@ -912,7 +913,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                     : Icon(
                         Icons.sync,
                         size: 20,
-                        color: _estaDesactualizado(rep) ? Colors.amber.shade900 : Colors.indigo,
+                        color: _estaDesactualizado(rep) ? Colors.amber.shade400 : AppColors.claudeTerracota,
                       ),
                 tooltip: _estaDesactualizado(rep)
                     ? 'Regenerar snapshot (notas desactualizadas)'
@@ -932,9 +933,9 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 icon: const Icon(Icons.edit_note, size: 16),
                 label: const Text('Comentario', style: TextStyle(fontSize: 12)),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.indigo,
+                  foregroundColor: AppColors.claudeTerracota,
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  side: BorderSide(color: Colors.indigo.shade200),
+                  side: BorderSide(color: AppColors.borde(context)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -953,6 +954,8 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                 icon: const Icon(Icons.visibility_outlined, size: 16),
                 label: const Text('Ver / Imprimir', style: TextStyle(fontSize: 12)),
                 style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.superficieSuave(context),
+                  foregroundColor: AppColors.textoPrincipal(context),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
@@ -960,14 +963,14 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               const SizedBox(width: 4),
               IconButton(
                 onPressed: () => _eliminarReporte(rep),
-                icon: const Icon(Icons.delete_outline, size: 18, color: Colors.grey),
+                icon: Icon(Icons.delete_outline, size: 18, color: AppColors.textoSecundario(context)),
                 tooltip: 'Eliminar reporte',
               ),
             ],
           ),
 
           const SizedBox(height: 12),
-          const Divider(height: 1),
+          Divider(height: 1, color: AppColors.borde(context)),
           const SizedBox(height: 10),
 
           // Lista de temas priorizados (brechas primero)
@@ -979,17 +982,19 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: esBrecha ? Colors.red.shade50 : Colors.grey.shade100,
+                  color: esBrecha
+                      ? (AppColors.esOscuro(context) ? const Color(0xFF2E1717) : Colors.red.shade50)
+                      : AppColors.superficieSuave(context),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: esBrecha ? Colors.red.shade200 : Colors.grey.shade300,
+                    color: esBrecha ? Colors.red.withValues(alpha: 0.4) : AppColors.borde(context),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (esBrecha) ...[
-                      Icon(Icons.warning_amber_rounded, size: 14, color: Colors.red.shade700),
+                      Icon(Icons.warning_amber_rounded, size: 14, color: Colors.red.shade400),
                       const SizedBox(width: 4),
                     ],
                     Text(
@@ -997,7 +1002,7 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: esBrecha ? FontWeight.bold : FontWeight.w500,
-                        color: esBrecha ? Colors.red.shade900 : Colors.black87,
+                        color: esBrecha ? Colors.red.shade300 : AppColors.textoPrincipal(context),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -1031,13 +1036,13 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.indigo.shade50.withValues(alpha: 0.35),
+                color: AppColors.superficieSuave(context),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.indigo.shade100),
+                border: Border.all(color: AppColors.borde(context)),
               ),
               child: Text(
                 'Docente: "${rep.comentarioDocente}"',
-                style: TextStyle(fontSize: 12, color: Colors.indigo.shade900, fontStyle: FontStyle.italic),
+                style: TextStyle(fontSize: 12, color: AppColors.claudeTerracota, fontStyle: FontStyle.italic),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1055,9 +1060,10 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
         padding: const EdgeInsets.all(32),
         constraints: const BoxConstraints(maxWidth: 520),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.superficie(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context),
         ),
         child: Column(
           children: [
@@ -1065,21 +1071,21 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: Colors.indigo.shade50,
+                color: AppColors.superficieSuave(context),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.auto_stories_outlined, size: 36, color: Colors.indigo),
+              child: Icon(Icons.auto_stories_outlined, size: 36, color: AppColors.claudeTerracota),
             ),
             const SizedBox(height: 16),
             Text(
               'No hay reportes congelados para "$_periodoSeleccionado"',
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Al generar los reportes del período, el sistema calculará automáticamente los dominios por tema a partir de las calificaciones cargadas y congelará un snapshot inmutable para cada estudiante.',
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.4),
+              style: TextStyle(fontSize: 13, color: AppColors.textoSecundario(context), height: 1.4),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -1088,7 +1094,8 @@ class _PantallaReportesClaseState extends State<PantallaReportesClase> {
               icon: const Icon(Icons.published_with_changes, size: 18),
               label: const Text('Generar Reportes Oficiales Ahora'),
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.indigo,
+                backgroundColor: AppColors.claudeTerracota,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

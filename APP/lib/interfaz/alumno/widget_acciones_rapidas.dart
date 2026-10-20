@@ -41,7 +41,7 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.claudeTextoPrincipal,
+                  color: AppColors.textoPrincipal(context),
                   letterSpacing: -0.2,
                 ),
               ),
@@ -49,7 +49,7 @@ class WidgetAccionesRapidasAlumno extends StatelessWidget {
                 'Tu aula digital',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: AppColors.claudeTextoSecundario,
+                  color: AppColors.textoSecundario(context),
                 ),
               ),
             ],
@@ -204,23 +204,17 @@ class _TarjetaAccion extends StatelessWidget {
           width: ancho,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.superficie(context),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.claudeBorde, width: 1.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.025),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(color: AppColors.borde(context), width: 1.0),
+            boxShadow: AppColors.glowDetras(context, color: colorAcento, intensidad: 0.12),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: colorFondoIcono,
+                  color: AppColors.esOscuro(context) ? colorAcento.withValues(alpha: 0.15) : colorFondoIcono,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: colorAcento.withValues(alpha: 0.25),
@@ -242,7 +236,7 @@ class _TarjetaAccion extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
                               fontSize: 13.5,
-                              color: AppColors.claudeTextoPrincipal,
+                              color: AppColors.textoPrincipal(context),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -270,7 +264,7 @@ class _TarjetaAccion extends StatelessWidget {
                       subtitulo,
                       style: GoogleFonts.poppins(
                         fontSize: 11,
-                        color: AppColors.claudeTextoSecundario,
+                        color: AppColors.textoSecundario(context),
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

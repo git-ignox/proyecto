@@ -9,7 +9,7 @@
 // No usar colores fuera de esta paleta salvo negro/blanco puro.
 // ============================================================
 
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 abstract final class AppColors {
   // ── Naranja ──────────────────────────────────────────────────────────────
@@ -151,5 +151,130 @@ abstract final class AppColors {
 
   /// Texto de botón primario carbón oscuro (#1E1D1B).
   static const Color claudeBotonPrimarioTexto = Color(0xFF1E1D1B);
+
+  // ── Paleta Modo Claro: Blanco y Crema ────────────────────────────────────
+  /// Fondo cálido suave blanco y crema para modo claro (#F9F7F1).
+  static const Color cremaFondo = Color(0xFFF9F7F1);
+
+  /// Superficie principal modo claro: blanco crema puro (#FFFDF8).
+  static const Color cremaSuperficie = Color(0xFFFFFDF8);
+
+  /// Superficie secundaria suave modo claro (#F4EFE6).
+  static const Color cremaSuperficieSuave = Color(0xFFF4EFE6);
+
+  /// Borde sutil para modo claro (#E5DFD2 / 12% negro).
+  static const Color cremaBorde = Color(0x1F1E1D1B);
+
+  /// Borde destacado / foco modo claro (#331E1D1B).
+  static const Color cremaBordeFoco = Color(0x381E1D1B);
+
+  /// Texto principal carbón oscuro en modo claro (#1E1D1B).
+  static const Color cremaTextoPrincipal = Color(0xFF1E1D1B);
+
+  /// Texto secundario gris cálido en modo claro (#737067).
+  static const Color cremaTextoSecundario = Color(0xFF737067);
+
+  /// Texto atenuado en modo claro (#9E9B91).
+  static const Color cremaTextoAtenuado = Color(0xFF9E9B91);
+
+  /// Botón primario para modo claro (#1E1D1B).
+  static const Color cremaBotonPrimario = Color(0xFF1E1D1B);
+
+  /// Texto de botón primario modo claro (#FFFDF8).
+  static const Color cremaBotonPrimarioTexto = Color(0xFFFFFDF8);
+
+  // ── Helpers Reactivos al Tema ───────────────────────────────────────────
+  /// Retorna si el contexto actual está en modo oscuro.
+  static bool esOscuro(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  /// Fondo adaptable según el tema (grafito oscuro en noche, crema cálido en día).
+  static Color fondo(BuildContext context) =>
+      esOscuro(context) ? claudeFondo : cremaFondo;
+
+  /// Superficie adaptable según el tema.
+  static Color superficie(BuildContext context) =>
+      esOscuro(context) ? claudeSuperficie : cremaSuperficie;
+
+  /// Superficie suave adaptable (pills, chips, recuadros secundarios).
+  static Color superficieSuave(BuildContext context) =>
+      esOscuro(context) ? claudeSuperficieSuave : cremaSuperficieSuave;
+
+  /// Borde hairline adaptable según el tema.
+  static Color borde(BuildContext context) =>
+      esOscuro(context) ? claudeBorde : cremaBorde;
+
+  /// Borde con foco / hover adaptable.
+  static Color bordeFoco(BuildContext context) =>
+      esOscuro(context) ? claudeBordeFoco : cremaBordeFoco;
+
+  /// Texto principal de alto contraste adaptable.
+  static Color textoPrincipal(BuildContext context) =>
+      esOscuro(context) ? claudeTextoPrincipal : cremaTextoPrincipal;
+
+  /// Texto secundario adaptable.
+  static Color textoSecundario(BuildContext context) =>
+      esOscuro(context) ? claudeTextoSecundario : cremaTextoSecundario;
+
+  /// Texto atenuado adaptable.
+  static Color textoAtenuado(BuildContext context) =>
+      esOscuro(context) ? claudeTextoAtenuado : cremaTextoAtenuado;
+
+  /// Glow cálido emanando de detrás del widget (terracota en oscuro, ámbar/terracota suave en claro).
+  static List<BoxShadow> glowDetras(
+    BuildContext context, {
+    Color? color,
+    double blur = 38.0,
+    double spread = 2.0,
+    double intensidad = 1.0,
+  }) {
+    final dark = esOscuro(context);
+    final baseAlpha = dark ? 0.28 : 0.16;
+    final glow = color != null
+        ? color.withValues(alpha: color.a * intensidad)
+        : (dark
+            ? const Color(0xFFD97757).withValues(alpha: baseAlpha * intensidad)
+            : const Color(0xFFD97757).withValues(alpha: baseAlpha * intensidad));
+
+    if (dark) {
+      return [
+        BoxShadow(
+          color: glow,
+          blurRadius: blur,
+          spreadRadius: spread,
+          offset: const Offset(0, 4),
+        ),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.45),
+          blurRadius: blur * 0.7,
+          offset: const Offset(0, 12),
+        ),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.20),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ];
+    } else {
+      return [
+        BoxShadow(
+          color: glow,
+          blurRadius: blur,
+          spreadRadius: spread,
+          offset: const Offset(0, 4),
+        ),
+        BoxShadow(
+          color: const Color(0xFF2A1508).withValues(alpha: 0.08),
+          blurRadius: blur * 0.5,
+          offset: const Offset(0, 8),
+        ),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.03),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ];
+    }
+  }
 }
 

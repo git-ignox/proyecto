@@ -157,7 +157,7 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121110),
+      backgroundColor: AppColors.fondo(context),
       body: MacDesktopBackground(
         child: SafeArea(
           child: LayoutBuilder(
@@ -283,6 +283,8 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
   // ── Cabecera Claude ───────────────────────────────────────────────────────
   Widget _buildClaudeHeader() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         // Logo oficial Claude en terracota + App Matemáticas
@@ -312,11 +314,11 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
         const SizedBox(height: 12),
 
-        // Título editorial en serif (Lora) de Claude (de la foto 3 del usuario)
+        // Título editorial en serif (Lora) de Claude
         Text(
           'Pregúntate qué sigue',
           style: GoogleFonts.lora(
-            color: const Color(0xFFFAF9F5),
+            color: isDark ? const Color(0xFFFAF9F5) : const Color(0xFF1E1D1B),
             fontSize: 26,
             fontWeight: FontWeight.w500,
             letterSpacing: -0.3,
@@ -329,7 +331,9 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
           'Tu compañero de ideas para grandes ambiciones',
           textAlign: TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            color: Colors.white.withValues(alpha: 0.55),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.55)
+                : const Color(0xFF737067),
             fontSize: 12.5,
             fontWeight: FontWeight.w400,
           ),
@@ -340,12 +344,18 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
   // ── Selector Segmentado macOS ─────────────────────────────────────────────
   Widget _buildToggleSegmentado() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : const Color(0xFFF4EFE6),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.10)
+              : const Color(0x1F1E1D1B),
           width: 0.8,
         ),
       ),
@@ -353,17 +363,17 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
       child: Row(
         children: [
           Expanded(
-            child: _buildPillBoton('Iniciar Sesión', true),
+            child: _buildPillBoton('Iniciar Sesión', true, isDark),
           ),
           Expanded(
-            child: _buildPillBoton('Crear Cuenta', false),
+            child: _buildPillBoton('Crear Cuenta', false, isDark),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPillBoton(String label, bool isLogin) {
+  Widget _buildPillBoton(String label, bool isLogin, bool isDark) {
     final isActive = _modoLogin == isLogin;
 
     return GestureDetector(
@@ -382,13 +392,15 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isActive
-              ? Colors.white.withValues(alpha: 0.16)
+              ? (isDark ? Colors.white.withValues(alpha: 0.16) : Colors.white)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.25)
+                        : const Color(0xFF2A1508).withValues(alpha: 0.08),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -399,8 +411,10 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
           label,
           style: GoogleFonts.plusJakartaSans(
             color: isActive
-                ? const Color(0xFFFAF9F5)
-                : Colors.white.withValues(alpha: 0.50),
+                ? (isDark ? const Color(0xFFFAF9F5) : const Color(0xFF1E1D1B))
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.50)
+                    : const Color(0xFF737067)),
             fontSize: 13,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
           ),
@@ -411,6 +425,8 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
   // ── Formulario Login ──────────────────────────────────────────────────────
   Widget _buildFormularioLogin() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Form(
       key: _formLoginKey,
       child: Column(
@@ -442,7 +458,9 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
                 _verPasswordLogin
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: Colors.white.withValues(alpha: 0.50),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.50)
+                    : const Color(0xFF737067),
                 size: 19,
               ),
               onPressed: () =>
@@ -585,6 +603,8 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
 
   // ── Botones Demo ──────────────────────────────────────────────────────────
   Widget _buildBotonesDemo() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -592,7 +612,9 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
           'Acceso de demostración',
           textAlign: TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            color: Colors.white.withValues(alpha: 0.40),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.40)
+                : const Color(0xFF737067),
             fontSize: 11.5,
             fontWeight: FontWeight.w500,
           ),
@@ -665,7 +687,7 @@ class _PantallaAutenticacionState extends State<PantallaAutenticacion> {
   }
 }
 
-/// Chip de demostración con borde fino de vidrio
+/// Chip de demostración con borde fino de vidrio adaptativo
 class _DemoGlassChip extends StatelessWidget {
   const _DemoGlassChip({
     required this.label,
@@ -679,6 +701,21 @@ class _DemoGlassChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final bg = isDark
+        ? Colors.white.withValues(alpha: 0.05)
+        : const Color(0xFFF4EFE6);
+    final border = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0x1F1E1D1B);
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.60)
+        : const Color(0xFF737067);
+    final textColor = isDark
+        ? Colors.white.withValues(alpha: 0.75)
+        : const Color(0xFF1E1D1B);
+
     return InkWell(
       borderRadius: BorderRadius.circular(9),
       onTap: onTap,
@@ -686,9 +723,9 @@ class _DemoGlassChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(9),
-          color: Colors.white.withValues(alpha: 0.05),
+          color: bg,
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.12),
+            color: border,
             width: 0.8,
           ),
         ),
@@ -698,7 +735,7 @@ class _DemoGlassChip extends StatelessWidget {
             Icon(
               icon,
               size: 14,
-              color: Colors.white.withValues(alpha: 0.60),
+              color: iconColor,
             ),
             const SizedBox(width: 6),
             Flexible(
@@ -706,7 +743,7 @@ class _DemoGlassChip extends StatelessWidget {
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.plusJakartaSans(
-                  color: Colors.white.withValues(alpha: 0.75),
+                  color: textColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),

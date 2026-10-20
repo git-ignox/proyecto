@@ -61,13 +61,7 @@ class WidgetHeroAlumno extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0x33FFFFFF), width: 1),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x22D97757),
-            blurRadius: 16,
-            offset: Offset(0, 6),
-          ),
-        ],
+        boxShadow: AppColors.glowDetras(context, color: AppColors.claudeTerracota, intensidad: 0.32),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

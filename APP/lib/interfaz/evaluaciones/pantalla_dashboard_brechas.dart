@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/app_colors.dart';
 import '../../datos/repositorio_evaluaciones.dart';
 import '../../dominio/analisis/analizador_brechas_evaluacion.dart';
 import '../../dominio/analisis/servicio_ia_remediacion.dart';
@@ -70,9 +71,10 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
         maxChildSize: 0.95,
         minChildSize: 0.5,
         builder: (_, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: AppColors.superficie(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(color: AppColors.borde(context), width: 1.0),
           ),
           padding: const EdgeInsets.all(20),
           child: ListView(
@@ -83,10 +85,10 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.indigo.shade50,
+                      color: AppColors.claudeTerracota.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.auto_awesome, color: Colors.indigo, size: 24),
+                    child: const Icon(Icons.auto_awesome, color: AppColors.claudeTerracota, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -95,21 +97,24 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
                       children: [
                         const Text(
                           'Asistente Pedagógico • Remediación de Brechas',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota),
                         ),
                         Text(
                           plan.titulo,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Motor experto determinista basado en reglas cognitivas (100% confiable y sin latencia)',
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                          style: TextStyle(fontSize: 11, color: AppColors.textoSecundario(context)),
                         ),
                       ],
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                  IconButton(
+                    icon: Icon(Icons.close, color: AppColors.textoSecundario(context)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
                 ],
               ),
               const Divider(height: 24),
@@ -118,25 +123,25 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  color: const Color(0xFFC15F3C).withValues(alpha: AppColors.esOscuro(context) ? 0.16 : 0.08),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.red.shade200),
+                  border: Border.all(color: const Color(0xFFC15F3C).withValues(alpha: 0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.troubleshoot, color: Colors.red.shade700, size: 20),
+                        const Icon(Icons.troubleshoot, color: Color(0xFFC15F3C), size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Diagnóstico del Error Frecuente',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red.shade900),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(plan.diagnosticoBrecha, style: TextStyle(fontSize: 13, color: Colors.red.shade900)),
+                    Text(plan.diagnosticoBrecha, style: TextStyle(fontSize: 13, color: AppColors.textoPrincipal(context))),
                   ],
                 ),
               ),
@@ -146,25 +151,25 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
+                  color: const Color(0xFFFBBF24).withValues(alpha: AppColors.esOscuro(context) ? 0.16 : 0.08),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber.shade300),
+                  border: Border.all(color: const Color(0xFFFBBF24).withValues(alpha: 0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.lightbulb_outline, color: Colors.amber.shade900, size: 20),
+                        const Icon(Icons.lightbulb_outline, color: Color(0xFFFBBF24), size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Explicación Sintética & Modelado Guiado',
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(plan.explicacionConcepto, style: const TextStyle(fontSize: 13)),
+                    Text(plan.explicacionConcepto, style: TextStyle(fontSize: 13, color: AppColors.textoPrincipal(context))),
                   ],
                 ),
               ),
@@ -174,19 +179,19 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: const Color(0xFF38BDF8).withValues(alpha: AppColors.esOscuro(context) ? 0.16 : 0.08),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
+                  border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.35)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.tips_and_updates, color: Colors.blue.shade800, size: 20),
+                    const Icon(Icons.tips_and_updates, color: Color(0xFF38BDF8), size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         plan.tipPedagogico,
-                        style: TextStyle(fontSize: 12, color: Colors.blue.shade900, fontStyle: FontStyle.italic),
+                        style: TextStyle(fontSize: 12, color: AppColors.textoPrincipal(context), fontStyle: FontStyle.italic),
                       ),
                     ),
                   ],
@@ -194,9 +199,9 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
               ),
               const SizedBox(height: 18),
 
-              const Text(
+              Text(
                 'Ejercicios de Práctica Guiada Recomendados:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
               ),
               const SizedBox(height: 10),
 
@@ -216,12 +221,12 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
                           children: [
                             CircleAvatar(
                               radius: 12,
-                              backgroundColor: Colors.indigo.shade100,
-                              child: Text('$idx', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                              backgroundColor: AppColors.claudeTerracota.withValues(alpha: 0.20),
+                              child: Text('$idx', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota)),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text(ej.enunciado, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                              child: Text(ej.enunciado, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textoPrincipal(context))),
                             ),
                           ],
                         ),
@@ -229,17 +234,17 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
+                            color: AppColors.superficieSuave(context),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Pista: ${ej.pista}', style: TextStyle(fontSize: 11, color: Colors.grey.shade700)),
+                              Text('Pista: ${ej.pista}', style: TextStyle(fontSize: 11, color: AppColors.textoSecundario(context))),
                               const SizedBox(height: 4),
                               Text('Respuesta: ${ej.respuestaEsperada}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
                               const SizedBox(height: 2),
-                              Text('Paso a paso: ${ej.explicacionPasoAPaso}', style: const TextStyle(fontSize: 11)),
+                              Text('Paso a paso: ${ej.explicacionPasoAPaso}', style: TextStyle(fontSize: 11, color: AppColors.textoPrincipal(context))),
                             ],
                           ),
                         ),
@@ -262,15 +267,20 @@ class _PantallaDashboardBrechasState extends State<PantallaDashboardBrechas> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Dashboard de Brechas (Triage)', style: TextStyle(fontSize: 16)),
-            Text(widget.clase.nombre, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            Text('Dashboard de Brechas (Triage)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+            Text(widget.clase.nombre,
+                style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context))),
           ],
         ),
-        backgroundColor: Colors.indigo.shade800,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.esOscuro(context)
+            ? const Color(0xFF161514).withValues(alpha: 0.88)
+            : AppColors.cremaFondo.withValues(alpha: 0.92),
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.textoPrincipal(context),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: AppColors.textoPrincipal(context)),
             tooltip: 'Actualizar análisis',
             onPressed: _cargarDatos,
           ),

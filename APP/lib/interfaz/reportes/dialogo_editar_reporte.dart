@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../datos/repositorio_reportes.dart';
 import '../../dominio/analisis/generador_reportes.dart';
 import '../../dominio/modelos/reporte_pedagogico.dart';
+import '../design/app_colors.dart';
 
 /// Diálogo modal para editar el comentario cualitativo del docente en un reporte escolar,
 /// con asistencia del Asistente Pedagógico determinista para sugerir borradores estructurados.
@@ -99,255 +100,277 @@ class _DialogoEditarReporteState extends State<DialogoEditarReporte> {
     final fortaleza = reporte.fortalezaPrincipal;
 
     return Dialog(
+      backgroundColor: AppColors.superficie(context),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 580, maxHeight: 720),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Encabezado
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.indigo.shade50,
-                    child: Text(
-                      reporte.alumnoNombre.isNotEmpty
-                          ? reporte.alumnoNombre.substring(0, 1).toUpperCase()
-                          : 'A',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.indigo.shade800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          reporte.alumnoNombre,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Período: ${reporte.periodo} • Promedio: ${reporte.promedioGeneral.toStringAsFixed(1)} (${reporte.porcentajeGeneral.toStringAsFixed(0)}%)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
-                    tooltip: 'Cerrar',
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-              const SizedBox(height: 14),
-
-              // Mini resumen del snapshot pedagógico
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Row(
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.superficie(context),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context),
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 580, maxHeight: 720),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Encabezado
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.superficieSuave(context),
+                      child: Text(
+                        reporte.alumnoNombre.isNotEmpty
+                            ? reporte.alumnoNombre.substring(0, 1).toUpperCase()
+                            : 'A',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.claudeTerracota,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Icon(Icons.warning_amber_rounded, size: 16, color: Colors.red.shade700),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Brecha prioritaria:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red.shade800,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
                           Text(
-                            brecha != null
-                                ? '${brecha.tema} (${brecha.porcentajeDominio}%)'
-                                : 'Sin brechas críticas',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            reporte.alumnoNombre,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textoPrincipal(context),
+                            ),
+                          ),
+                          Text(
+                            'Período: ${reporte.periodo} • Promedio: ${reporte.promedioGeneral.toStringAsFixed(1)} (${reporte.porcentajeGeneral.toStringAsFixed(0)}%)',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textoSecundario(context),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Container(height: 30, width: 1, color: Colors.grey.shade300),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.check_circle_outline, size: 16, color: Colors.green.shade700),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Mayor fortaleza:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green.shade800,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            fortaleza != null
-                                ? '${fortaleza.tema} (${fortaleza.porcentajeDominio}%)'
-                                : 'No registrada',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(Icons.close, color: AppColors.textoSecundario(context)),
+                      tooltip: 'Cerrar',
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 16),
+                Divider(height: 1, color: AppColors.borde(context)),
+                const SizedBox(height: 14),
 
-              const SizedBox(height: 16),
-
-              // Botón del Asistente Pedagógico (generación determinista / preparado para LLM)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Observación Pedagógica del Docente',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Tooltip(
-                    message:
-                        'Asistente pedagógico determinista: analiza brechas y fortalezas curriculares sin latencia ni dependencias externas',
-                    child: OutlinedButton.icon(
-                      onPressed: _generarBorradorIa,
-                      icon: const Icon(Icons.auto_awesome, size: 16, color: Colors.indigo),
-                      label: const Text(
-                        'Sugerir borrador (Asistente Pedagógico)',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.indigo,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        side: BorderSide(color: Colors.indigo.shade200),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              if (_mostrandoEspacioIa) ...[
-                const SizedBox(height: 6),
+                // Mini resumen del snapshot pedagógico
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.indigo.shade50.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.indigo.shade100),
+                    color: AppColors.superficieSuave(context),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.borde(context)),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 14, color: Colors.indigo.shade700),
-                      const SizedBox(width: 6),
                       Expanded(
-                        child: Text(
-                          'Asistente pedagógico determinista: borrador sintetizado a partir del snapshot curricular. Totalmente editable por el docente.',
-                          style: TextStyle(fontSize: 11, color: Colors.indigo.shade900),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.warning_amber_rounded, size: 16, color: Colors.red.shade400),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Brecha prioritaria:',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              brecha != null
+                                  ? '${brecha.tema} (${brecha.porcentajeDominio}%)'
+                                  : 'Sin brechas críticas',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textoPrincipal(context)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(height: 30, width: 1, color: AppColors.borde(context)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.check_circle_outline, size: 16, color: Colors.green.shade400),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Mayor fortaleza:',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green.shade400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              fortaleza != null
+                                  ? '${fortaleza.tema} (${fortaleza.porcentajeDominio}%)'
+                                  : 'No registrada',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textoPrincipal(context)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 16),
 
-              // Área de texto editable
-              Expanded(
-                child: TextFormField(
-                  controller: _comentarioController,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText:
-                        'Escribe la retroalimentación pedagógica para el estudiante y sus apoderados...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                // Botón del Asistente Pedagógico (generación determinista / preparado para LLM)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Observación Pedagógica del Docente',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textoPrincipal(context),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.indigo, width: 1.8),
+                    Tooltip(
+                      message:
+                          'Asistente pedagógico determinista: analiza brechas y fortalezas curriculares sin latencia ni dependencias externas',
+                      child: OutlinedButton.icon(
+                        onPressed: _generarBorradorIa,
+                        icon: Icon(Icons.auto_awesome, size: 16, color: AppColors.claudeTerracota),
+                        label: Text(
+                          'Sugerir borrador (Asistente Pedagógico)',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.claudeTerracota,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          side: BorderSide(color: AppColors.claudeTerracota.withValues(alpha: 0.4)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.all(14),
-                  ),
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 16),
-
-              // Barra de acciones inferiores
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: _guardando ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Cancelar'),
-                  ),
-                  const SizedBox(width: 10),
-                  FilledButton.icon(
-                    onPressed: _guardando ? null : _guardar,
-                    icon: _guardando
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Icon(Icons.check, size: 18),
-                    label: Text(_guardando ? 'Guardando...' : 'Guardar Comentario'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.indigo,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                if (_mostrandoEspacioIa) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.superficieSuave(context),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.borde(context)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 14, color: AppColors.claudeTerracota),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Asistente pedagógico determinista: borrador sintetizado a partir del snapshot curricular. Totalmente editable por el docente.',
+                            style: TextStyle(fontSize: 11, color: AppColors.claudeTerracota),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-              ),
-            ],
+
+                const SizedBox(height: 10),
+
+                // Área de texto editable
+                Expanded(
+                  child: TextFormField(
+                    controller: _comentarioController,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    style: TextStyle(color: AppColors.textoPrincipal(context), fontSize: 13),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.superficieSuave(context),
+                      hintText:
+                          'Escribe la retroalimentación pedagógica para el estudiante y sus apoderados...',
+                      hintStyle: TextStyle(color: AppColors.textoSecundario(context).withValues(alpha: 0.6), fontSize: 13),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.borde(context)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.borde(context)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.claudeTerracota, width: 1.8),
+                      ),
+                      contentPadding: const EdgeInsets.all(14),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Barra de acciones inferiores
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _guardando ? null : () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.textoSecundario(context),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton.icon(
+                      onPressed: _guardando ? null : _guardar,
+                      icon: _guardando
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.check, size: 18),
+                      label: Text(_guardando ? 'Guardando...' : 'Guardar Comentario'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.claudeTerracota,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

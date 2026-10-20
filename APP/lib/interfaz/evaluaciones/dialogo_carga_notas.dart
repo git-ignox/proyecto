@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../datos/repositorio_evaluaciones.dart';
 import '../../dominio/modelos/clase_escolar.dart';
 import '../../dominio/modelos/evaluacion.dart';
+import '../design/app_colors.dart';
 
 /// Modal para carga individual, masiva por CSV y edición de notas de una evaluación.
 class DialogoCargaNotas extends StatefulWidget {
@@ -405,12 +406,19 @@ class _DialogoCargaNotasState extends State<DialogoCargaNotas> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.superficie(context),
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: 680,
         height: 640,
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.superficie(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context),
+        ),
         child: Column(
           children: [
             // Cabecera
@@ -424,18 +432,18 @@ class _DialogoCargaNotasState extends State<DialogoCargaNotas> with SingleTicker
                     children: [
                       Text(
                         widget.evaluacion.nombre,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textoPrincipal(context)),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         'Clase: ${widget.clase.nombre} • Escala: 0 a ${widget.evaluacion.notaMaxima}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context)),
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, color: AppColors.textoSecundario(context)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -445,9 +453,9 @@ class _DialogoCargaNotasState extends State<DialogoCargaNotas> with SingleTicker
             // Tab bar
             TabBar(
               controller: _tabController,
-              labelColor: Colors.indigo,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.indigo,
+              labelColor: AppColors.claudeTerracota,
+              unselectedLabelColor: AppColors.textoSecundario(context),
+              indicatorColor: AppColors.claudeTerracota,
               tabs: [
                 const Tab(icon: Icon(Icons.person_outline, size: 20), text: 'Individual'),
                 const Tab(icon: Icon(Icons.table_view_outlined, size: 20), text: 'Bloque / CSV'),

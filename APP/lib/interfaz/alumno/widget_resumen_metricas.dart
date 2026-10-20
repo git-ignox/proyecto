@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../dominio/modelos/diagnostico_alumno.dart';
+import '../design/app_colors.dart';
 
 /// Tarjeta de resumen de rendimiento y salud académica del alumno,
 /// mostrando precisión, total de retos resueltos y acceso inmediato a refuerzo.
@@ -27,16 +28,10 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.superficie(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.indigo.shade100, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.indigo.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: AppColors.borde(context), width: 1.2),
+        boxShadow: AppColors.glowDetras(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,13 +41,14 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.insights, color: Colors.indigo.shade700, size: 20),
+                  Icon(Icons.insights, color: AppColors.claudeTerracota, size: 20),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Mi Rendimiento Pedagógico',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
+                      color: AppColors.textoPrincipal(context),
                     ),
                   ),
                 ],
@@ -63,7 +59,7 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
                 label: const Text('Ver Todo', style: TextStyle(fontSize: 12)),
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
-                  foregroundColor: Colors.indigo.shade700,
+                  foregroundColor: AppColors.claudeTerracota,
                 ),
               ),
             ],
@@ -86,7 +82,7 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
                 child: _MetricaItem(
                   valor: '${diagnostico.totalIntentos}',
                   etiqueta: 'Ejercicios',
-                  color: Colors.indigo.shade700,
+                  color: AppColors.claudeTerracota,
                   icono: Icons.fitness_center_outlined,
                 ),
               ),
@@ -96,7 +92,7 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
                 child: _MetricaItem(
                   valor: '${diagnostico.aciertos}',
                   etiqueta: 'Aciertos',
-                  color: Colors.green.shade700,
+                  color: Colors.green.shade400,
                   icono: Icons.star_border,
                 ),
               ),
@@ -107,18 +103,19 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
+                color: AppColors.esOscuro(context) ? const Color(0xFF2E2214) : Colors.amber.shade50,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.amber.shade200),
+                border: Border.all(color: Colors.amber.withValues(alpha: AppColors.esOscuro(context) ? 0.35 : 0.4)),
+                boxShadow: AppColors.glowDetras(context, color: Colors.amber, intensidad: 0.12),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.amber.shade900, size: 20),
+                  Icon(Icons.lightbulb_outline, color: Colors.amber.shade400, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Tienes áreas de oportunidad detectadas: ${diagnostico.tagsCriticos.take(2).join(", ")}',
-                      style: TextStyle(fontSize: 12, color: Colors.amber.shade900, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 12, color: Colors.amber.shade300, fontWeight: FontWeight.w500),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -127,7 +124,7 @@ class WidgetResumenMetricasAlumno extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => onPracticarRefuerzo(diagnostico.tagsCriticos),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade700,
+                      backgroundColor: AppColors.claudeTerracota,
                       foregroundColor: Colors.white,
                       visualDensity: VisualDensity.compact,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -162,9 +159,9 @@ class _MetricaItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
@@ -183,7 +180,7 @@ class _MetricaItem extends StatelessWidget {
             etiqueta,
             style: TextStyle(
               fontSize: 11,
-              color: Colors.grey.shade700,
+              color: AppColors.textoSecundario(context),
             ),
           ),
         ],

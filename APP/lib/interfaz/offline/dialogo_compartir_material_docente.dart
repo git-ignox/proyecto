@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../datos/coordinador_sincronizacion_offline.dart';
 import '../../dominio/modelos/recurso_educativo_offline.dart';
+import '../design/app_colors.dart';
 
 /// Diálogo para que el docente comparta un nuevo archivo o página web (MHTML),
 /// especificando la fecha de uso, obligatoriedad y tamaño.
@@ -93,11 +94,21 @@ class _DialogoCompartirMaterialDocenteState
     );
 
     return AlertDialog(
-      title: const Row(
+      backgroundColor: AppColors.superficie(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.borde(context)),
+      ),
+      title: Row(
         children: [
-          Icon(Icons.cloud_upload_rounded, color: Colors.indigo),
-          SizedBox(width: 8),
-          Expanded(child: Text('Compartir Material para Clase')),
+          Icon(Icons.cloud_upload_rounded, color: AppColors.claudeTerracota),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Compartir Material para Clase',
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
+            ),
+          ),
         ],
       ),
       content: SizedBox(
@@ -111,7 +122,7 @@ class _DialogoCompartirMaterialDocenteState
               children: [
                 Text(
                   'El material se descargará automáticamente de fondo en los dispositivos de los alumnos cuando tengan WiFi y batería suficiente.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context)),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -247,10 +258,17 @@ class _DialogoCompartirMaterialDocenteState
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.textoSecundario(context),
+          ),
           child: const Text('Cancelar'),
         ),
         FilledButton.icon(
           onPressed: _guardando ? null : () => _guardarMaterial(fechaHoraCompleta),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.claudeTerracota,
+            foregroundColor: Colors.white,
+          ),
           icon: _guardando
               ? const SizedBox(
                   width: 18,

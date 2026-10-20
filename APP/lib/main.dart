@@ -124,7 +124,65 @@ class AppMatematicas extends StatelessWidget {
       title: 'App Matemáticas',
       debugShowCheckedModeBanner: false,
       scrollBehavior: const AppComportamientoScroll(),
+      themeMode: ThemeMode.system,
+      // Modo Claro: Blanco y Crema cálido
       theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.cremaFondo,
+        canvasColor: AppColors.cremaFondo,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.cremaBotonPrimario,
+          onPrimary: AppColors.cremaBotonPrimarioTexto,
+          secondary: AppColors.claudeTerracota,
+          onSecondary: Colors.white,
+          surface: AppColors.cremaSuperficie,
+          onSurface: AppColors.cremaTextoPrincipal,
+          surfaceContainer: AppColors.cremaSuperficieSuave,
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.cremaSuperficie,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: AppColors.cremaBorde, width: 1.0),
+          ),
+          elevation: 0,
+        ),
+        dialogTheme: DialogThemeData(
+          backgroundColor: AppColors.cremaSuperficie,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppColors.cremaBorde, width: 1.0),
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: AppColors.cremaSuperficie,
+          surfaceTintColor: Colors.transparent,
+          modalBackgroundColor: AppColors.cremaSuperficie,
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.cremaFondo.withValues(alpha: 0.92),
+          foregroundColor: AppColors.cremaTextoPrincipal,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+        ),
+        popupMenuTheme: PopupMenuThemeData(
+          color: AppColors.cremaSuperficie,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: AppColors.cremaBorde, width: 1.0),
+          ),
+        ),
+        textTheme: GoogleFonts.plusJakartaSansTextTheme(
+          ThemeData.light().textTheme,
+        ).apply(
+          bodyColor: AppColors.cremaTextoPrincipal,
+          displayColor: AppColors.cremaTextoPrincipal,
+        ),
+        useMaterial3: true,
+      ),
+      // Modo Oscuro: Dark macOS Glassmorphism
+      darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.claudeFondo,
         canvasColor: AppColors.claudeFondo,
@@ -161,6 +219,7 @@ class AppMatematicas extends StatelessWidget {
           backgroundColor: Color(0xFF161514),
           foregroundColor: AppColors.claudeTextoPrincipal,
           elevation: 0,
+          surfaceTintColor: Colors.transparent,
         ),
         popupMenuTheme: PopupMenuThemeData(
           color: AppColors.claudeSuperficie,

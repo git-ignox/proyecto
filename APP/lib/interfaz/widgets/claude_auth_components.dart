@@ -160,8 +160,7 @@ class _GoogleLogoPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Botón Principal Claude: Sólido crema/hueso (#ECE7DE) con texto oscuro (#1E1D1B)
-/// Apariencia idéntica a "Continuar con correo electrónico" de las imágenes.
+/// Botón Principal Claude: Sólido crema/hueso en noche (#ECE7DE) o carbón sólido en día (#1E1D1B)
 class ClaudePrimaryButton extends StatefulWidget {
   const ClaudePrimaryButton({
     super.key,
@@ -190,12 +189,12 @@ class _ClaudePrimaryButtonState extends State<ClaudePrimaryButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEnabled = widget.onPressed != null && !widget.isLoading;
 
-    // Tono crema sólido de Claude
-    const baseCream = Color(0xFFECE7DE);
-    const hoverCream = Color(0xFFF6F3EC);
-    const darkTextColor = Color(0xFF1E1D1B);
+    final baseColor = isDark ? const Color(0xFFECE7DE) : const Color(0xFF1E1D1B);
+    final hoverColor = isDark ? const Color(0xFFF6F3EC) : const Color(0xFF2C2A27);
+    final textColor = isDark ? const Color(0xFF1E1D1B) : const Color(0xFFFFFDF8);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -219,13 +218,15 @@ class _ClaudePrimaryButtonState extends State<ClaudePrimaryButton> {
           ),
           decoration: BoxDecoration(
             color: isEnabled
-                ? (_hovered ? hoverCream : baseCream)
-                : baseCream.withValues(alpha: 0.6),
+                ? (_hovered ? hoverColor : baseColor)
+                : baseColor.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(widget.borderRadius),
             boxShadow: _hovered && isEnabled && !_pressed
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.22)
+                          : const Color(0xFF2A1508).withValues(alpha: 0.16),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -235,12 +236,12 @@ class _ClaudePrimaryButtonState extends State<ClaudePrimaryButton> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: widget.isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.2,
-                      color: darkTextColor,
+                      color: textColor,
                     ),
                   )
                 : FittedBox(
@@ -249,13 +250,13 @@ class _ClaudePrimaryButtonState extends State<ClaudePrimaryButton> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (widget.icon != null) ...[
-                          Icon(widget.icon, size: 18, color: darkTextColor),
+                          Icon(widget.icon, size: 18, color: textColor),
                           const SizedBox(width: 8),
                         ],
                         Text(
                           widget.label,
                           style: GoogleFonts.plusJakartaSans(
-                            color: darkTextColor,
+                            color: textColor,
                             fontSize: 14.5,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.1,
@@ -271,8 +272,7 @@ class _ClaudePrimaryButtonState extends State<ClaudePrimaryButton> {
   }
 }
 
-/// Botón Secundario Claude: Vidrio oscuro con borde fino y texto claro
-/// Apariencia idéntica a "Continuar con Google" / "Continuar con Apple" de las imágenes.
+/// Botón Secundario Claude: Vidrio con borde fino y texto adaptativo
 class ClaudeSecondaryButton extends StatefulWidget {
   const ClaudeSecondaryButton({
     super.key,
@@ -303,12 +303,27 @@ class _ClaudeSecondaryButtonState extends State<ClaudeSecondaryButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEnabled = widget.onPressed != null;
 
-    final baseBg = Colors.white.withValues(alpha: 0.08);
-    final hoverBg = Colors.white.withValues(alpha: 0.13);
+    final baseBg = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : const Color(0xFFF4EFE6).withValues(alpha: 0.85);
+    final hoverBg = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : const Color(0xFFEBE4D5);
     final borderColor = widget.accentBorderColor ??
-        (_hovered ? Colors.white.withValues(alpha: 0.24) : Colors.white.withValues(alpha: 0.14));
+        (isDark
+            ? (_hovered
+                ? Colors.white.withValues(alpha: 0.26)
+                : Colors.white.withValues(alpha: 0.14))
+            : (_hovered
+                ? const Color(0x381E1D1B)
+                : const Color(0x1F1E1D1B)));
+
+    final textColor = isDark
+        ? Colors.white.withValues(alpha: 0.92)
+        : const Color(0xFF1E1D1B);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -349,14 +364,14 @@ class _ClaudeSecondaryButtonState extends State<ClaudeSecondaryButton> {
                     Icon(
                       widget.icon,
                       size: 19,
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: textColor,
                     ),
                     const SizedBox(width: 10),
                   ],
                   Text(
                     widget.label,
                     style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white.withValues(alpha: 0.92),
+                      color: textColor,
                       fontSize: 14.0,
                       fontWeight: FontWeight.w500,
                     ),
@@ -371,7 +386,7 @@ class _ClaudeSecondaryButtonState extends State<ClaudeSecondaryButton> {
   }
 }
 
-/// Separador "o" sutil con líneas hairline
+/// Separador "o" sutil con líneas hairline adaptativas
 class ClaudeDivider extends StatelessWidget {
   const ClaudeDivider({super.key, this.label = 'o'});
 
@@ -379,12 +394,21 @@ class ClaudeDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final lineColor = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.black.withValues(alpha: 0.10);
+    final textColor = isDark
+        ? Colors.white.withValues(alpha: 0.40)
+        : Colors.black.withValues(alpha: 0.40);
+
     return Row(
       children: [
         Expanded(
           child: Container(
             height: 0.8,
-            color: Colors.white.withValues(alpha: 0.14),
+            color: lineColor,
           ),
         ),
         Padding(
@@ -392,7 +416,7 @@ class ClaudeDivider extends StatelessWidget {
           child: Text(
             label,
             style: GoogleFonts.plusJakartaSans(
-              color: Colors.white.withValues(alpha: 0.40),
+              color: textColor,
               fontSize: 12.0,
               fontWeight: FontWeight.w400,
             ),
@@ -401,7 +425,7 @@ class ClaudeDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 0.8,
-            color: Colors.white.withValues(alpha: 0.14),
+            color: lineColor,
           ),
         ),
       ],
@@ -409,7 +433,7 @@ class ClaudeDivider extends StatelessWidget {
   }
 }
 
-/// Pie legal discreto: "By continuing, you acknowledge..."
+/// Pie legal discreto adaptativo
 class ClaudeTermsFooter extends StatelessWidget {
   const ClaudeTermsFooter({
     super.key,
@@ -420,11 +444,15 @@ class ClaudeTermsFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Text(
       text,
       textAlign: TextAlign.center,
       style: GoogleFonts.plusJakartaSans(
-        color: Colors.white.withValues(alpha: 0.45),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.45)
+            : const Color(0xFF737067),
         fontSize: 11.0,
         height: 1.35,
       ),
@@ -432,7 +460,7 @@ class ClaudeTermsFooter extends StatelessWidget {
   }
 }
 
-/// Acordeón de Preguntas Frecuentes estilo Claude (como en la foto 2 del usuario)
+/// Acordeón de Preguntas Frecuentes estilo Claude adaptativo
 class ClaudeFaqAccordion extends StatefulWidget {
   const ClaudeFaqAccordion({super.key});
 
@@ -463,6 +491,8 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -471,7 +501,9 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
           style: GoogleFonts.lora(
             fontSize: 18,
             fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.92),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.92)
+                : const Color(0xFF1E1D1B),
           ),
         ),
         const SizedBox(height: 12),
@@ -482,10 +514,14 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : const Color(0xFFF4EFE6).withValues(alpha: 0.70),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0x181E1D1B),
                 width: 0.8,
               ),
             ),
@@ -507,7 +543,9 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
                           child: Text(
                             item.titulo,
                             style: GoogleFonts.plusJakartaSans(
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.85)
+                                  : const Color(0xFF1E1D1B).withValues(alpha: 0.85),
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -516,7 +554,9 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
                         Icon(
                           estaAbierto ? Icons.remove : Icons.add,
                           size: 16,
-                          color: Colors.white.withValues(alpha: 0.55),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.55)
+                              : Colors.black.withValues(alpha: 0.55),
                         ),
                       ],
                     ),
@@ -525,7 +565,9 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
                       Text(
                         item.detalle,
                         style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white.withValues(alpha: 0.60),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.60)
+                              : const Color(0xFF737067),
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -541,3 +583,4 @@ class _ClaudeFaqAccordionState extends State<ClaudeFaqAccordion> {
     );
   }
 }
+

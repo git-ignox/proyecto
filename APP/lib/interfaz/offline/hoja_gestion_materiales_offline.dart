@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../datos/coordinador_sincronizacion_offline.dart';
 import '../../dominio/modelos/recurso_educativo_offline.dart';
+import '../design/app_colors.dart';
 
 /// Modal interactivo para visualizar y gestionar los materiales offline,
 /// marcar archivos intocables (fijados), simular condiciones de red y
@@ -44,9 +45,11 @@ class _HojaGestionMaterialesOfflineState
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.superficie(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: AppColors.borde(context)),
+            boxShadow: AppColors.glowDetras(context),
           ),
           child: Column(
             children: [
@@ -56,7 +59,7 @@ class _HojaGestionMaterialesOfflineState
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: AppColors.borde(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -67,8 +70,8 @@ class _HojaGestionMaterialesOfflineState
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    const Icon(Icons.offline_pin_rounded,
-                        color: Colors.indigo, size: 28),
+                    Icon(Icons.offline_pin_rounded,
+                        color: AppColors.claudeTerracota, size: 28),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -81,6 +84,7 @@ class _HojaGestionMaterialesOfflineState
                                 .titleLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: AppColors.textoPrincipal(context),
                                 ),
                           ),
                           Text(
@@ -89,14 +93,14 @@ class _HojaGestionMaterialesOfflineState
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(
-                                  color: Colors.grey[600],
+                                  color: AppColors.textoSecundario(context),
                                 ),
                           ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded),
+                      icon: Icon(Icons.close_rounded, color: AppColors.textoSecundario(context)),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -108,9 +112,9 @@ class _HojaGestionMaterialesOfflineState
               // Pestañas
               TabBar(
                 controller: _tabController,
-                indicatorColor: Colors.indigo,
-                labelColor: Colors.indigo,
-                unselectedLabelColor: Colors.grey[600],
+                indicatorColor: AppColors.claudeTerracota,
+                labelColor: AppColors.claudeTerracota,
+                unselectedLabelColor: AppColors.textoSecundario(context),
                 tabs: const [
                   Tab(
                     icon: Icon(Icons.menu_book_rounded, size: 18),
@@ -181,79 +185,85 @@ class _HojaGestionMaterialesOfflineState
         tarea?.estado == EstadoSincronizacion.descargando;
     final progreso = tarea?.progreso ?? 0.0;
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: estaListo
+            ? (AppColors.esOscuro(context) ? const Color(0xFF14241B) : Colors.green.shade50.withValues(alpha: 0.4))
+            : AppColors.superficieSuave(context),
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: estaListo ? Colors.green.shade200 : Colors.grey.shade300,
+        border: Border.all(
+          color: estaListo ? Colors.green.withValues(alpha: 0.4) : AppColors.borde(context),
+        ),
+        boxShadow: AppColors.glowDetras(
+          context,
+          color: estaListo ? Colors.green : AppColors.claudeTerracota,
+          intensidad: 0.12,
         ),
       ),
-      color: estaListo ? Colors.green.shade50.withValues(alpha: 0.4) : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _obtenerIconoTipo(material.tipoRecurso),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _obtenerIconoTipo(material.tipoRecurso),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            material.titulo,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.textoPrincipal(context),
+                            ),
+                          ),
+                        ),
+                        if (material.esObligatorio)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.claudeTerracota.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppColors.claudeTerracota.withValues(alpha: 0.3)),
+                            ),
                             child: Text(
-                              material.titulo,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                              'Obligatorio',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.claudeTerracota,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          if (material.esObligatorio)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.indigo.shade50,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.indigo.shade200),
-                              ),
-                              child: const Text(
-                                'Obligatorio',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.indigo,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${material.materia} • Clase: ${_formatearFecha(material.fechaUsoClase)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textoSecundario(context),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${material.materia} • Clase: ${_formatearFecha(material.fechaUsoClase)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Tamaño: ${material.tamanoLegible}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textoSecundario(context),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Tamaño: ${material.tamanoLegible}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
                 // Botón de Fijar / Marcar Intocable
                 IconButton(
                   tooltip: material.esFijado
@@ -364,7 +374,6 @@ class _HojaGestionMaterialesOfflineState
             ],
           ],
         ),
-      ),
     );
   }
 

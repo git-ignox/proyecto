@@ -68,24 +68,41 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
   @override
   Widget build(BuildContext context) {
-    // Borde cambia suavemente entre blanco-tenue y terracota-Claude al enfocar
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final baseBg = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : const Color(0xFFF4EFE6).withValues(alpha: 0.70);
+
+    final restBorder = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : const Color(0x1F1E1D1B);
+
+    final textColor = isDark
+        ? const Color(0xFFFAF9F5)
+        : const Color(0xFF1E1D1B);
+
+    final hintColor = isDark
+        ? Colors.white.withValues(alpha: 0.50)
+        : const Color(0xFF737067);
+
+    // Borde cambia suavemente entre reposo y terracota al enfocar
     final borderColor = _hasFocus
-        ? const Color(0xFFD97757).withOpacity(0.9) // Terracota Claude en foco
-        : Colors.white.withOpacity(0.14);          // Traslúcido tenue en reposo
+        ? const Color(0xFFD97757).withValues(alpha: 0.9)
+        : restBorder;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        // Fondo tenue de vidrio para el campo
-        color: Colors.white.withOpacity(0.06),
+        color: baseBg,
         border: Border.all(color: borderColor, width: 1.0),
         // Glow sutil cuando está en foco
         boxShadow: _hasFocus
             ? [
                 BoxShadow(
-                  color: const Color(0xFFD97757).withOpacity(0.25),
+                  color: const Color(0xFFD97757).withValues(alpha: 0.25),
                   blurRadius: 10,
                   offset: Offset.zero,
                 ),
@@ -101,7 +118,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         textInputAction: widget.textInputAction,
         onFieldSubmitted: widget.onFieldSubmitted,
         style: GoogleFonts.plusJakartaSans(
-          color: const Color(0xFFFAF9F5),
+          color: textColor,
           fontSize: 14.5,
           fontWeight: FontWeight.w500,
         ),
@@ -109,7 +126,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
         decoration: InputDecoration(
           labelText: widget.label,
           labelStyle: GoogleFonts.plusJakartaSans(
-            color: Colors.white.withOpacity(0.50),
+            color: hintColor,
             fontSize: 13.5,
             fontWeight: FontWeight.w400,
           ),
@@ -122,7 +139,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             widget.icon,
             color: _hasFocus
                 ? const Color(0xFFD97757)
-                : Colors.white.withOpacity(0.50),
+                : hintColor,
             size: 19,
           ),
           suffixIcon: widget.suffixIcon,

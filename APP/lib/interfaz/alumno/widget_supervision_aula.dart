@@ -6,6 +6,7 @@ import '../../dominio/control_dispositivo/controlador_dispositivo.dart';
 import '../../dominio/modelos/registro_auditoria.dart';
 import '../../dominio/modelos/sesion_modo_clase.dart';
 import '../../dominio/modelos/usuario_app.dart';
+import '../design/app_colors.dart';
 
 /// Widget de supervisión contextual en el dispositivo del estudiante.
 /// Aplica la regla fundamental:
@@ -258,48 +259,49 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.blueGrey.shade50,
+          color: AppColors.superficie(context),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.blueGrey.shade200),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.home_outlined, color: Colors.blueGrey, size: 20),
+                Icon(Icons.home_outlined, color: AppColors.claudeTerracota, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Clase iniciada: ${_sesionActiva!.cursoNombre} (${_sesionActiva!.materia})',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textoPrincipal(context)),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: AppColors.superficieSuave(context),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('Dispositivo Libre', style: TextStyle(fontSize: 11, color: Colors.black87)),
+                  child: Text('Dispositivo Libre', style: TextStyle(fontSize: 11, color: AppColors.textoSecundario(context))),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'No estás registrado como presente en el salón. Tu dispositivo personal no tiene restricciones aplicadas.',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
+              style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context)),
             ),
             const SizedBox(height: 8),
             InkWell(
               onTap: _dialogoValidarCodigoBarras,
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.barcode_reader, size: 16, color: Colors.indigo),
-                  SizedBox(width: 4),
+                  Icon(Icons.barcode_reader, size: 16, color: AppColors.claudeTerracota),
+                  const SizedBox(width: 4),
                   Text(
                     '¿Estás en el aula? Pulsa aquí para escanear el Código de Barras del profesor',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.indigo),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.claudeTerracota),
                   ),
                 ],
               ),
@@ -315,22 +317,23 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.blue.shade50,
+          color: AppColors.superficie(context),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.blue.shade300),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context, color: AppColors.claudeAzul, intensidad: 0.15),
         ),
         child: Row(
           children: [
-            const Icon(Icons.lock_open, color: Colors.blue),
+            Icon(Icons.lock_open, color: AppColors.claudeAzul),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Dispositivo Liberado', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.blue)),
+                  Text('Dispositivo Liberado', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.claudeAzul)),
                   Text(
                     'El docente te ha concedido excepción individual: ${registro?.motivoLiberacion ?? "Uso libre"}',
-                    style: const TextStyle(fontSize: 11, color: Colors.black87),
+                    style: TextStyle(fontSize: 11, color: AppColors.textoPrincipal(context)),
                   ),
                 ],
               ),
@@ -350,11 +353,18 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: esExamen ? Colors.red.shade50 : Colors.green.shade50,
+        color: esExamen
+            ? (AppColors.esOscuro(context) ? const Color(0xFF261414) : Colors.red.shade50)
+            : (AppColors.esOscuro(context) ? const Color(0xFF14241B) : Colors.green.shade50),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: esExamen ? Colors.red.shade400 : Colors.green.shade600,
+          color: esExamen ? Colors.red.withValues(alpha: 0.4) : Colors.green.withValues(alpha: 0.4),
           width: 1.5,
+        ),
+        boxShadow: AppColors.glowDetras(
+          context,
+          color: esExamen ? Colors.red : Colors.green,
+          intensidad: 0.18,
         ),
       ),
       child: Column(
@@ -367,7 +377,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                 children: [
                   Icon(
                     esExamen ? Icons.assignment_late : Icons.verified_user,
-                    color: esExamen ? Colors.red.shade800 : Colors.green.shade800,
+                    color: esExamen ? Colors.red.shade400 : Colors.green.shade400,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -376,7 +386,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: esExamen ? Colors.red.shade900 : Colors.green.shade900,
+                      color: esExamen ? Colors.red.shade400 : Colors.green.shade400,
                     ),
                   ),
                 ],
@@ -384,7 +394,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: esExamen ? Colors.red.shade100 : Colors.green.shade100,
+                  color: esExamen ? Colors.red.withValues(alpha: 0.2) : Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -392,7 +402,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: esExamen ? Colors.red.shade800 : Colors.green.shade800,
+                    color: esExamen ? Colors.red.shade400 : Colors.green.shade400,
                   ),
                 ),
               ),
@@ -403,7 +413,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
             esExamen
                 ? 'Supervisión activa: Mantén la atención en tu prueba. Las salidas de la aplicación se registrarán en la bitácora.'
                 : 'Redes sociales y juegos bloqueados durante la clase. Utilidades educativas autorizadas:',
-            style: const TextStyle(fontSize: 11, color: Colors.black87),
+            style: TextStyle(fontSize: 11, color: AppColors.textoPrincipal(context)),
           ),
 
           // Excepciones temporales si las hay
@@ -413,8 +423,9 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   margin: const EdgeInsets.only(bottom: 4),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade100,
+                    color: AppColors.superficieSuave(context),
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     children: [
@@ -422,7 +433,7 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                       const SizedBox(width: 6),
                       Text(
                         'Excepción activa: ${ex.appNombre} (Quedan ${ex.segundosRestantes ~/ 60}m ${ex.segundosRestantes % 60}s)',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber.shade400),
                       ),
                     ],
                   ),
@@ -438,9 +449,10 @@ class _WidgetSupervisionAulaState extends State<WidgetSupervisionAula>
                 return Chip(
                   padding: EdgeInsets.zero,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  avatar: const Icon(Icons.check, size: 12, color: Colors.green),
-                  label: Text(a.nombre, style: const TextStyle(fontSize: 10)),
-                  backgroundColor: Colors.white,
+                  avatar: Icon(Icons.check, size: 12, color: Colors.green.shade400),
+                  label: Text(a.nombre, style: TextStyle(fontSize: 10, color: AppColors.textoPrincipal(context))),
+                  backgroundColor: AppColors.superficieSuave(context),
+                  side: BorderSide(color: AppColors.borde(context)),
                 );
               }).toList(),
             ),

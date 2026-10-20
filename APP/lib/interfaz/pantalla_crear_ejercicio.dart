@@ -8,6 +8,7 @@ import '../dominio/modelos/numerico.dart';
 import '../dominio/modelos/posicion_curricular.dart';
 import '../dominio/modelos/seleccion_multiple.dart';
 import '../dominio/modelos/tipo_ejercicio.dart';
+import 'design/app_colors.dart';
 
 /// Formulario para crear un nuevo ejercicio con los 3 parámetros de tema,
 /// etiquetas (tags) conceptuales y guardarlo en el catálogo de la aplicación.
@@ -296,12 +297,24 @@ class _PantallaCrearEjercicioState extends State<PantallaCrearEjercicio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.fondo(context),
       appBar: AppBar(
-        title: const Text('Crear Nuevo Ejercicio'),
+        title: Text('Crear Nuevo Ejercicio', style: TextStyle(color: AppColors.textoPrincipal(context), fontWeight: FontWeight.bold)),
+        backgroundColor: AppColors.superficie(context),
+        foregroundColor: AppColors.textoPrincipal(context),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: AppColors.borde(context),
+            height: 1,
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: _guardarEjercicio,
-            icon: const Icon(Icons.check),
+            icon: Icon(Icons.check, color: AppColors.claudeTerracota),
             tooltip: 'Guardar',
           ),
         ],
@@ -314,18 +327,21 @@ class _PantallaCrearEjercicioState extends State<PantallaCrearEjercicio> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 1. Los 3 Parámetros Numéricos de Tema (tema, subtema, leccion)
-              Card(
-                elevation: 1,
-                color: Colors.blue.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Organización Curricular (3 Parámetros):',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.superficie(context),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borde(context)),
+                  boxShadow: AppColors.glowDetras(context, intensidad: 0.14),
+                ),
+                padding: const EdgeInsets.all(14.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Organización Curricular (3 Parámetros):',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context)),
+                    ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -372,7 +388,6 @@ class _PantallaCrearEjercicioState extends State<PantallaCrearEjercicio> {
                     ],
                   ),
                 ),
-              ),
               const SizedBox(height: 12),
 
               // 2. Tags Conceptuales

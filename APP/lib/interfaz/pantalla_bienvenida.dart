@@ -5,10 +5,11 @@ import 'bienvenida/modelo_saludo_bienvenida.dart';
 import 'bienvenida/tema_cuaderno.dart';
 import 'bienvenida/widgets/bloque_autenticacion.dart';
 import 'bienvenida/widgets/detalles_decorativos_cuaderno.dart';
-import 'bienvenida/widgets/fondo_cuaderno.dart';
 import 'bienvenida/widgets/texto_bienvenida_rotativo.dart';
+import 'design/app_colors.dart';
+import 'widgets/mac_glass_widgets.dart';
 
-/// Pantalla de bienvenida con estética Claude / editorial cálida.
+/// Pantalla de bienvenida con estética macOS glassmorphism adaptativa (modo claro y oscuro).
 class PantallaBienvenida extends StatelessWidget {
   const PantallaBienvenida({
     super.key,
@@ -24,15 +25,14 @@ class PantallaBienvenida extends StatelessWidget {
     final tema = TemaCuaderno.of(context);
 
     return Scaffold(
-      backgroundColor: tema.background,
-      body: FondoCuaderno(
-        tema: tema,
+      backgroundColor: AppColors.fondo(context),
+      body: MacDesktopBackground(
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isDesktop = constraints.maxWidth >= 768;
 
-              final double leftPadding = isDesktop ? 88.0 : 54.0;
+              final double leftPadding = isDesktop ? 88.0 : 32.0;
               final double rightPadding = isDesktop ? 54.0 : 24.0;
               final double verticalPadding = isDesktop ? 48.0 : 24.0;
 
@@ -44,8 +44,8 @@ class PantallaBienvenida extends StatelessWidget {
                   verticalPadding,
                 ),
                 child: isDesktop
-                    ? _buildDistribucionDesktop(tema)
-                    : _buildDistribucionMobile(tema),
+                    ? _buildDistribucionDesktop(context, tema)
+                    : _buildDistribucionMobile(context, tema),
               );
             },
           ),
@@ -55,7 +55,7 @@ class PantallaBienvenida extends StatelessWidget {
   }
 
   /// Distribución Desktop (2 columnas con balance editorial y abundante espacio negativo)
-  Widget _buildDistribucionDesktop(TemaCuaderno tema) {
+  Widget _buildDistribucionDesktop(BuildContext context, TemaCuaderno tema) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -76,13 +76,17 @@ class PantallaBienvenida extends StatelessWidget {
 
         const SizedBox(width: 48),
 
-        // Columna derecha: Bloque de autenticación
+        // Columna derecha: Bloque de autenticación con glow glass posterior
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: BloqueAutenticacion(
-            tema: tema,
-            servicioAuth: servicioAuth,
-            anchoMaximo: 320,
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: MacGlassContainer(
+            borderRadius: 22,
+            padding: const EdgeInsets.all(26),
+            child: BloqueAutenticacion(
+              tema: tema,
+              servicioAuth: servicioAuth,
+              anchoMaximo: 340,
+            ),
           ),
         ),
       ],
@@ -90,7 +94,7 @@ class PantallaBienvenida extends StatelessWidget {
   }
 
   /// Distribución Mobile (Columna única con scroll seguro)
-  Widget _buildDistribucionMobile(TemaCuaderno tema) {
+  Widget _buildDistribucionMobile(BuildContext context, TemaCuaderno tema) {
     return LayoutBuilder(
       builder: (context, viewportConstraints) {
         return SingleChildScrollView(
@@ -108,10 +112,15 @@ class PantallaBienvenida extends StatelessWidget {
                   DetallesDecorativosCuaderno(tema: tema),
                   const Spacer(),
                   const SizedBox(height: 32),
-                  BloqueAutenticacion(
-                    tema: tema,
-                    servicioAuth: servicioAuth,
-                    anchoMaximo: double.infinity,
+                  // Panel de acceso con glow glass posterior
+                  MacGlassContainer(
+                    borderRadius: 22,
+                    padding: const EdgeInsets.all(22),
+                    child: BloqueAutenticacion(
+                      tema: tema,
+                      servicioAuth: servicioAuth,
+                      anchoMaximo: double.infinity,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -123,3 +132,5 @@ class PantallaBienvenida extends StatelessWidget {
     );
   }
 }
+
+

@@ -7,13 +7,14 @@
 //   • MacWeatherWidget: Widget de clima de macOS (Cochabamba 27° soleado)
 //   • MacBatteryWidget: Widget de batería y estado de dispositivos (74%)
 //   • MacWidgetsSidebar: Barra lateral de widgets de macOS
-//   • MacWindowFrame: Contenedor de ventana estilo macOS con blur acrílico
-//   • MacDesktopBackground: Fondo texturizado de escritorio macOS
+//   • MacWindowFrame: Contenedor de ventana estilo macOS con blur acrílico y glow posterior
+//   • MacDesktopBackground: Fondo texturizado de escritorio macOS adaptativo (noche/día)
 // ============================================================
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../design/app_colors.dart';
 
 /// Botones de control de ventana de macOS (Traffic Lights: Cerrar, Minimizar, Maximizar)
 class MacTrafficLights extends StatefulWidget {
@@ -129,7 +130,7 @@ class _TrafficDot extends StatelessWidget {
   }
 }
 
-/// Contenedor base de Glassmorphism estilo macOS (frosted glass con blur y rim-light)
+/// Contenedor base de Glassmorphism estilo macOS con resplandor posterior (glow detrás del widget)
 class MacGlassContainer extends StatelessWidget {
   const MacGlassContainer({
     super.key,
@@ -141,6 +142,7 @@ class MacGlassContainer extends StatelessWidget {
     this.blurSigma = 24.0,
     this.backgroundColor,
     this.borderColor,
+    this.customGlowColor,
   });
 
   final Widget child;
@@ -151,28 +153,32 @@ class MacGlassContainer extends StatelessWidget {
   final double blurSigma;
   final Color? backgroundColor;
   final Color? borderColor;
+  final Color? customGlowColor;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(borderRadius);
+
+    final defaultBg = isDark
+        ? const Color(0xFF1E1D1B).withValues(alpha: 0.82)
+        : const Color(0xFFFFFDF8).withValues(alpha: 0.90);
+
+    final defaultBorder = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : const Color(0x1F1E1D1B);
 
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
         borderRadius: radius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 30,
-            offset: const Offset(0, 12),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.20),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppColors.glowDetras(
+          context,
+          color: customGlowColor,
+          blur: 38.0,
+          spread: 2.0,
+        ),
       ),
       child: ClipRRect(
         borderRadius: radius,
@@ -182,20 +188,23 @@ class MacGlassContainer extends StatelessWidget {
             padding: padding,
             decoration: BoxDecoration(
               borderRadius: radius,
-              color: backgroundColor ??
-                  const Color(0xFF232220).withValues(alpha: 0.65),
+              color: backgroundColor ?? defaultBg,
               border: Border.all(
-                color: borderColor ??
-                    Colors.white.withValues(alpha: 0.14),
+                color: borderColor ?? defaultBorder,
                 width: 1.0,
               ),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.09),
-                  Colors.white.withValues(alpha: 0.02),
-                ],
+                colors: isDark
+                    ? [
+                        Colors.white.withValues(alpha: 0.09),
+                        Colors.white.withValues(alpha: 0.02),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: 0.85),
+                        const Color(0xFFF9F6EE).withValues(alpha: 0.65),
+                      ],
               ),
             ),
             child: child,
@@ -206,7 +215,7 @@ class MacGlassContainer extends StatelessWidget {
   }
 }
 
-/// Widget de Calendario de macOS (idéntico al de la imagen del usuario: OCTUBRE 7)
+/// Widget de Calendario de macOS adaptativo
 class MacCalendarWidget extends StatelessWidget {
   const MacCalendarWidget({
     super.key,
@@ -217,10 +226,10 @@ class MacCalendarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final ahora = DateTime.now();
     final diaActual = ahora.day;
 
-    // Días de la semana abreviados
     final diasSemana = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
     return MacGlassContainer(
@@ -231,7 +240,6 @@ class MacCalendarWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Encabezado del mes
           Text(
             'OCTUBRE',
             style: GoogleFonts.plusJakartaSans(
@@ -242,8 +250,6 @@ class MacCalendarWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-
-          // Fila de iniciales de días
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: diasSemana.map((d) {
@@ -253,7 +259,9 @@ class MacCalendarWidget extends StatelessWidget {
                   d,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.45)
+                        : Colors.black.withValues(alpha: 0.45),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -262,16 +270,13 @@ class MacCalendarWidget extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 6),
-
-          // Mini grilla del calendario (Semana representativa como en la foto)
-          _buildCalendarioFilas(diaActual),
+          _buildCalendarioFilas(diaActual, isDark),
         ],
       ),
     );
   }
 
-  Widget _buildCalendarioFilas(int diaActual) {
-    // Filas simplificadas y elegantes representativas del mes
+  Widget _buildCalendarioFilas(int diaActual, bool isDark) {
     final semanas = [
       [null, null, null, 1, 2, 3, 4],
       [5, 6, 7, 8, 9, 10, 11],
@@ -295,7 +300,9 @@ class MacCalendarWidget extends StatelessWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: esHoy ? Colors.white : Colors.transparent,
+                  color: esHoy
+                      ? (isDark ? Colors.white : const Color(0xFF1E1D1B))
+                      : Colors.transparent,
                 ),
                 child: Center(
                   child: Text(
@@ -304,8 +311,10 @@ class MacCalendarWidget extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: esHoy ? FontWeight.w700 : FontWeight.w500,
                       color: esHoy
-                          ? const Color(0xFF191817)
-                          : Colors.white.withValues(alpha: 0.85),
+                          ? (isDark ? const Color(0xFF191817) : Colors.white)
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : const Color(0xFF1E1D1B).withValues(alpha: 0.85)),
                     ),
                   ),
                 ),
@@ -318,7 +327,7 @@ class MacCalendarWidget extends StatelessWidget {
   }
 }
 
-/// Widget de Clima de macOS (Cochabamba 27° Mayormente soleado, como en la foto)
+/// Widget de Clima de macOS adaptativo
 class MacWeatherWidget extends StatelessWidget {
   const MacWeatherWidget({
     super.key,
@@ -339,6 +348,8 @@ class MacWeatherWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return MacGlassContainer(
       width: ancho,
       padding: const EdgeInsets.all(14),
@@ -347,7 +358,6 @@ class MacWeatherWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Ciudad con icono de ubicación
           Row(
             children: [
               Flexible(
@@ -355,7 +365,9 @@ class MacWeatherWidget extends StatelessWidget {
                   ciudad,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white.withValues(alpha: 0.90),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.90)
+                        : const Color(0xFF1E1D1B).withValues(alpha: 0.90),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -365,25 +377,23 @@ class MacWeatherWidget extends StatelessWidget {
               Icon(
                 Icons.north_east_rounded,
                 size: 11,
-                color: Colors.white.withValues(alpha: 0.55),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.55)
+                    : Colors.black.withValues(alpha: 0.55),
               ),
             ],
           ),
           const SizedBox(height: 6),
-
-          // Temperatura grande
           Text(
             temperatura,
             style: GoogleFonts.plusJakartaSans(
-              color: Colors.white,
+              color: isDark ? Colors.white : const Color(0xFF1E1D1B),
               fontSize: 34,
               fontWeight: FontWeight.w300,
               height: 1.0,
             ),
           ),
           const SizedBox(height: 8),
-
-          // Icono + Condición
           Row(
             children: [
               const Icon(
@@ -397,7 +407,9 @@ class MacWeatherWidget extends StatelessWidget {
                   condicion,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.plusJakartaSans(
-                    color: Colors.white.withValues(alpha: 0.78),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.78)
+                        : const Color(0xFF1E1D1B).withValues(alpha: 0.78),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
@@ -406,12 +418,12 @@ class MacWeatherWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 3),
-
-          // Máxima y Mínima
           Text(
             'Máx. $maxima  Mín. $minima',
             style: GoogleFonts.plusJakartaSans(
-              color: Colors.white.withValues(alpha: 0.48),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.48)
+                  : Colors.black.withValues(alpha: 0.48),
               fontSize: 9.5,
               fontWeight: FontWeight.w500,
             ),
@@ -422,7 +434,7 @@ class MacWeatherWidget extends StatelessWidget {
   }
 }
 
-/// Widget de Batería y Dispositivos de macOS (74% con indicador circular como en la foto)
+/// Widget de Batería y Dispositivos de macOS adaptativo
 class MacBatteryWidget extends StatelessWidget {
   const MacBatteryWidget({
     super.key,
@@ -435,6 +447,8 @@ class MacBatteryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return MacGlassContainer(
       width: ancho,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -446,12 +460,10 @@ class MacBatteryWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Dial circular de la laptop
-              _buildDialPrincipal(),
-              // Tres indicadores de periféricos/accesorios
-              _buildDialAccesorio(Icons.watch_rounded),
-              _buildDialAccesorio(Icons.headphones_rounded),
-              _buildDialAccesorio(Icons.phone_iphone_rounded),
+              _buildDialPrincipal(isDark),
+              _buildDialAccesorio(Icons.watch_rounded, isDark),
+              _buildDialAccesorio(Icons.headphones_rounded, isDark),
+              _buildDialAccesorio(Icons.phone_iphone_rounded, isDark),
             ],
           ),
           const SizedBox(height: 8),
@@ -460,7 +472,9 @@ class MacBatteryWidget extends StatelessWidget {
             child: Text(
               '$porcentaje%',
               style: GoogleFonts.plusJakartaSans(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.95)
+                    : const Color(0xFF1E1D1B).withValues(alpha: 0.95),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -471,7 +485,7 @@ class MacBatteryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDialPrincipal() {
+  Widget _buildDialPrincipal(bool isDark) {
     return SizedBox(
       width: 38,
       height: 38,
@@ -481,27 +495,31 @@ class MacBatteryWidget extends StatelessWidget {
           CircularProgressIndicator(
             value: porcentaje / 100.0,
             strokeWidth: 3.5,
-            backgroundColor: Colors.white.withValues(alpha: 0.12),
+            backgroundColor: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
             valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF34C759)),
           ),
           Icon(
             Icons.laptop_mac_rounded,
             size: 16,
-            color: Colors.white.withValues(alpha: 0.9),
+            color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF1E1D1B),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDialAccesorio(IconData icono) {
+  Widget _buildDialAccesorio(IconData icono, bool isDark) {
     return Container(
       width: 32,
       height: 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.14),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.14)
+              : Colors.black.withValues(alpha: 0.10),
           width: 2.2,
         ),
       ),
@@ -509,14 +527,16 @@ class MacBatteryWidget extends StatelessWidget {
         child: Icon(
           icono,
           size: 14,
-          color: Colors.white.withValues(alpha: 0.35),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.35)
+              : Colors.black.withValues(alpha: 0.35),
         ),
       ),
     );
   }
 }
 
-/// Columna lateral que agrupa los 3 widgets de macOS (Calendario, Clima, Batería)
+/// Columna lateral que agrupa los 3 widgets de macOS
 class MacWidgetsSidebar extends StatelessWidget {
   const MacWidgetsSidebar({super.key});
 
@@ -536,7 +556,7 @@ class MacWidgetsSidebar extends StatelessWidget {
   }
 }
 
-/// Contenedor de Ventana estilo macOS con barra de título, traffic lights y blur acrílico
+/// Contenedor de Ventana estilo macOS con resplandor posterior (glow detrás) y soporte día/noche
 class MacWindowFrame extends StatelessWidget {
   const MacWindowFrame({
     super.key,
@@ -557,6 +577,7 @@ class MacWindowFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     const radius = BorderRadius.all(Radius.circular(22));
 
     return ConstrainedBox(
@@ -564,18 +585,11 @@ class MacWindowFrame extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: radius,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.55),
-              blurRadius: 45,
-              offset: const Offset(0, 18),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.30),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: AppColors.glowDetras(
+            context,
+            blur: 46.0,
+            spread: 3.0,
+          ),
         ),
         child: ClipRRect(
           borderRadius: radius,
@@ -584,9 +598,13 @@ class MacWindowFrame extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: radius,
-                color: const Color(0xFF1E1D1B).withValues(alpha: 0.82),
+                color: isDark
+                    ? const Color(0xFF1E1D1B).withValues(alpha: 0.82)
+                    : const Color(0xFFFFFDF8).withValues(alpha: 0.92),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.16),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.16)
+                      : const Color(0x1F1E1D1B),
                   width: 1.0,
                 ),
               ),
@@ -594,14 +612,15 @@ class MacWindowFrame extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Barra de título macOS
                   Container(
                     height: 42,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.08),
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.06),
                           width: 0.8,
                         ),
                       ),
@@ -609,7 +628,6 @@ class MacWindowFrame extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Botones Traffic Lights alineados a la izquierda
                         Align(
                           alignment: Alignment.centerLeft,
                           child: MacTrafficLights(
@@ -618,12 +636,13 @@ class MacWindowFrame extends StatelessWidget {
                             onMaximize: onMaximize,
                           ),
                         ),
-                        // Título centrado (opcional)
                         if (title != null)
                           Text(
                             title!,
                             style: GoogleFonts.plusJakartaSans(
-                              color: Colors.white.withValues(alpha: 0.65),
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.65)
+                                  : const Color(0xFF1E1D1B).withValues(alpha: 0.65),
                               fontSize: 12.5,
                               fontWeight: FontWeight.w500,
                             ),
@@ -631,8 +650,6 @@ class MacWindowFrame extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Contenido principal de la ventana
                   Padding(
                     padding: const EdgeInsets.fromLTRB(28, 24, 28, 28),
                     child: child,
@@ -647,7 +664,7 @@ class MacWindowFrame extends StatelessWidget {
   }
 }
 
-/// Fondo texturizado de escritorio de macOS (malla de carbono/tejido + orbs sutiles)
+/// Fondo de escritorio de macOS adaptativo con textura y gradiente radial cálido
 class MacDesktopBackground extends StatelessWidget {
   const MacDesktopBackground({
     super.key,
@@ -658,40 +675,42 @@ class MacDesktopBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final baseColor = isDark ? const Color(0xFF121110) : const Color(0xFFF9F7F1);
+    final haloColors = isDark
+        ? const [
+            Color(0x28D97757), // Halo terracota Claude en noche
+            Color(0x153A2518),
+            Color(0x00121110),
+          ]
+        : const [
+            Color(0x1FD97757), // Halo terracota suave en blanco y crema
+            Color(0x0FF5EBE1),
+            Color(0x00F9F7F1),
+          ];
+
     return Stack(
       children: [
-        // Fondo base oscuro grafito
         Positioned.fill(
-          child: Container(
-            color: const Color(0xFF121110),
-          ),
+          child: Container(color: baseColor),
         ),
-
-        // Gradiente radial cálido sutil detrás de la ventana
         Positioned.fill(
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: RadialGradient(
-                center: Alignment(0.0, -0.1),
+                center: const Alignment(0.0, -0.1),
                 radius: 0.9,
-                colors: [
-                  Color(0x28D97757), // Halo terracota Claude
-                  Color(0x153A2518),
-                  Color(0x00121110),
-                ],
+                colors: haloColors,
               ),
             ),
           ),
         ),
-
-        // Trama de textura sutil de fondo (micro tejido)
         Positioned.fill(
           child: CustomPaint(
-            painter: _TexturaEscritorioPainter(),
+            painter: _TexturaEscritorioPainter(isDark: isDark),
           ),
         ),
-
-        // Contenido encima
         child,
       ],
     );
@@ -699,14 +718,18 @@ class MacDesktopBackground extends StatelessWidget {
 }
 
 class _TexturaEscritorioPainter extends CustomPainter {
+  const _TexturaEscritorioPainter({this.isDark = true});
+  final bool isDark;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.018)
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.018)
+          : Colors.black.withValues(alpha: 0.022)
       ..strokeWidth = 1.0;
 
     const paso = 16.0;
-    // Patrón diagonal sutil de textura tipo tejido de Mac
     for (double x = -size.height; x < size.width; x += paso) {
       canvas.drawLine(
         Offset(x, 0),
@@ -717,5 +740,6 @@ class _TexturaEscritorioPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _TexturaEscritorioPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }

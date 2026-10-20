@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/app_colors.dart';
 import '../../datos/fuente_datos_curriculo.dart';
 import '../../datos/repositorio_curriculo.dart';
 import '../../datos/repositorio_evaluaciones.dart';
@@ -481,25 +482,30 @@ class _PantallaEvaluacionesDocenteState extends State<PantallaEvaluacionesDocent
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Evaluaciones & Calificaciones', style: TextStyle(fontSize: 16)),
-            Text('${widget.clase.nombre} (${widget.clase.gradoGrupo})', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            Text('Evaluaciones & Calificaciones',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+            Text('${widget.clase.nombre} (${widget.clase.gradoGrupo})',
+                style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context))),
           ],
         ),
-        backgroundColor: Colors.indigo.shade800,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.esOscuro(context)
+            ? const Color(0xFF161514).withValues(alpha: 0.88)
+            : AppColors.cremaFondo.withValues(alpha: 0.92),
+        foregroundColor: AppColors.textoPrincipal(context),
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_tree_outlined, color: Colors.amberAccent),
+            icon: const Icon(Icons.account_tree_outlined, color: AppColors.claudeTerracota),
             tooltip: 'Mapa Curricular & Cobertura',
             onPressed: _abrirMapaCurricular,
           ),
           IconButton(
-            icon: const Icon(Icons.insights, color: Colors.cyanAccent),
+            icon: const Icon(Icons.insights, color: Color(0xFF38BDF8)),
             tooltip: 'Ver Dashboard de Brechas (Triage)',
             onPressed: _abrirDashboardBrechas,
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: AppColors.textoPrincipal(context)),
             onPressed: _cargarEvaluacionesYNotas,
           ),
         ],
@@ -508,8 +514,12 @@ class _PantallaEvaluacionesDocenteState extends State<PantallaEvaluacionesDocent
         onPressed: _abrirCrearEvaluacion,
         icon: const Icon(Icons.add),
         label: const Text('Nueva Evaluación'),
-        backgroundColor: Colors.indigo.shade800,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.esOscuro(context)
+            ? AppColors.claudeBotonPrimario
+            : AppColors.cremaBotonPrimario,
+        foregroundColor: AppColors.esOscuro(context)
+            ? AppColors.claudeBotonPrimarioTexto
+            : AppColors.cremaBotonPrimarioTexto,
       ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
@@ -520,26 +530,31 @@ class _PantallaEvaluacionesDocenteState extends State<PantallaEvaluacionesDocent
                   children: [
                     // Tarjeta de acceso al Mapa Curricular
                     Card(
-                      elevation: 2,
-                      color: Colors.amber.shade50,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 1,
+                      color: AppColors.superficieSuave(context),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(color: AppColors.borde(context)),
+                      ),
                       child: ListTile(
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.amber.shade100,
+                            color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.account_tree_outlined, color: Colors.amber, size: 24),
+                          child: const Icon(Icons.account_tree_outlined, color: Color(0xFFFBBF24), size: 24),
                         ),
-                        title: const Text('Mapa Curricular & Cobertura', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: const Text('Audita objetivos cubiertos vs. brechas de enseñanza y aprendizaje.'),
+                        title: Text('Mapa Curricular & Cobertura',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+                        subtitle: Text('Audita objetivos cubiertos vs. brechas de enseñanza y aprendizaje.',
+                            style: TextStyle(color: AppColors.textoSecundario(context), fontSize: 12)),
                         trailing: ElevatedButton.icon(
                           onPressed: _abrirMapaCurricular,
                           icon: const Icon(Icons.arrow_forward, size: 16),
                           label: const Text('Ver Mapa'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber.shade900,
+                            backgroundColor: AppColors.claudeTerracota,
                             foregroundColor: Colors.white,
                             visualDensity: VisualDensity.compact,
                           ),
@@ -550,26 +565,31 @@ class _PantallaEvaluacionesDocenteState extends State<PantallaEvaluacionesDocent
 
                     // Tarjeta de acceso al dashboard de brechas
                     Card(
-                      elevation: 2,
-                      color: Colors.indigo.shade50,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 1,
+                      color: AppColors.superficieSuave(context),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(color: AppColors.borde(context)),
+                      ),
                       child: ListTile(
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.indigo.shade100,
+                            color: AppColors.claudeTerracota.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.insights, color: Colors.indigo, size: 24),
+                          child: const Icon(Icons.insights, color: AppColors.claudeTerracota, size: 24),
                         ),
-                        title: const Text('Dashboard de Brechas & Triage', style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: const Text('Detecta el peor tema colectivo, alumnos en riesgo y planes del Asistente Pedagógico.'),
+                        title: Text('Dashboard de Brechas & Triage',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+                        subtitle: Text('Detecta el peor tema colectivo, alumnos en riesgo y planes del Asistente Pedagógico.',
+                            style: TextStyle(color: AppColors.textoSecundario(context), fontSize: 12)),
                         trailing: ElevatedButton.icon(
                           onPressed: _abrirDashboardBrechas,
                           icon: const Icon(Icons.arrow_forward, size: 16),
                           label: const Text('Abrir Triage'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
+                            backgroundColor: AppColors.claudeTerracota,
                             foregroundColor: Colors.white,
                             visualDensity: VisualDensity.compact,
                           ),

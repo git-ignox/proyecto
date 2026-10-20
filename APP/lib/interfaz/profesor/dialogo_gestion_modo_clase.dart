@@ -9,6 +9,7 @@ import '../../dominio/modelos/permiso_institucional.dart';
 import '../../dominio/modelos/sesion_modo_clase.dart';
 import '../../dominio/modelos/usuario_app.dart';
 import '../comun/widget_codigo_barras.dart';
+import '../design/app_colors.dart';
 
 /// Modal interactivo para que el Docente inicie, supervise y finalice el Modo Clase / Modo Examen.
 class DialogoGestionModoClase extends StatefulWidget {
@@ -283,11 +284,18 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.superficie(context),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: 580,
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
         padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.superficie(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borde(context)),
+          boxShadow: AppColors.glowDetras(context),
+        ),
         child: _cargando
             ? const Center(child: CircularProgressIndicator())
             : _sesionActiva != null
@@ -312,20 +320,20 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.green.shade100, shape: BoxShape.circle),
-                child: const Icon(Icons.cast_for_education, color: Colors.green, size: 28),
+                decoration: BoxDecoration(color: AppColors.superficieSuave(context), shape: BoxShape.circle),
+                child: Icon(Icons.cast_for_education, color: AppColors.claudeTerracota, size: 28),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Iniciar Modo Clase / Examen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('Supervisión contextual de aula para alumnos presentes', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text('Iniciar Modo Clase / Examen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+                    Text('Supervisión contextual de aula para alumnos presentes', style: TextStyle(fontSize: 12, color: AppColors.textoSecundario(context))),
                   ],
                 ),
               ),
-              IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+              IconButton(icon: Icon(Icons.close, color: AppColors.textoSecundario(context)), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const Divider(height: 24),
@@ -430,17 +438,18 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blueGrey.shade50,
+              color: AppColors.superficieSuave(context),
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.borde(context)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blueGrey, size: 20),
-                SizedBox(width: 10),
+                Icon(Icons.info_outline, color: AppColors.claudeTerracota, size: 20),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'REGLA DE AULA: Solo los alumnos presentes en el colegio recibirán la política. Si un alumno está enfermo en su casa, su dispositivo no se bloqueará.',
-                    style: TextStyle(fontSize: 11, color: Colors.black87),
+                    style: TextStyle(fontSize: 11, color: AppColors.textoPrincipal(context)),
                   ),
                 ),
               ],
@@ -456,7 +465,7 @@ class _DialogoGestionModoClaseState extends State<DialogoGestionModoClase> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _tipoSeleccionado == TipoModoClase.examen ? Colors.red.shade800 : Colors.green.shade700,
+              backgroundColor: _tipoSeleccionado == TipoModoClase.examen ? Colors.red.shade700 : AppColors.claudeTerracota,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 48),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

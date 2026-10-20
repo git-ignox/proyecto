@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/app_colors.dart';
 import '../../datos/fuente_datos_reportes.dart';
 import '../../datos/repositorio_evaluaciones.dart';
 import '../../datos/repositorio_reportes.dart';
@@ -234,19 +235,23 @@ class _SeccionNotasAlumnoState extends State<SeccionNotasAlumno> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Calificaciones & Aprendizaje', style: TextStyle(fontSize: 16)),
-        backgroundColor: Colors.teal.shade800,
-        foregroundColor: Colors.white,
+        title: Text('Mis Calificaciones & Aprendizaje',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textoPrincipal(context))),
+        backgroundColor: AppColors.esOscuro(context)
+            ? const Color(0xFF161514).withValues(alpha: 0.88)
+            : AppColors.cremaFondo.withValues(alpha: 0.92),
+        foregroundColor: AppColors.textoPrincipal(context),
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: AppColors.textoPrincipal(context)),
             onPressed: _cargarDatos,
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.superficie(context),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: SegmentedButton<int>(
               segments: const [
